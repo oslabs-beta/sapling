@@ -102,3 +102,11 @@ dist
 
 # TernJS port file
 .tern-port
+
+
+# VSCode files
+sapling/out
+sapling/dist
+sapling/node_modules
+sapling/.vscode-test/
+*.vsix
