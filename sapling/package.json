@@ -10,14 +10,41 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:sapling.helloWorld"
+		"onCommand:sapling.helloWorld",
+		"onCommand:sapling.refresh",
+		"onView:sapling-sidebar"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
+		"viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sapling-sidebar-view",
+          "title": "sapling",
+          "icon": "media/list-tree.svg"
+        }
+      ]
+    },
+    "views": {
+      "sapling-sidebar-view": [
+        {
+          "type": "webview",
+          "id": "sapling-sidebar",
+          "name": "sapling",
+          "icon": "media/list-tree.svg",
+          "contextualTitle": "sapling"
+        }
+      ]
+		},
 		"commands": [
 			{
 				"command": "sapling.helloWorld",
 				"title": "Hello World"
+			},
+			{
+				"command": "sapling.refresh",
+				"category": "Sapling",
+				"title": "Refresh"
 			}
 		]
 	},
