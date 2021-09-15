@@ -2,9 +2,9 @@ import * as React from 'react';
 // import Navbar from './Navbar';
 // import Tree from './Tree';
 const Sidebar = () => {
-  console.log('HELLO THIS IS THE SIDEBAR!!!');
+  console.log('testing this here haha woah');
   return (
-    <div>hi</div>
+    <div>TESTING</div>
   );
 };
 
