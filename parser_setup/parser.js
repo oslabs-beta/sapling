@@ -15,7 +15,8 @@ function saplingParse(filePath, componentTree) {
             count: 1,
             thirdParty: false,
             reactRouter: false,
-            children: []
+            children: [],
+            error: ''
         };
     }
     // Parse current file using Babel parser
@@ -38,13 +39,20 @@ function saplingParse(filePath, componentTree) {
         componentTree.filePath += path.extname(fileName);
         filePath = componentTree.filePath;
     }
-    var ast = parser.parse(fs.readFileSync(filePath, 'utf-8'), {
-        sourceType: 'module',
-        tokens: true,
-        plugins: [
-            'jsx'
-        ]
-    });
+    var ast;
+    try {
+        ast = parser.parse(fs.readFileSync(filePath, 'utf-8'), {
+            sourceType: 'module',
+            tokens: true,
+            plugins: [
+                'jsx'
+            ]
+        });
+    }
+    catch (err) {
+        componentTree.error = 'Error while processing this file/node';
+        return componentTree;
+    }
     fs.writeFileSync('parser-output-destructure-and-alias.json', JSON.stringify(ast));
     // Determine if React is imported in file and JSX Children may be present
     function getImports(body) {
@@ -91,7 +99,8 @@ function saplingParse(filePath, componentTree) {
                             thirdParty: false,
                             reactRouter: false,
                             count: 1,
-                            children: []
+                            children: [],
+                            error: ''
                         };
                     }
                 }
@@ -107,6 +116,7 @@ function saplingParse(filePath, componentTree) {
     return componentTree;
 }
 ;
-var saplingoutput = saplingParse('./__tests__/test_5/index.js');
+var saplingoutput = saplingParse('./__tests__/test_6/index.js');
+console.log(saplingoutput);
 fs.writeFileSync('sapling-output.json', JSON.stringify(saplingoutput));
 module.exports = saplingParse;

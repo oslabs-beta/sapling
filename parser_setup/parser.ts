@@ -14,6 +14,7 @@ type Tree = {
   thirdParty: boolean,
   reactRouter: boolean,
   children: Tree[]
+  error: string;
 }
 
 
@@ -31,7 +32,8 @@ function saplingParse(filePath, componentTree = {} as Tree) {
       count: 1,
       thirdParty: false,
       reactRouter: false,
-      children: []
+      children: [],
+      error: ''
     }
   }
 
@@ -58,13 +60,19 @@ function saplingParse(filePath, componentTree = {} as Tree) {
     filePath = componentTree.filePath;
   }
 
-  const ast = parser.parse(fs.readFileSync(filePath, 'utf-8'), {
-    sourceType: 'module',
-    tokens: true,
-    plugins: [
-      'jsx'
-    ]
-  });
+  let ast;
+  try {
+     ast = parser.parse(fs.readFileSync(filePath, 'utf-8'), {
+      sourceType: 'module',
+      tokens: true,
+      plugins: [
+        'jsx'
+      ]
+    });
+  } catch (err) {
+    componentTree.error = 'Error while processing this file/node'
+    return componentTree;
+  }
 
   fs.writeFileSync('parser-output-destructure-and-alias.json', JSON.stringify(ast));
 
@@ -115,7 +123,8 @@ function saplingParse(filePath, componentTree = {} as Tree) {
               thirdParty: false,
               reactRouter: false,
               count: 1,
-              children: []
+              children: [],
+              error: '',
             }
           }
         }
@@ -136,7 +145,9 @@ function saplingParse(filePath, componentTree = {} as Tree) {
   return componentTree;
 };
 
-const saplingoutput = saplingParse('./__tests__/test_5/index.js');
+const saplingoutput = saplingParse('./__tests__/test_6/index.js');
+console.log(saplingoutput);
+
 fs.writeFileSync('sapling-output.json', JSON.stringify(saplingoutput));
 
 
