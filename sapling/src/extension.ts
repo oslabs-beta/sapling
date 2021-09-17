@@ -11,6 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
       sidebarProvider
     )
   );
+
 	// seting up a hotkey to refresh the extension without manual refresh
 	context.subscriptions.push(
 		vscode.commands.registerCommand('sapling.refresh', async () => {

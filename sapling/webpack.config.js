@@ -31,24 +31,12 @@ const config = {
       {
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
-        // options: {},
         use: [
           {
             loader: 'ts-loader'
           }
         ]
       },
-      // {
-      //   test: /\.css$/,
-      //   use: [
-      //     {
-      //       loader: "style-loader"
-      //     },
-      //     {
-      //       loader: "css-loader"
-      //     }
-      //   ]
-      // }
     ]
   }
 };

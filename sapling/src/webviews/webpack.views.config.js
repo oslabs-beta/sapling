@@ -15,19 +15,24 @@ module.exports = {
         },
         exclude: /node_modules/,
       },
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: "style-loader"
+          },
+          {
+            loader: "css-loader"
+          }
+        ]
+      }
     ],
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
-  // devtool: 'nosources-source-map',
-  // externals: {
-  //   vscode: 'commonjs vscode' // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
-  //   // modules added here also need to be added in the .vsceignore file
-  // },
   output: {
     filename: 'sidebar.js',
     path: path.resolve(__dirname, '../../dist'),
-    // libraryTarget: 'commonjs2'
   },
 };
