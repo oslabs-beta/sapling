@@ -30,29 +30,29 @@
 /* ————————————————————–
   Tree core styles
 */
-.tree { margin: 1em; }
+.tree_beginning { margin: 1em; }
 
-.tree input {
+.tree_beginning input {
   position: absolute;
   clip: rect(0, 0, 0, 0);
   }
 
-.tree input ~ ul { display: none; }
+.tree_beginning input ~ ul { display: none; }
 
-.tree input:checked ~ ul { display: block; }
+.tree_beginning input:checked ~ ul { display: block; }
 
 /* ————————————————————–
   Tree rows
 */
-.tree li {
+.tree_beginning li {
   line-height: 1.2;
   position: relative;
   padding: 0 0 1em 1em;
   }
 
-.tree ul li { padding: 1em 0 0 1em; }
+.tree_beginning ul li { padding: 1em 0 0 1em; }
 
-.tree > li:last-child { padding-bottom: 0; }
+.tree_beginning > li:last-child { padding-bottom: 0; }
 
 /* ————————————————————–
   Tree labels
@@ -60,7 +60,6 @@
 .tree_label {
   position: relative;
   display: inline-block;
-  background: #fff;
   }
 
 label.tree_label { cursor: pointer; }
@@ -90,7 +89,7 @@ label.tree_label:before {
 /* ————————————————————–
   Tree branches
 */
-.tree li:before {
+.tree_beginning li:before {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -127,12 +126,12 @@ label.tree_label:after { border-bottom: 0; }
   height: auto;
   }
 
-.tree li:last-child:before {
+.tree_beginning li:last-child:before {
   height: 1em;
   bottom: auto;
   }
 
-.tree > li:last-child:before { display: none; }
+.tree_beginning > li:last-child:before { display: none; }
 
 .tree_custom {
   display: block;
