@@ -29,6 +29,15 @@ function saplingParse(filePath, componentTree) {
     }
     // Need additional logic here to check for different extension types
     // if no extension is present -> .js .jsx .ts .tsx
+    var ext = path.extname(filePath);
+    if (!ext) {
+        // Try and find file extension that exists in directory:
+        var fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
+        var regEx_1 = new RegExp(componentTree.filename + ".(j|t)sx?$");
+        var fileName = fileArray.find(function (fileStr) { return fileStr.match(regEx_1); });
+        componentTree.filePath += path.extname(fileName);
+        filePath = componentTree.filePath;
+    }
     var ast = parser.parse(fs.readFileSync(filePath, 'utf-8'), {
         sourceType: 'module',
         tokens: true,
@@ -36,13 +45,21 @@ function saplingParse(filePath, componentTree) {
             'jsx'
         ]
     });
-    fs.writeFileSync('parser-output.json', JSON.stringify(ast));
+    fs.writeFileSync('parser-output-destructure-and-alias.json', JSON.stringify(ast));
     // Determine if React is imported in file and JSX Children may be present
     function getImports(body) {
         var bodyImports = body.filter(function (item) { return item.type === 'ImportDeclaration'; });
         // EDGE CASE: Object Destructuring Import need to account for this
         return bodyImports.reduce(function (accum, curr) {
-            accum[curr.specifiers[0].local.name] = curr.source.value;
+            // if object destructuring, need to grab each one
+            // e.g. import {Switch as S, Route as R} from ...
+            curr.specifiers.forEach(function (i) {
+                accum[i.local.name] = {
+                    importPath: curr.source.value,
+                    importName: (i.imported) ? i.imported.name : i.local.name
+                };
+            });
+            // accum[curr.specifiers[0].local.name] = curr.source.value;
             return accum;
         }, {});
     }
@@ -66,10 +83,10 @@ function saplingParse(filePath, componentTree) {
                     else {
                         // Add tree node to childNodes if one does not exist
                         childNodes[token.value] = {
-                            name: token.value,
-                            filename: path.basename(importsObj[token.value]),
-                            filePath: path.resolve(path.dirname(parentNode.filePath), importsObj[token.value]),
-                            importPath: importsObj[token.value],
+                            name: importsObj[token.value]['importName'],
+                            filename: path.basename(importsObj[token.value]['importPath']),
+                            filePath: path.resolve(path.dirname(parentNode.filePath), importsObj[token.value]['importPath']),
+                            importPath: importsObj[token.value]['importPath'],
                             depth: parentNode.depth + 1,
                             thirdParty: false,
                             reactRouter: false,
@@ -90,5 +107,6 @@ function saplingParse(filePath, componentTree) {
     return componentTree;
 }
 ;
-console.log('SAPLING PARSER OUTPUT: ', saplingParse('./__tests__/test_2/index.js'));
+var saplingoutput = saplingParse('./__tests__/test_5/index.js');
+fs.writeFileSync('sapling-output.json', JSON.stringify(saplingoutput));
 module.exports = saplingParse;

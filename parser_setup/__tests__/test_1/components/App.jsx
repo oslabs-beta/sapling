@@ -1,9 +1,14 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
+
+import Main from './Main.jsx'
 
 class App extends Component {
   render () {
     return (
-      <div>I am App.</div>
+      <section>
+        <div>I am App.</div>
+        <Main/>
+      </section>
     )
   }
 }

@@ -1,11 +1,14 @@
+import { prependOnceListener } from 'process';
 import React from 'react';
 import { render } from 'react-dom';
 
 // Import React Components
 import App from './components/App.jsx';
 
+// TEST 0 - Simple React App with one App Component
+
 render(
   <div>
     <App />
-    <App />
-  </div>, document.getElementById('root'));
+  </div>, document.getElementById('root')
+  );
