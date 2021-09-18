@@ -39,7 +39,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           // run the parser passing in the data.value information
           console.log('THis is sapling parse: ', saplingParse);
           console.log('This is getNonce: ', getNonce);
-          const parsed = saplingParse(data.value.replace(/\\/g, '/').slice(1));
+          const parsed = saplingParse(data.value);
           console.log('Parser result: ', parsed);
           // pass the parser result into the value of the postMessage
           webviewView.webview.postMessage({
