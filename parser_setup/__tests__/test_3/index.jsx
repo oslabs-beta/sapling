@@ -8,6 +8,8 @@ import styles from './scss/application.scss';
 // Import React Components
 import App from './components/App.jsx';
 
+// TEST 3 - Multi component application including react-router components
+
 render(
   <Router>
     <App />
