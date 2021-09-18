@@ -2,7 +2,7 @@ const parser = require('@babel/parser');
 const path = require('path');
 const fs = require('fs');
 
-// Tree Type is output of parser
+
 type Tree = {
   name: string,
   filename: string,
@@ -12,7 +12,8 @@ type Tree = {
   count: number,
   thirdParty: boolean,
   reactRouter: boolean,
-  children: Tree[]
+  children: Tree[],
+  props: {[key: string]: boolean},
   error: string;
 };
 
@@ -32,6 +33,7 @@ export function saplingParse(filePath : string, componentTree = {} as Tree) {
       thirdParty: false,
       reactRouter: false,
       children: [],
+      props: {},
       error: ''
     };
   }
@@ -73,7 +75,7 @@ export function saplingParse(filePath : string, componentTree = {} as Tree) {
     return componentTree;
   }
 
-  // fs.writeFileSync('parser-output-destructure-and-alias.json', JSON.stringify(ast));
+  fs.writeFileSync(`${componentTree.filename}-parser-output.json`, JSON.stringify(ast));
 
   // Determine if React is imported in file and JSX Children may be present
   function getImports(body) {
@@ -104,13 +106,17 @@ export function saplingParse(filePath : string, componentTree = {} as Tree) {
     const childNodes: {[key:string]: Tree} = {};
     if (importsObj.React) {
       // Look for JSX elements
-      for (let i = 0; i < astTokens.length-1; i++) {
+      for (let i = 0; i < astTokens.length - 1; i++) {
         // If we have opening JSX tag
         const token = astTokens[i + 1];
         // Check if current JSX component has been imported
         if (astTokens[i].type.label === "jsxTagStart" && token.type.label === 'jsxName' && importsObj[token.value]) {
+
+          const props = getProps(astTokens, i + 2);
+
           if (childNodes[token.value]) {
             childNodes[token.value].count += 1;
+            childNodes[token.value].props = {...childNodes[token.value].props, ...props}
           } else {
             // Add tree node to childNodes if one does not exist
             childNodes[token.value] = {
@@ -122,6 +128,7 @@ export function saplingParse(filePath : string, componentTree = {} as Tree) {
               thirdParty: false,
               reactRouter: false,
               count: 1,
+              props: props,
               children: [],
               error: '',
             }
@@ -132,6 +139,20 @@ export function saplingParse(filePath : string, componentTree = {} as Tree) {
     return Object.values(childNodes);
   }
 
+  // Helper functions to get props of React component
+  function getProps(tokens, j : number) : {[key : string]: boolean} {
+    // jsx invocations either end in /> or >
+    // identify /> by label='/' and > by 'jsxTagEnd'
+    const props = {};
+    while (tokens[j].type.label !== "jsxTagEnd") {
+      if (tokens[j].type.label === "jsxName" && tokens[j + 1].value === "=") {
+        props[tokens[j].value] = true;
+      }
+      j += 1;
+    }
+    return props;
+  }
+
   componentTree.children =  getChildren(ast.tokens, imports, componentTree);
 
   function parseChildren(childNodeArray) {
@@ -140,11 +161,5 @@ export function saplingParse(filePath : string, componentTree = {} as Tree) {
 
   parseChildren(componentTree.children)
 
-
   return componentTree;
 };
-
-// const saplingoutput = saplingParse('./__tests__/test_6/index.js');
-// console.log(saplingoutput);
-
-// fs.writeFileSync('sapling-output.json', JSON.stringify(saplingoutput));

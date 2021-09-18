@@ -1,9 +1,24 @@
+"use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+exports.__esModule = true;
+exports.saplingParse = void 0;
 var parser = require('@babel/parser');
 var path = require('path');
 var fs = require('fs');
 function saplingParse(filePath, componentTree) {
-    // Edge case - no children or not related to React Components?
     if (componentTree === void 0) { componentTree = {}; }
+    // Edge case - no children or not related to React Components?
+    // console.log('RUNNING SAPLING PARSER!!!', filePath);
     // If starting on entry point create component Tree root
     if (!Object.keys(componentTree).length) {
         componentTree = {
@@ -16,13 +31,14 @@ function saplingParse(filePath, componentTree) {
             thirdParty: false,
             reactRouter: false,
             children: [],
+            props: {},
             error: ''
         };
     }
     // Parse current file using Babel parser
     // EDGE CASE - WHAT IF filePath does not exist?
     // Check for import type - is it a node module or not?
-    if (!['/', '.'].includes(componentTree.importPath[0])) {
+    if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
         componentTree.thirdParty = true;
         if (componentTree.filename === 'react-router-dom')
             componentTree.reactRouter = true;
@@ -53,7 +69,7 @@ function saplingParse(filePath, componentTree) {
         componentTree.error = 'Error while processing this file/node';
         return componentTree;
     }
-    fs.writeFileSync('parser-output-destructure-and-alias.json', JSON.stringify(ast));
+    fs.writeFileSync(componentTree.filename + "-parser-output.json", JSON.stringify(ast));
     // Determine if React is imported in file and JSX Children may be present
     function getImports(body) {
         var bodyImports = body.filter(function (item) { return item.type === 'ImportDeclaration'; });
@@ -71,9 +87,9 @@ function saplingParse(filePath, componentTree) {
             return accum;
         }, {});
     }
-    console.log(ast.program.body);
+    // console.log(ast.program.body);
     var imports = getImports(ast.program.body);
-    console.log('IMPORTS ARE: ', imports);
+    // console.log('IMPORTS ARE: ', imports);
     // Find child components via JSX Elements if React is imported
     function getChildren(astTokens, importsObj, parentNode) {
         // Check if React is imported inside file => JSX Children
@@ -85,8 +101,10 @@ function saplingParse(filePath, componentTree) {
                 var token = astTokens[i + 1];
                 // Check if current JSX component has been imported
                 if (astTokens[i].type.label === "jsxTagStart" && token.type.label === 'jsxName' && importsObj[token.value]) {
+                    var props = getProps(astTokens, i + 2);
                     if (childNodes[token.value]) {
                         childNodes[token.value].count += 1;
+                        childNodes[token.value].props = __assign(__assign({}, childNodes[token.value].props), props);
                     }
                     else {
                         // Add tree node to childNodes if one does not exist
@@ -99,6 +117,7 @@ function saplingParse(filePath, componentTree) {
                             thirdParty: false,
                             reactRouter: false,
                             count: 1,
+                            props: props,
                             children: [],
                             error: ''
                         };
@@ -108,6 +127,19 @@ function saplingParse(filePath, componentTree) {
         }
         return Object.values(childNodes);
     }
+    // Helper functions to get props of React component
+    function getProps(tokens, j) {
+        // jsx invocations either end in /> or >
+        // identify /> by label='/' and > by 'jsxTagEnd'
+        var props = {};
+        while (tokens[j].type.label !== "jsxTagEnd") {
+            if (tokens[j].type.label === "jsxName" && tokens[j + 1].value === "=") {
+                props[tokens[j].value] = true;
+            }
+            j += 1;
+        }
+        return props;
+    }
     componentTree.children = getChildren(ast.tokens, imports, componentTree);
     function parseChildren(childNodeArray) {
         childNodeArray.forEach(function (child) { return saplingParse(child.filePath, child); });
@@ -115,8 +147,9 @@ function saplingParse(filePath, componentTree) {
     parseChildren(componentTree.children);
     return componentTree;
 }
+exports.saplingParse = saplingParse;
 ;
-var saplingoutput = saplingParse('./__tests__/test_6/index.js');
-console.log(saplingoutput);
+var saplingoutput = saplingParse('./__tests__/test_9/index.js');
+// console.log(saplingoutput);
 fs.writeFileSync('sapling-output.json', JSON.stringify(saplingoutput));
-module.exports = saplingParse;
+// global attributes: ['accessKey', 'className', 'contentEditable', 'data-*', 'dir', 'draggable', 'hidden', 'id', 'lang', 'key', 'spellCheck', 'style', 'tabIndex', 'title', 'translate']
