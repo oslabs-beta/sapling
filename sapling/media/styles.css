@@ -27,6 +27,20 @@
   transition: .2s;
 }
 
+.file_button {
+  width: 45px;
+  margin-left: 5px;
+  border-radius: 100px;
+}
+
+.prop_button {
+  background-color: transparent;
+  border-color: transparent;
+  width: 45px;
+  margin-left: 5px;
+  border-radius: 100px;
+}
+
 /* ————————————————————–
   Tree core styles
 */

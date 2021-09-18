@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import TreeNode from './TreeNode';
 
 const Tree = ({ data, first }: any) => {
+  // function to add a randomized variable to link the htmlFor in the tree node tags
   const idRandomizer = () => {
     let text = "";
     const possible =

@@ -25,27 +25,33 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     // message section that will listen for messages sent from the React components to communicate with the extension
     webviewView.webview.onDidReceiveMessage(async (data) => {
+      console.log('DID RECEIVE MESSAGE BEFORE SWITCH');
       switch (data.type) {
         // case to respond to the message from the webview
         case "onFile": {
           if (!data.value) {
             return;
           }
-          console.log('extension has received: ', data.value);
-
-          // fs.readFileSync(data.value, 'utf-8', (err: any, data: any) => {
-          //   console.log(data);
-          // });
+          // console.log('extension has received: ', data.value);
           // run the parser passing in the data.value information
-          console.log('THis is sapling parse: ', saplingParse);
-          console.log('This is getNonce: ', getNonce);
-          const parsed = saplingParse(data.value.replace(/\\/g, '/').slice(1));
-          console.log('Parser result: ', parsed);
+          const parsed = saplingParse(data.value);
+          // console.log('Parser result: ', parsed);
           // pass the parser result into the value of the postMessage
           webviewView.webview.postMessage({
             type: "parsed-data",
             value: parsed
           });
+          break;
+        }
+        // Case when clicking on tree to open file
+        case "onViewFile": {
+          console.log('HI TRYING TO OPEN FILE: ', data.value);
+          if (!data.value) {
+            return;
+          }
+          // const fileUri = vscode.Uri.file(data.value);
+          const doc = await vscode.workspace.openTextDocument(data.value);
+          const editor = await vscode.window.showTextDocument(doc, {preserveFocus: false, preview: false});
           break;
         }
       }
