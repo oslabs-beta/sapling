@@ -11,7 +11,7 @@ const Navbar = () => {
   };
   // function to post a message to the extension that will pass the path of the file the user selected
   const fileMessage = () => {
-    console.log(fileName);
+    // console.log(fileName);
     if (fileName) {
       tsvscode.postMessage({
         type: "onFile",
