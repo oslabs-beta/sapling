@@ -3,133 +3,27 @@ import { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import Tree from './Tree';
 
-const testData: any = [
-  {
-    "name": "index",
-    "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/index.js",
-    "depth": 0,
-    "children": [
-      {
-        "source": "test_0/components/App.jsx",
-        "name": "App",
-        "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/App.jsx",
-        "children": [
-          {
-            "source": "Main.jsx",
-            "name": "Main",
-            "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
-            "children": [],
-            "depth": 2
-          },
-          {
-            "source": "Main.jsx",
-            "name": "TEST 1",
-            "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
-            "children": [],
-            "depth": 2
-          }
-        ],
-        "depth": 1
-      },
-      {
-        "source": "test_0/components/App.jsx",
-        "name": "TEST 2",
-        "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/App.jsx",
-        "children": [
-          {
-            "source": "Main.jsx",
-            "name": "TEST 3",
-            "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
-            "children": [],
-            "depth": 2
-          },
-          {
-            "source": "Main.jsx",
-            "name": "TEST 4",
-            "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
-            "children": [
-              {
-                "source": "Main.jsx",
-                "name": "TEST 5",
-                "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
-                "children": [],
-                "depth": 3
-              },
-            ],
-            "depth": 2
-          }
-        ],
-        "depth": 1
-      },
-    ]
-  },
-  {
-    "name": "TEST 6",
-    "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/index.js",
-    "depth": 0,
-    "children": [
-      {
-        "source": "test_0/components/App.jsx",
-        "name": "Test 7",
-        "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/App.jsx",
-        "children": [
-          {
-            "source": "Main.jsx",
-            "name": "TEST 8",
-            "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
-            "children": [],
-            "depth": 2
-          },
-        ],
-        "depth": 1
-      },
-      {
-        "source": "test_0/components/App.jsx",
-        "name": "TEST 9",
-        "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/App.jsx",
-        "children": [
-          {
-            "source": "Main.jsx",
-            "name": "TEST 10",
-            "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
-            "children": [],
-            "depth": 2
-          },
-          {
-            "source": "Main.jsx",
-            "name": "TEST 11",
-            "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
-            "children": [
-              {
-                "source": "Main.jsx",
-                "name": "TEST 12",
-                "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
-                "children": [],
-                "depth": 3
-              },
-            ],
-            "depth": 2
-          }
-        ],
-        "depth": 1
-      },
-    ]
-  }
-];
-
 const Sidebar = () => {
-  // const [treeData, setTreeData]: any = useState();
-  // useEffect(() => {
-  //   // listener for the postMessage parsed-data
-  //   // populate the tree based on the parsed-data value
-  //   console.log('test tree at start:', testData);
-  //   setTreeData(testData);
-  // }, []);
+  // state that holds the parsed data
+  const [treeData, setTreeData]: any = useState();
+  useEffect(() => {
+    // listener for the postMessage that sends the parsed data in message.value
+    window.addEventListener('message', (event) => {
+      const message = event.data;
+      switch (message.type) {
+        case("parsed-data"): {
+          setTreeData([message.value]);
+        }
+      }
+    });
+  }, []);
   return (
     <div className="sidebar">
       <Navbar />
       <ul className="tree_beginning">
-        <Tree data={testData} first={true} />
+        {treeData ? 
+          <Tree data={treeData} first={true} />
+        : null}
       </ul>
     </div>
   );
@@ -194,3 +88,118 @@ export default Sidebar;
 //       </ul>
 //     </li>
 //   </ul>
+
+
+// const testData: any = [
+//   {
+//     "name": "index",
+//     "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/index.js",
+//     "depth": 0,
+//     "children": [
+//       {
+//         "source": "test_0/components/App.jsx",
+//         "name": "App",
+//         "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/App.jsx",
+//         "children": [
+//           {
+//             "source": "Main.jsx",
+//             "name": "Main",
+//             "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
+//             "children": [],
+//             "depth": 2
+//           },
+//           {
+//             "source": "Main.jsx",
+//             "name": "TEST 1",
+//             "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
+//             "children": [],
+//             "depth": 2
+//           }
+//         ],
+//         "depth": 1
+//       },
+//       {
+//         "source": "test_0/components/App.jsx",
+//         "name": "TEST 2",
+//         "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/App.jsx",
+//         "children": [
+//           {
+//             "source": "Main.jsx",
+//             "name": "TEST 3",
+//             "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
+//             "children": [],
+//             "depth": 2
+//           },
+//           {
+//             "source": "Main.jsx",
+//             "name": "TEST 4",
+//             "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
+//             "children": [
+//               {
+//                 "source": "Main.jsx",
+//                 "name": "TEST 5",
+//                 "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
+//                 "children": [],
+//                 "depth": 3
+//               },
+//             ],
+//             "depth": 2
+//           }
+//         ],
+//         "depth": 1
+//       },
+//     ]
+//   },
+//   {
+//     "name": "TEST 6",
+//     "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/index.js",
+//     "depth": 0,
+//     "children": [
+//       {
+//         "source": "test_0/components/App.jsx",
+//         "name": "Test 7",
+//         "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/App.jsx",
+//         "children": [
+//           {
+//             "source": "Main.jsx",
+//             "name": "TEST 8",
+//             "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
+//             "children": [],
+//             "depth": 2
+//           },
+//         ],
+//         "depth": 1
+//       },
+//       {
+//         "source": "test_0/components/App.jsx",
+//         "name": "TEST 9",
+//         "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/App.jsx",
+//         "children": [
+//           {
+//             "source": "Main.jsx",
+//             "name": "TEST 10",
+//             "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
+//             "children": [],
+//             "depth": 2
+//           },
+//           {
+//             "source": "Main.jsx",
+//             "name": "TEST 11",
+//             "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
+//             "children": [
+//               {
+//                 "source": "Main.jsx",
+//                 "name": "TEST 12",
+//                 "filename": "/home/plcoster/Coding-Ubuntu/Codesmith/parser_tests/test_0/components/Main.jsx",
+//                 "children": [],
+//                 "depth": 3
+//               },
+//             ],
+//             "depth": 2
+//           }
+//         ],
+//         "depth": 1
+//       },
+//     ]
+//   }
+// ];

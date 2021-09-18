@@ -31,14 +31,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           if (!data.value) {
             return;
           }
-          console.log('extension has received: ', data.value);
-
-          // fs.readFileSync(data.value, 'utf-8', (err: any, data: any) => {
-          //   console.log(data);
-          // });
+          // console.log('extension has received: ', data.value);
           // run the parser passing in the data.value information
-          console.log('THis is sapling parse: ', saplingParse);
-          console.log('This is getNonce: ', getNonce);
           const parsed = saplingParse(data.value);
           console.log('Parser result: ', parsed);
           // pass the parser result into the value of the postMessage

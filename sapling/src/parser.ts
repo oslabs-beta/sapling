@@ -19,7 +19,7 @@ type Tree = {
 
 export function saplingParse(filePath : string, componentTree = {} as Tree) {
   // Edge case - no children or not related to React Components?
-  console.log('RUNNING SAPLING PARSER!!!', filePath);
+  // console.log('RUNNING SAPLING PARSER!!!', filePath);
   // If starting on entry point create component Tree root
   if (!Object.keys(componentTree).length) {
     componentTree = {
@@ -94,9 +94,9 @@ export function saplingParse(filePath : string, componentTree = {} as Tree) {
     }, {});
   }
 
-  console.log(ast.program.body);
+  // console.log(ast.program.body);
   const imports = getImports(ast.program.body);
-  console.log('IMPORTS ARE: ', imports);
+  // console.log('IMPORTS ARE: ', imports);
 
   // Find child components via JSX Elements if React is imported
   function getChildren(astTokens, importsObj, parentNode) {
