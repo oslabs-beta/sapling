@@ -1,7 +1,8 @@
-import { readFileSync } from "fs";
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
 const fs = require('fs');
+import { saplingParse } from './parser';
+
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
@@ -31,16 +32,20 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             return;
           }
           console.log('extension has received: ', data.value);
-          fs.readFileSync(data.value, 'utf-8', (err: any, data: any) => {
-            console.log(data);
-          });
-          // run the parser passing in the data.value information
-          // const parsed = parser(data.value);
-          // // pass the parser result into the value of the postMessage
-          // webviewView.webview.postMessage({
-          //   type: "parsed-data",
-          //   value: parsed
+
+          // fs.readFileSync(data.value, 'utf-8', (err: any, data: any) => {
+          //   console.log(data);
           // });
+          // run the parser passing in the data.value information
+          console.log('THis is sapling parse: ', saplingParse);
+          console.log('This is getNonce: ', getNonce);
+          const parsed = saplingParse(data.value.replace(/\\/g, '/').slice(1));
+          console.log('Parser result: ', parsed);
+          // pass the parser result into the value of the postMessage
+          webviewView.webview.postMessage({
+            type: "parsed-data",
+            value: parsed
+          });
           break;
         }
       }
@@ -79,9 +84,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 					Use a content security policy to only allow loading images from https or from our extension directory,
 					and only allow scripts that have a specific nonce.
         -->
-        <meta http-equiv="Content-Security-Policy" 
-          content="default-src 'none'; 
-          style-src 'unsafe-inline' ${webview.cspSource}; 
+        <meta http-equiv="Content-Security-Policy"
+          content="default-src 'none';
+          style-src 'unsafe-inline' ${webview.cspSource};
           img-src ${webview.cspSource} https:;
           script-src 'nonce-${nonce}';">
           <link href="${styleResetUri}" rel="stylesheet">

@@ -7,7 +7,7 @@ const Navbar = () => {
   const showFile = (e: any) => {
     // e.preventDefault();
     // const reader = new FileReader();
-    // reader.onload = async (e) => { 
+    // reader.onload = async (e) => {
     //   const text = (e.target.result);
     //   console.log(text);
     // };
@@ -18,9 +18,9 @@ const Navbar = () => {
   const fileMessage = () => {
     console.log(fileName);
     if (fileName) {
-      tsvscode.postMessage({ 
-        type: "onFile", 
-        value: fileName 
+      tsvscode.postMessage({
+        type: "onFile",
+        value: fileName
       });
     }
   };
