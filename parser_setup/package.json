@@ -10,6 +10,7 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/parser": "^7.15.6",
+    "@babel/types": "^7.15.6",
     "@types/node": "^16.9.1",
     "@types/react": "^17.0.21",
     "react": "^17.0.2",

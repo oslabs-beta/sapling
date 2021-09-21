@@ -163,11 +163,10 @@ export function saplingParse(filePath : string, componentTree = {} as Tree) {
 
   parseChildren(componentTree.children)
 
-
   return componentTree;
 };
 
-const saplingoutput = saplingParse('./__tests__/test_9/index.js');
+const saplingoutput = saplingParse('./__tests__/test_0/index.js');
 // console.log(saplingoutput);
 
 fs.writeFileSync('sapling-output.json', JSON.stringify(saplingoutput));
