@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
 const fs = require('fs');
-import { saplingParse } from './parser';
+import SaplingParser from './parser';
 
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
@@ -33,7 +33,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           }
           // console.log('extension has received: ', data.value);
           // run the parser passing in the data.value information
-          const parsed = saplingParse(data.value);
+          const parserClass = new SaplingParser(data.value);
+          const parsed = parserClass.parse();
           // console.log('Parser result: ', parsed);
           // pass the parser result into the value of the postMessage
           webviewView.webview.postMessage({

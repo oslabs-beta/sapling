@@ -1,11 +1,13 @@
-const parser = require('@babel/parser');
-const path = require('path');
-const fs = require('fs');
+import * as babelParser from '@babel/parser';
+import * as path from 'path';
+import * as fs from 'fs';
 
+// npx tsc --watch parser-class.ts to watch for changes in this file
 
+// React component tree is a nested data structure, children are Trees
 type Tree = {
   name: string,
-  filename: string,
+  fileName: string,
   filePath: string,
   importPath: string,
   depth: number,
@@ -18,16 +20,27 @@ type Tree = {
 };
 
 
-export function saplingParse(filePath : string, componentTree = {} as Tree) {
-  // Edge case - no children or not related to React Components?
-  // console.log('RUNNING SAPLING PARSER!!!', filePath);
-  // If starting on entry point create component Tree root
-  if (!Object.keys(componentTree).length) {
-    componentTree = {
-      name: path.basename(filePath).replace(/\.(t|j)sx?$/, ''),
-      filename:  path.basename(filePath),
-      filePath,
-      importPath: filePath,
+class SaplingParser {
+  entryFile: string;
+  tree: Tree | undefined;
+  fileList: {[key: string] : boolean};
+
+  constructor(filePath: string) {
+    // this.entryFile = this.getFilePath(filePath);
+    this.entryFile = filePath;
+    this.tree = undefined; //this.parser(this.entryFile);
+    // Break down and reasemble given filePath safely for any OS using path?
+  }
+
+
+  // Public method to generate component tree based on current entryFile
+  public parse() : Tree {
+    // Create root Tree node
+    const root = {
+      name: path.basename(this.entryFile).replace(/\.(t|j)sx?$/, ''),
+      fileName: path.basename(this.entryFile),
+      filePath : this.entryFile,
+      importPath: this.entryFile,
       depth: 0,
       count: 1,
       thirdParty: false,
@@ -36,54 +49,95 @@ export function saplingParse(filePath : string, componentTree = {} as Tree) {
       props: {},
       error: ''
     };
+
+    console.log('This is the root: ', root);
+
+    this.tree = root;
+    this.parser(root);
+    return this.tree;
   }
 
-  // Parse current file using Babel parser
-  // EDGE CASE - WHAT IF filePath does not exist?
 
-  // Check for import type - is it a node module or not?
-  if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
-    componentTree.thirdParty = true;
-    if (componentTree.filename === 'react-router-dom') componentTree.reactRouter = true;
-    return;
-  }
+  // Recursively builds the React component tree structure starting from root node
+  private parser(componentTree: Tree) : Tree {
+    // If import is a node module, do not parse any deeper
+    if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
+      componentTree.thirdParty = true;
+      if (componentTree.fileName === 'react-router-dom') componentTree.reactRouter = true;
+      return;
+    }
 
-  // Need additional logic here to check for different extension types
-  // if no extension is present -> .js .jsx .ts .tsx
+    console.log('Made it past third party check');
 
-  const ext = path.extname(filePath);
-  if (!ext) {
-    // Try and find file extension that exists in directory:
-    const fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
-    const regEx = new RegExp(`${componentTree.filename}.(j|t)sx?$`);
-    const fileName = fileArray.find(fileStr => fileStr.match(regEx));
-    componentTree.filePath += path.extname(fileName);
-    filePath = componentTree.filePath;
-  }
+    // Check that file has valid fileName/Path, if not found, add error to node and halt
+    const fileName = this.getFileName(componentTree);
+    console.log('fileName is: ', fileName);
+    if (!fileName) {
+      componentTree.error = 'File not found.'
+      console.log('FILE NOT FOUND', componentTree);
+      return;
+    }
 
-  let ast;
-  try {
-     ast = parser.parse(fs.readFileSync(filePath, 'utf-8'), {
-      sourceType: 'module',
-      tokens: true,
-      plugins: [
-        'jsx'
-      ]
-    });
-  } catch (err) {
-    componentTree.error = 'Error while processing this file/node'
+    console.log('Made it past file name check');
+
+
+
+    console.log('File Path: ', path.resolve(componentTree.filePath));
+
+    // Create abstract syntax tree of current component tree file
+    let ast;
+    try {
+      ast = babelParser.parse(fs.readFileSync(path.resolve(componentTree.filePath), 'utf-8'), {
+        sourceType: 'module',
+        tokens: true,
+        plugins: [
+          'jsx'
+        ]
+      });
+    } catch (err) {
+      console.log('Error when trying to parse file');
+      componentTree.error = 'Error while processing this file/node'
+      return componentTree;
+    }
+
+    console.log('File Parsed: ', componentTree.filePath)
+
+    // Find imports in the current file, then find child components in the current file
+    const imports = this.getImports(ast.program.body);
+
+    // If current file imports React, get JSX Children:
+    if (imports.React) {
+      componentTree.children = this.getJSXChildren(ast.tokens, imports, componentTree);
+    }
+
+    // Recursively parse all child components
+    componentTree.children.forEach(child => this.parser(child))
+
     return componentTree;
   }
 
-  // fs.writeFileSync(`${componentTree.filename}-parser-output.json`, JSON.stringify(ast));
 
-  // Determine if React is imported in file and JSX Children may be present
-  function getImports(body) {
+  // Finds files where import string does not include a file extension
+  private getFileName(componentTree: Tree) : string | undefined {
+    const ext = path.extname(componentTree.filePath);
+    let fileName = componentTree.fileName;
+    if (!ext) {
+      // Try and find file extension that exists in directory:
+      const fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
+      const regEx = new RegExp(`${componentTree.fileName}.(j|t)sx?$`);
+      fileName = fileArray.find(fileStr => fileStr.match(regEx));
+      fileName ? componentTree.filePath += path.extname(fileName) : null;
+    }
+
+    return fileName;
+  }
+
+
+  // Extracts Imports from current file
+  private getImports(body : {[key : string]: any}[])
+    : {[key : string]: {importPath: string, importName: string}} {
     const bodyImports = body.filter(item => item.type === 'ImportDeclaration')
-    // EDGE CASE: Object Destructuring Import need to account for this
     return bodyImports.reduce((accum, curr) => {
-      // if object destructuring, need to grab each one
-      // e.g. import {Switch as S, Route as R} from ...
       curr.specifiers.forEach( i => {
         accum[i.local.name] = {
           importPath: curr.source.value,
@@ -96,70 +150,57 @@ export function saplingParse(filePath : string, componentTree = {} as Tree) {
     }, {});
   }
 
-  // console.log(ast.program.body);
-  const imports = getImports(ast.program.body);
-  // console.log('IMPORTS ARE: ', imports);
 
-  // Find child components via JSX Elements if React is imported
-  function getChildren(astTokens, importsObj, parentNode) {
-    // Check if React is imported inside file => JSX Children
-    const childNodes: {[key:string]: Tree} = {};
-    if (importsObj.React) {
-      // Look for JSX elements
-      for (let i = 0; i < astTokens.length - 1; i++) {
-        // If we have opening JSX tag
-        const token = astTokens[i + 1];
-        // Check if current JSX component has been imported
-        if (astTokens[i].type.label === "jsxTagStart" && token.type.label === 'jsxName' && importsObj[token.value]) {
+  // Finds JSX React Components in current file
+  private getJSXChildren(astTokens: [{[key: string]: any}],
+    importsObj : {[key : string]: {importPath: string, importName: string}},
+    parentNode: Tree) : Tree[] {
 
-          const props = getProps(astTokens, i + 2);
+    const childNodes: {[key : string]: Tree} = {};
 
-          if (childNodes[token.value]) {
-            childNodes[token.value].count += 1;
-            childNodes[token.value].props = {...childNodes[token.value].props, ...props}
-          } else {
-            // Add tree node to childNodes if one does not exist
-            childNodes[token.value] = {
-              name: importsObj[token.value]['importName'],
-              filename: path.basename(importsObj[token.value]['importPath']),
-              filePath: path.resolve(path.dirname(parentNode.filePath), importsObj[token.value]['importPath']),
-              importPath: importsObj[token.value]['importPath'],
-              depth: parentNode.depth + 1,
-              thirdParty: false,
-              reactRouter: false,
-              count: 1,
-              props: props,
-              children: [],
-              error: '',
-            }
+    for (let i = 0; i < astTokens.length; i++) {
+      const token = astTokens[i + 1];
+
+      if (astTokens[i].type.label === 'jsxTagStart'
+      && token.type.label === 'jsxName'
+      && importsObj[token.value]) {
+        const props = this.getJSXProps(astTokens, i + 2);
+
+        if (childNodes[token.value]) {
+          childNodes[token.value].count += 1;
+          childNodes[token.value].props = {...childNodes[token.value].props, ...props}
+        } else {
+          // Add tree node to childNodes if one does not exist
+          childNodes[token.value] = {
+            name: importsObj[token.value]['importName'],
+            fileName: path.basename(importsObj[token.value]['importPath']),
+            filePath: path.resolve(path.dirname(parentNode.filePath), importsObj[token.value]['importPath']),
+            importPath: importsObj[token.value]['importPath'],
+            depth: parentNode.depth + 1,
+            thirdParty: false,
+            reactRouter: false,
+            count: 1,
+            props: props,
+            children: [],
+            error: '',
           }
         }
       }
-    }
+     }
     return Object.values(childNodes);
   }
 
-  // Helper functions to get props of React component
-  function getProps(tokens, j : number) : {[key : string]: boolean} {
-    // jsx invocations either end in /> or >
-    // identify /> by label='/' and > by 'jsxTagEnd'
+  // Extracts prop names from a JSX element
+  private getJSXProps(astTokens: {[key: string]: any}[], j : number) : {[key : string]: boolean} {
     const props = {};
-    while (tokens[j].type.label !== "jsxTagEnd") {
-      if (tokens[j].type.label === "jsxName" && tokens[j + 1].value === "=") {
-        props[tokens[j].value] = true;
+    while (astTokens[j].type.label !== "jsxTagEnd") {
+      if (astTokens[j].type.label === "jsxName" && astTokens[j + 1].value === "=") {
+        props[astTokens[j].value] = true;
       }
       j += 1;
     }
     return props;
   }
+}
 
-  componentTree.children =  getChildren(ast.tokens, imports, componentTree);
-
-  function parseChildren(childNodeArray) {
-    childNodeArray.forEach(child => saplingParse(child.filePath, child));
-  }
-
-  parseChildren(componentTree.children)
-
-  return componentTree;
-};
+export default SaplingParser;
