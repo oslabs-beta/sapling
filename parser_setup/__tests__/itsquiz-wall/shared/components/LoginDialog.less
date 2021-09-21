@@ -1,0 +1,71 @@
+.LoginDialog {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.LoginDialog__buttons-container {
+    display: flex;
+    width: 350px;
+    margin: auto;
+    padding: 8px 0;
+    max-width: 100%;
+    justify-content: space-around;
+}
+
+.LoginDialog__button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50px;
+    background-color: grey;
+    display: flex;
+    cursor: pointer;
+
+    &.LoginDialog__button--facebook {
+        background-color: #47639E;
+    }
+
+    &.LoginDialog__button--google {
+        background-color: #DB4437;
+    }
+
+    &.LoginDialog__button--github {
+        background-color: #333333;
+
+        .LoginDialog__icon {
+            font-size: 30px;
+        }
+    }
+
+    &.LoginDialog__button--vkontakte {
+        background-color: #4E7094;
+    }
+
+    &.LoginDialog__button--linkedin {
+        background-color: #0075B2;
+    }
+}
+
+.LoginDialog__title {
+    font-size: 15px;
+    color: rgba(0,0,0,.54);
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    margin: 0 auto;
+    cursor: default;
+}
+
+.LoginDialog__title--clickable {
+    cursor: pointer;
+
+    &:hover {
+        color: rgba(0,0,0,.74);
+    }
+}
+
+.LoginDialog__icon {
+    font-size: 25px;
+    color: white;
+    margin: auto;
+}

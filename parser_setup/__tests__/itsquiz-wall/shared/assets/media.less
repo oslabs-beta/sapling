@@ -1,0 +1,13 @@
+@xs-min : 480px;
+@sm-min : 768px;
+@md-min : 992px;
+@lg-min : 1200px;
+
+@xs-max : (@sm-min - 1);
+@sm-max : (@md-min - 1);
+@md-max : (@lg-min - 1);
+
+@phone   : ~"only screen and (max-width: @{xs-max})";
+@tablet  : ~"only screen and (min-width: @{sm-min}) and (max-width: @{sm-max})";
+@desktop : ~"only screen and (min-width: @{md-min}) and (max-width: @{md-max})";
+@large   : ~"only screen and (min-width: @{lg-min})";
