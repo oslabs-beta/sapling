@@ -7,6 +7,7 @@ import SaplingParser from './parser';
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
+  parser: SaplingParser | undefined;
 
   constructor(private readonly _extensionUri: vscode.Uri) {}
 
@@ -14,11 +15,26 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   public resolveWebviewView(webviewView: vscode.WebviewView) {
     this._view = webviewView;
 
+    console.log('WebView Initialised!');
+
     webviewView.webview.options = {
       // Allow scripts in the webview
       enableScripts: true,
       localResourceRoots: [this._extensionUri],
     };
+
+    // Do something when a text file is saved in the workspace
+    vscode.workspace.onDidSaveTextDocument((document) => {
+      console.log('Text file was saved: ', document);
+      if (!this.parser) {
+        return;
+      }
+      const parsed = this.parser.parse();
+      webviewView.webview.postMessage({
+          type: "parsed-data",
+          value: parsed
+        });
+    });
 
     // reaches out to the project file connecter function below
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
@@ -33,8 +49,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           }
           // console.log('extension has received: ', data.value);
           // run the parser passing in the data.value information
-          const parserClass = new SaplingParser(data.value);
-          const parsed = parserClass.parse();
+          this.parser = new SaplingParser(data.value);
+          const parsed = this.parser.parse();
           // console.log('Parser result: ', parsed);
           // pass the parser result into the value of the postMessage
           webviewView.webview.postMessage({
@@ -53,7 +69,30 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           const editor = await vscode.window.showTextDocument(doc, {preserveFocus: false, preview: false});
           break;
         }
+        // Case when sapling becomes visible in sidebar
+        case "onSaplingVisible": {
+          if (!this.parser) {
+            return;
+          }
+
+          const parsed = this.parser.parse();
+          webviewView.webview.postMessage({
+            type: "parsed-data",
+            value: parsed
+          });
+        }
       }
+    });
+
+    // Event that triggers when Webview changes visibility :
+    webviewView.onDidChangeVisibility((e) => {
+      console.log('Visibility Changed! ', e);
+      console.log('Webview visible? ', webviewView.visible);
+    });
+
+    // Event that triggers when Webview is disposed:
+    webviewView.onDidDispose((e) => {
+      console.log('Webview Was Disposed! ', e);
     });
   }
 

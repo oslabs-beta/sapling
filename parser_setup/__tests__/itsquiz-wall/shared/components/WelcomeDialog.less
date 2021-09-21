@@ -1,0 +1,121 @@
+@import "../assets/mixins.less";
+@import "../assets/palette.less";
+@import "../assets/media.less";
+
+@button-area: 64px;
+
+.WelcomeDialog__dialog {
+    @media @phone {
+        min-height: 100vh !important;
+    }
+}
+
+.WelcomeDialog__content {
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    flex: 1;
+
+    @media @phone {
+        height: 100%;
+        justify-content: space-between;
+    }
+}
+
+.WelcomeDialog__carousel {
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+}
+
+.WelcomeDialog__close {
+    display: block;
+    position: absolute;
+    color: @grey-500;
+    top: 10px;
+    right: 10px;
+}
+
+.WelcomeDialog__slide-wrapper {
+    box-sizing: border-box;
+    min-width: 200px;
+    width: calc(~"100% - "@button-area);
+    padding: 10px;
+    display: flex;
+    min-height: 300px;
+}
+
+.WelcomeDialog__slide {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.WelcomeDialog__slide-image {
+    padding: 10px;
+    flex: 1;
+    min-width: 200px;
+
+    @media @phone {
+        flex: auto;
+        width: 200px;
+    }
+
+    img {
+        max-width: 100%;
+
+        @media @phone {
+            margin: auto;
+        }
+    }
+}
+
+.WelcomeDialog__btn {
+    color: white !important;
+}
+
+.WelcomeDialog__skip {
+    color: @additional-text-color;
+    font-size: 12px;
+
+    @media @phone {
+        display: absolute;
+        bottom: 5px;
+    }
+}
+
+.WelcomeDialog__slide-content {
+    padding: 10px;
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+
+
+    @media @phone {
+        align-items: center;
+    }
+
+    h1 {
+        font-size: 22px;
+        color: @text-color;
+
+        @media @phone {
+            text-align: center;
+            font-weight: 500;
+            font-size: 16px;
+        }
+    }
+
+    p {
+        font-size: 16px;
+        color: @additional-text-color;
+
+        @media @phone {
+            text-align: center;
+            font-size: 14px;
+        }
+    }
+}

@@ -1,0 +1,22 @@
+@import "../assets/palette.less";
+
+.AppBarWithBackground {
+    height: 300px;
+    width: 100vw;
+    background-color: @primary-1-color;
+    position: absolute;
+    top: 0;
+}
+
+.AppBarWithBackground__fixed {
+    background-color: transparent;
+
+    &.AppBar--fixed {
+        background-color: @white-darker;
+        color: @text-color;
+
+        .AppBar__title {
+            color: @text-color;
+        }
+    }
+}

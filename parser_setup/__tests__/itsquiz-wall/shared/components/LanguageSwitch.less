@@ -1,0 +1,28 @@
+@import "../assets/mixins.less";
+@import "../assets/palette.less";
+
+.LanguageSwitch__select {
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+    height: 40px;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 400;
+    color: @white-darker;
+    -webkit-appearance: none;
+    appearance: none;
+
+    &:focus{
+        outline: 0;
+    }
+
+    &::-ms-expand { display: none; }
+}
+
+.LanguageSwitch__option {
+    color: @black-darker;
+    background-color: @white-darker;
+    border: none;
+    box-shadow: none;
+}

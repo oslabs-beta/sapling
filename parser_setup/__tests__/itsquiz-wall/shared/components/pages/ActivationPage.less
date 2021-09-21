@@ -1,0 +1,750 @@
+@import "../../assets/mixins.less";
+@import "../../assets/palette.less";
+@import "../../assets/media.less";
+
+.ActivationPage {
+    margin: 0 auto;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: @background-color;
+}
+
+.ActivationPage__content {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-width: 300px;
+    max-width: 800px;
+}
+
+.ActivationPage__activation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.ActivationPage__span-divider {
+    margin: 0 10px;
+}
+
+.ActivationPage__menu {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+}
+
+.ActivationPage__menu--mobile {
+    display: none;
+
+    @media @phone {
+        display: block;
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        color: @white-darker;
+    }
+}
+
+.ActivationPage__spinner {
+    margin-top: 30px;
+}
+
+.ActivationPage__private-tag {
+    display: inline-block;
+    padding: 5px;
+    background-color: @amber-app;
+    border-radius: 5px;
+    font-size: 15px;
+    width: auto;
+    margin-left: 10px;
+    font-weight: 500;
+    color: @white-darker;
+
+    .ActivationPage__lock {
+        margin: 0 3px;
+    }
+}
+
+.ActivationPage__offer-btn {
+    font-size: 16px;
+
+    .Icon {
+        font-size: 18px;
+    }
+}
+
+.ActivationPage__paper {
+    align-self: center;
+    margin: 8px;
+    margin-top: 150px;
+    width: calc(~"100% - 32px");
+
+    @media @phone {
+        margin-top: 65px;
+    }
+
+    .ActivationPage__actions {
+        margin: 16px 0;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .ActivationPage__head {
+        padding: 0;
+        display: flex;
+        padding: 16px;
+        align-items: flex-start;
+
+        @media @phone {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .ActivationPage__picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 150px;
+            flex-shrink: 0;
+        }
+
+        .ActivationPage__info {
+            margin-left: 16px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 100%;
+            height: 150px;
+
+            @media @phone {
+                margin-left: 0;
+                height: auto;
+                margin-top: 24px;
+                align-items: center;
+            }
+
+            .ActivationPage__heading {
+                width: calc(~"100% - 40px");
+
+                .ActivationPage__name {
+                    font-size: 25px;
+                    font-weight: 300;
+
+                    @media @phone {
+                        width: 100%;
+                        text-align: center;
+                    }
+                }
+
+                @media @phone {
+                    width: 100%;
+                    text-align: center;
+                    margin-bottom: 10px;
+                }
+            }
+
+            .ActivationPage__author-name {
+                margin-top: 5px;
+                font-weight: bold;
+                font-size: 15px;
+                color: @additional-text-color;
+            }
+
+            .ActivationPage__price {
+                margin: 0 20px;
+                font-weight: bold;
+                font-size: 16px;
+                color: @green-200;
+                text-transform: uppercase;
+            }
+
+            .ActivationPage__pass-info {
+                margin-top: 5px;
+                font-size: 15px;
+                color: @secondary-text-color;
+                font-weight: 400;
+            }
+
+            .ActivationPage__pass-info--expires {
+                @media @phone {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+            }
+
+            .ActivationPage__expires {
+                @media @phone {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+            }
+
+            .ActivationPage__settings-icons {
+                margin-top: 5px;
+
+                &--off {
+                    opacity: 0.5;
+                }
+
+                &--indented {
+                    margin-right: 6px;
+                }
+
+                @media @phone {
+                    text-align: center;
+                }
+            }
+
+            .ActivationPage__actions {
+                position: absolute;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                right: 0;
+                bottom: 0;
+
+                @media @phone {
+                    position: relative;
+                    margin-bottom: 10px;
+                    margin-top: 20px;
+                    flex-direction: column;
+
+                    .ActivationPage__btn {
+                        order: 1;
+                    }
+                }
+            }
+
+            .ActivationPage__btn {
+                background-color: @green-app;
+                color: @white-darker;
+            }
+
+            .ActivationPage__number-of-tries {
+                color: @secondary-text-color;
+                font-size: 12px;
+                margin-top: 8px;
+                text-align: center;
+            }
+        }
+    }
+
+    .ActivationPage__head--passed {
+        padding: 0;
+        display: flex;
+        padding: 16px;
+        align-items: flex-start;
+
+        @media @phone {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .ActivationPage__picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 150px;
+            flex-shrink: 0;
+        }
+
+        .ActivationPage__info {
+            margin-left: 16px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 100%;
+            height: 150px;
+
+            @media @phone {
+                margin-left: 0;
+                height: auto;
+                margin-top: 24px;
+                align-items: center;
+            }
+
+            .ActivationPage__heading {
+                width: calc(~"100% - 40px");
+
+                .ActivationPage__name {
+                    font-size: 25px;
+                    font-weight: 300;
+
+                    @media @phone {
+                        width: 100%;
+                        text-align: center;
+                    }
+                }
+
+                @media @phone {
+                    width: 100%;
+                    text-align: center;
+                    margin-bottom: 10px;
+                }
+            }
+
+            .ActivationPage__author-name {
+                margin-top: 5px;
+                font-weight: bold;
+                font-size: 15px;
+                color: @additional-text-color;
+            }
+
+            .ActivationPage__price {
+                margin: 0 20px;
+                font-weight: bold;
+                font-size: 16px;
+                color: @green-200;
+                text-transform: uppercase;
+            }
+
+            .ActivationPage__pass-info {
+                margin-top: 5px;
+                font-size: 15px;
+                color: @secondary-text-color;
+                font-weight: 400;
+            }
+
+            .ActivationPage__pass-info--expires {
+                @media @phone {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+            }
+
+            .ActivationPage__expires {
+                @media @phone {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+            }
+
+            .ActivationPage__settings-icons {
+                margin-top: 5px;
+
+                &--off {
+                    opacity: 0.5;
+                }
+
+                &--indented {
+                    margin-right: 6px;
+                }
+
+                @media @phone {
+                    text-align: center;
+                }
+            }
+
+            .ActivationPage__actions {
+                position: absolute;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                right: 0;
+                bottom: 0;
+
+                @media @phone {
+                    position: relative;
+                    margin-bottom: 10px;
+                    margin-top: 20px;
+                    flex-direction: column;
+
+                    .ActivationPage__btn {
+                        order: 1;
+                    }
+                }
+            }
+
+            .ActivationPage__btn {
+                background-color: @green-app;
+                color: @white-darker;
+            }
+
+            .ActivationPage__number-of-tries {
+                color: @secondary-text-color;
+                font-size: 12px;
+                margin-top: 8px;
+                text-align: center;
+            }
+        }
+
+        @media @phone {
+            display: none;
+        }
+    }
+
+    .ActivationPage__divider {
+        width: 100%;
+        height: 1px;
+        background-color: @white-lighter;
+        margin: 0 auto;
+    }
+
+    .ActivationPage__author {
+        margin-top: 10px;
+    }
+}
+
+.ActivationPage__ad {
+    margin-bottom: 16px;
+}
+
+.ActivationPage_score--circle {
+    display: none;
+
+    .ScoreCircle {
+        margin: 0px auto;
+    }
+
+    @media @phone {
+        display: block;
+    }
+}
+
+.ActivationPage__greeting {
+    margin-top: 5px;
+    color: @white-darker;
+    text-shadow: rgba(0, 0, 0, 0.3) 2px 0px 3px;
+    margin-bottom: 10px;
+    // max-width added for transposition of long words
+    max-width: 470px;
+    word-wrap: break-word;
+
+    @media @phone {
+        margin-top: 15px;
+        max-width: 280px;
+        font-size: 20px;
+        line-height: normal;
+        font-size: 18px;
+    }
+}
+
+.ActivationsPage__greeting-description {
+    font-size: 14px;
+    color: #fff;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+.ActivationPage__activation--sponsored {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.ActivationPage__score {
+    font-size: 38px;
+    color: @white-darker;
+    text-shadow: rgba(0, 0, 0, 0.3) 2px 0px 3px;
+    margin: 16px 0;
+
+    @media @phone {
+        display: none;
+    }
+}
+
+.ActivationPage__points, .ActivationPage__survey-statistics {
+    font-size: 12px;
+    text-shadow: rgba(0, 0, 0, 0.3) 2px 0px 3px;
+    color: @white-darker;
+
+    @media @phone {
+        display: none;
+    }
+}
+
+.ActivationPage__points--mobile {
+    font-size: 12px;
+    text-shadow: rgba(0, 0, 0, 0.3) 2px 0px 3px;
+    color: @white-darker;
+    display: none;
+
+    @media @phone {
+        display: block;
+        margin-top: 10px;
+    }
+}
+
+.ActivationPage__overlay {
+    background-color: rgba(0,0,0,0.1);
+}
+
+.ActivationPage__result-share-btn {
+    background-color: @green-app;
+    color: @white-darker;
+    display: block;
+    margin: 6px auto;
+
+    &:hover {
+        background-color: @green-app;
+    }
+}
+
+.ActivationPage__result-share-btn--mobile {
+    display: none;
+
+    @media @phone {
+        display: block;
+        background-color: @green-app;
+        color: @white-darker;
+        margin: 0px auto;
+        margin-top: 19px;
+
+        &:hover {
+            background-color: @green-app;
+        }
+    }
+}
+
+.ActivationPage__result-answers-btn {
+    margin: 6px auto;
+    color: @white-darker;
+    display: block;
+}
+
+.ActivationPage__result-answers-btn--mobile {
+    margin: 6px auto;
+    color: @white-darker;
+    display: none;
+
+    @media @phone {
+        display: block;
+    }
+}
+
+.ActivationPage__fill-profile-btn {
+    margin: 6px auto;
+    color: @white-darker;
+    background-color: rgba(255, 255, 255, 0.05);
+    display: block;
+}
+
+.ActivationPage__results-text {
+    flex: 1;
+    padding: 30px;
+
+    @media @phone {
+        padding: 10px 30px;
+    }
+}
+
+.ActivationPage__results-actions {
+    flex: 0.5;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 30px;
+
+    @media @phone {
+        display: none;
+        margin-left: 0px;
+    }
+}
+
+.ActivationPage__overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    align-items: center;
+    display: flex;
+
+    @media @phone {
+        flex-direction: column;
+    }
+}
+
+.ActivationPage__tip {
+    font-size: 12px;
+    color: @white-dark;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.ActivationPage__results-container {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    background-position: center;
+    background-size: cover;
+
+    &.verybad {
+        background-image: url('/static/images/resultBackgrounds/verybad.png');
+    }
+
+    &.bad {
+        background-image: url('/static/images/resultBackgrounds/bad.png');
+    }
+
+    &.normal {
+        background-image: url('/static/images/resultBackgrounds/normal.png');
+    }
+
+    &.good {
+        background-image: url('/static/images/resultBackgrounds/good.png');
+    }
+
+    &.excellent {
+        background-image: url('/static/images/resultBackgrounds/excellent.png');
+    }
+
+    @media @phone {
+        min-height: 535px;
+        text-align: center;
+
+        &.survey {
+            min-height: 170px;
+        }
+    }
+}
+
+.ActivationPage__subheader {
+    font-weight: bold;
+    align-self: flex-start;
+    margin: 32px 18px -8px 18px;
+}
+
+.ActivationPage__author-activations-grid,
+.ActivationPage__similar-activations-grid {
+    box-sizing: border-box;
+    width: 100%;
+
+    .mdl-cell {
+        height: 100% !important;
+    }
+}
+
+.ActivationPage__author-activations,
+.ActivationPage__similar-activations {
+    width: 100%;
+}
+
+.ActivationPage__telegram-link {
+    display: block;
+    font-size: 12px;
+    margin-top: 6px;
+    text-align: center;
+    color: @secondary-text-color;
+}
+
+.ActivationPage__pass-btn-wrapper-passed {
+    margin: 0px auto;
+
+    .ActivationPage__pass-btn {
+        background-color: @white-darker;
+    }
+
+    .ActivationPage__number-of-tries {
+        color: @white-darker;
+        font-size: 12px;
+        margin-top: 6px;
+        text-align: center;
+    }
+
+    @media @phone {
+        display: none;
+    }
+}
+
+.ActivationPage__pass-btn-wrapper-passed--mobile {
+    display: none;
+
+    @media @phone {
+        background-color: @white-darker;
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        width: 200px;
+        margin: 0px auto;
+        margin-top: 10px;
+    }
+}
+
+.ActivationPage__activation--sponsored {
+
+    .ActivationPage__pass-btn {
+        margin-right: 10px;
+        background-color: @green-50 !important;
+        color: @green-700 !important;
+
+        @media @phone {
+            order: 2;
+            margin-right: 0;
+            margin-top: 10px;
+        }
+    }
+}
+
+.ActivationPage__proposed-activations {
+    background-color: rgba(0, 0, 0, 0);
+    position: fixed;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+    height: 420px;
+    z-index: 2;
+    justify-content: space-between;
+    transition: right 0.3s ease-in-out;
+    right: -150px;
+
+
+    &--hidden {
+        &:extend(.ActivationPage__proposed-activations all);
+    }
+
+    &--visible {
+        &:extend(.ActivationPage__proposed-activations all);
+        right: 0px;
+    }
+
+    @media @phone {
+        display: none;
+    }
+
+    .ActivationPage__proposed-activation {
+        .QuizTile {
+            height: 100%;
+        }
+    }
+}
+
+.ActivationPage__author-activations-spinner {
+    display: block;
+    margin: 10px auto 0;
+}
+
+.ActivationPage__load-more-btn {
+    color: #fff !important;
+    background-color: @accent-1-color !important;
+    margin: 10px auto 0;
+    display: block;
+}
+
+.ActivationPage__advertisement-wrapper {
+    padding: 10px;
+    background: #d8f9ff;
+    font-size: 14px;
+
+    a {
+        cursor: pointer;
+    }
+}

@@ -1,0 +1,184 @@
+@import "../assets/mixins.less";
+@import "../assets/palette.less";
+
+@AVATAR_SIZE : 45px;
+
+.QuizCard {
+    width: 100%;
+    text-decoration: none;
+    color: @text-color;
+}
+
+.QuizCard__head {
+    color: @text-color;
+    height: 60px;
+    padding: 10px;
+    display: flex;
+
+    .mdl-card__title-text {
+        marhin: auto 0;
+        font-size: 19px;
+    }
+}
+
+.QuizCard__media {
+    min-height: 200px;
+    cursor: default;
+    padding: 0;
+    position: relative;
+}
+
+.QuizCard__overlay {
+    opacity: 1;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left:0;
+    display: flex;
+    transition: .3s;
+    background-color: rgba(0, 0, 0, 0.35);
+
+    &:hover {
+        opacity: 0;
+    }
+}
+
+.QuizCard__category {
+    background-color: @black-dark;
+    color: @white-darker;
+    padding: 3px 5px;
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 2px;
+}
+
+.QuizCard__account-score {
+    margin: auto;
+    font-size: 60px;
+    color: white;
+}
+
+.QuizCard__survey--passed {
+    font-size: 100px;
+    color: white;
+    display: block;
+    margin: auto;
+}
+
+@font-size: 14px;
+@line-height: 1.4;
+@lines-to-show: 2;
+
+.QuizCard__content {
+    margin: 0;
+    padding: 8px;
+}
+
+.QuizCard__text {
+    color: @secondary-text-color;
+    display: block;
+    display: -webkit-box;
+    max-width: 400px;
+    height: @font-size*@line-height*@lines-to-show;
+    margin: 0 auto;
+    font-size: @font-size;
+    line-height: @line-height;
+    -webkit-line-clamp: @lines-to-show;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.QuizCard__title {
+    color: @text-color;
+    font-size: 19px;
+}
+
+.QuizCard__info {
+    display: flex;
+    width: 100%;
+    align-items: center;
+
+    .QuizCard__avatar {
+        width: @AVATAR_SIZE;
+        height: @AVATAR_SIZE;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .QuizCard__name-author {
+        margin-left: 10px;
+        width: calc(~"100% -" @AVATAR_SIZE ~"- 20px");
+    }
+
+    .QuizCard__name {
+        font-size: 14px;
+        color: @text-color;
+        text-decoration: none;
+        display: block;
+        width: 100%;
+        font-weight: 600;
+        cursor: pointer;
+
+        .text-ellipsis;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .QuizCard__author {
+        margin-top: 3px;
+        font-size: 12px;
+        color: @secondary-text-color;
+        font-weight: 500;
+
+        .text-ellipsis;
+    }
+}
+
+.QuizCard__details {
+    font-size: 14px;
+    margin-bottom: 5px;
+
+    .QuizCard__span-divider {
+        margin: 0 5px;
+    }
+}
+
+.QuizCard__special {
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: @primary-1-color;
+}
+
+.QuizCard__actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+.QuizCard__actions--survey {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.QuizCard--sponsored {
+    .QuizCard__share-button {
+        color: @accent-1-color;
+    }
+
+    .QuizCard__more-button {
+        color: white;
+        background-color: @accent-1-color;
+
+        &:hover {
+            background-color: @accent-2-color;
+        }
+    }
+}
