@@ -32,10 +32,9 @@ class SaplingParser {
       this.entryFile = '/' + this.entryFile.split('/').slice(3).join('/');
     }
     console.log('ENTRY FILE PATH: ', this.entryFile);
-    this.tree = undefined; //this.parser(this.entryFile);
+    this.tree = undefined;
     // Break down and reasemble given filePath safely for any OS using path?
   }
-
 
   // Public method to generate component tree based on current entryFile
   public parse() : Tree {
@@ -59,6 +58,36 @@ class SaplingParser {
     return this.tree;
   }
 
+  public getTree() : Tree {
+    return this.tree;
+  }
+
+  // Updates tree when a file is saved, checking for new components added from the updated tree
+  public updateTree(filePath : string) : Tree {
+
+    const callback = (node) => {
+      if (node.filePath === filePath) {
+        this.parser(node);
+      }
+    };
+
+    this.traverseTree(callback, this.tree);
+
+    return this.tree;
+  }
+
+  // Traverses all nodes of current component tree and applies callback to each node
+  private traverseTree(callback : Function, node : Tree = this.tree) : void {
+    if (!node) {
+      return;
+    }
+
+    callback(node);
+
+    node.children.forEach( (childNode) => {
+      this.traverseTree(callback, childNode);
+    });
+  }
 
   // Recursively builds the React component tree structure starting from root node
   private parser(componentTree: Tree) : Tree {
@@ -109,7 +138,6 @@ class SaplingParser {
     return componentTree;
   }
 
-
   // Finds files where import string does not include a file extension
   private getFileName(componentTree: Tree) : string | undefined {
     const ext = path.extname(componentTree.filePath);
@@ -124,7 +152,6 @@ class SaplingParser {
 
     return fileName;
   }
-
 
   // Extracts Imports from current file
   private getImports(body : {[key : string]: any}[])
@@ -142,7 +169,6 @@ class SaplingParser {
       return accum;
     }, {});
   }
-
 
   // Finds JSX React Components in current file
   private getJSXChildren(astTokens: [{[key: string]: any}],
