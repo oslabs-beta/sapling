@@ -22,7 +22,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       enableScripts: true,
       localResourceRoots: [this._extensionUri],
     };
-
+    vscode.window.onDidChangeActiveTextEditor((e) => {
+      console.log('this is the output when the text doc changes: ', e.document.fileName);
+      webviewView.webview.postMessage({
+        type: "current-tab",
+        value: e.document.fileName
+      });
+    });
     // Do something when a text file is saved in the workspace
     vscode.workspace.onDidSaveTextDocument((document) => {
       console.log('Text file was saved: ', document);
