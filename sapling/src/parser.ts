@@ -75,7 +75,7 @@ export function saplingParse(filePath : string, componentTree = {} as Tree) {
     return componentTree;
   }
 
-  fs.writeFileSync(`${componentTree.filename}-parser-output.json`, JSON.stringify(ast));
+  // fs.writeFileSync(`${componentTree.filename}-parser-output.json`, JSON.stringify(ast));
 
   // Determine if React is imported in file and JSX Children may be present
   function getImports(body) {

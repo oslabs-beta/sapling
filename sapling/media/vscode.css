@@ -15,10 +15,10 @@ body {
   background-color: var(--vscode-editor-background);
 }
 
-ol,
+/* ol,
 ul {
   padding-left: var(--container-paddding);
-}
+} */
 
 body > *,
 form > * {
