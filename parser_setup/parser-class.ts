@@ -26,10 +26,16 @@ class SaplingParser {
   fileList: {[key: string] : boolean};
 
   constructor(filePath: string) {
-    // this.entryFile = this.getFilePath(filePath);
-    this.entryFile = filePath;
-    this.tree = undefined; //this.parser(this.entryFile);
-    // Break down and reasemble given filePath safely for any OS using path?
+      // Normalize filePath to posix
+      console.log('Initial filepath: ', filePath);
+      this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
+      // Temporary fix for wsl file system:
+      if(this.entryFile.includes('/wsl$/')) {
+        this.entryFile = this.entryFile.slice(12);
+      }
+      console.log('ENTRY FILE PATH: ', this.entryFile);
+      this.tree = undefined; //this.parser(this.entryFile);
+      // Break down and reasemble given filePath safely for any OS using path?
   }
 
 
@@ -50,8 +56,6 @@ class SaplingParser {
       error: ''
     };
 
-    console.log('This is the root: ', root);
-
     this.tree = root;
     this.parser(root);
     return this.tree;
@@ -67,22 +71,13 @@ class SaplingParser {
       return;
     }
 
-    console.log('Made it past third party check');
-
     // Check that file has valid fileName/Path, if not found, add error to node and halt
     const fileName = this.getFileName(componentTree);
-    console.log('fileName is: ', fileName);
     if (!fileName) {
       componentTree.error = 'File not found.'
       console.log('FILE NOT FOUND', componentTree);
       return;
     }
-
-    console.log('Made it past file name check');
-
-
-
-    console.log('File Path: ', path.resolve(componentTree.filePath));
 
     // Create abstract syntax tree of current component tree file
     let ast;
@@ -99,8 +94,6 @@ class SaplingParser {
       componentTree.error = 'Error while processing this file/node'
       return componentTree;
     }
-
-    console.log('File Parsed: ', componentTree.filePath)
 
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);
@@ -203,7 +196,7 @@ class SaplingParser {
   }
 }
 
-// Test outputn of the class:
+// Test output of the class:
 const parser = new SaplingParser('./__tests__/test_3/index.jsx');
 const output = parser.parse();
 

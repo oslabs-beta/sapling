@@ -2,7 +2,6 @@ import * as babelParser from '@babel/parser';
 import * as path from 'path';
 import * as fs from 'fs';
 
-// npx tsc --watch parser-class.ts to watch for changes in this file
 
 // React component tree is a nested data structure, children are Trees
 type Tree = {
@@ -26,8 +25,14 @@ class SaplingParser {
   fileList: {[key: string] : boolean};
 
   constructor(filePath: string) {
-    // this.entryFile = this.getFilePath(filePath);
-    this.entryFile = filePath;
+    // Normalize filePath to posix
+    console.log('Initial filepath: ', filePath);
+    this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
+    // Temporary fix for wsl file system:
+    if(this.entryFile.includes('/wsl$/')) {
+      this.entryFile = this.entryFile.slice(12);
+    }
+    console.log('ENTRY FILE PATH: ', this.entryFile);
     this.tree = undefined; //this.parser(this.entryFile);
     // Break down and reasemble given filePath safely for any OS using path?
   }
@@ -50,8 +55,6 @@ class SaplingParser {
       error: ''
     };
 
-    console.log('This is the root: ', root);
-
     this.tree = root;
     this.parser(root);
     return this.tree;
@@ -63,26 +66,19 @@ class SaplingParser {
     // If import is a node module, do not parse any deeper
     if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
       componentTree.thirdParty = true;
-      if (componentTree.fileName === 'react-router-dom') componentTree.reactRouter = true;
+      if (componentTree.fileName === 'react-router-dom') {
+        componentTree.reactRouter = true;
+      }
       return;
     }
-
-    console.log('Made it past third party check');
 
     // Check that file has valid fileName/Path, if not found, add error to node and halt
     const fileName = this.getFileName(componentTree);
-    console.log('fileName is: ', fileName);
     if (!fileName) {
-      componentTree.error = 'File not found.'
+      componentTree.error = 'File not found.';
       console.log('FILE NOT FOUND', componentTree);
       return;
     }
-
-    console.log('Made it past file name check');
-
-
-
-    console.log('File Path: ', path.resolve(componentTree.filePath));
 
     // Create abstract syntax tree of current component tree file
     let ast;
@@ -95,12 +91,10 @@ class SaplingParser {
         ]
       });
     } catch (err) {
-      console.log('Error when trying to parse file');
-      componentTree.error = 'Error while processing this file/node'
+      console.log('Error when trying to parse file', componentTree.filePath, fs.readdirSync('/Ubuntu'));
+      componentTree.error = 'Error while processing this file/node';
       return componentTree;
     }
-
-    console.log('File Parsed: ', componentTree.filePath)
 
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);
@@ -111,7 +105,7 @@ class SaplingParser {
     }
 
     // Recursively parse all child components
-    componentTree.children.forEach(child => this.parser(child))
+    componentTree.children.forEach(child => this.parser(child));
 
     return componentTree;
   }
@@ -136,13 +130,13 @@ class SaplingParser {
   // Extracts Imports from current file
   private getImports(body : {[key : string]: any}[])
     : {[key : string]: {importPath: string, importName: string}} {
-    const bodyImports = body.filter(item => item.type === 'ImportDeclaration')
+    const bodyImports = body.filter(item => item.type === 'ImportDeclaration');
     return bodyImports.reduce((accum, curr) => {
       curr.specifiers.forEach( i => {
         accum[i.local.name] = {
           importPath: curr.source.value,
           importName: (i.imported)? i.imported.name : i.local.name
-        }
+        };
       });
 
       // accum[curr.specifiers[0].local.name] = curr.source.value;
@@ -168,7 +162,7 @@ class SaplingParser {
 
         if (childNodes[token.value]) {
           childNodes[token.value].count += 1;
-          childNodes[token.value].props = {...childNodes[token.value].props, ...props}
+          childNodes[token.value].props = {...childNodes[token.value].props, ...props};
         } else {
           // Add tree node to childNodes if one does not exist
           childNodes[token.value] = {
@@ -183,7 +177,7 @@ class SaplingParser {
             props: props,
             children: [],
             error: '',
-          }
+          };
         }
       }
      }
