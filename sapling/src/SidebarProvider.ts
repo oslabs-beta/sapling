@@ -25,7 +25,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     // message section that will listen for messages sent from the React components to communicate with the extension
     webviewView.webview.onDidReceiveMessage(async (data) => {
-      console.log('DID RECEIVE MESSAGE BEFORE SWITCH');
       switch (data.type) {
         // case to respond to the message from the webview
         case "onFile": {
@@ -45,7 +44,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         }
         // Case when clicking on tree to open file
         case "onViewFile": {
-          console.log('HI TRYING TO OPEN FILE: ', data.value);
           if (!data.value) {
             return;
           }
