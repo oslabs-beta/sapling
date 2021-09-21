@@ -13,10 +13,8 @@ const Navbar = () => {
   // };
   // function to post a message to the extension that will pass the path of the file the user selected
   const fileMessage = (e: any) => {
-    // console.log('this is the e.target options: ',e.target);
-    // console.log('file path info: ', e.target.files);
-    // const input = document.querySelector('.inputfile');
-    // input.innerHTML = e.target.files.name;
+    const fileLabel = document.querySelector('#strong_file');
+    fileLabel.innerHTML = ' ' + e.target.files[0].name;
     const file = e.target.files[0].path;
     if (file) {
       tsvscode.postMessage({
@@ -30,7 +28,7 @@ const Navbar = () => {
       {/* <input id="file_input" type="file" onChange={(e) => {showFile(e);}}></input>
       <button id="file_message" onClick={fileMessage}>Refresh</button> */}
       <input type="file" name="file" id="file" className="inputfile" onChange={(e) => {fileMessage(e);}}/>
-      <label htmlFor="file"><FontAwesomeIcon icon={faDownload}/><strong> Choose a file...</strong></label>
+      <label htmlFor="file"><FontAwesomeIcon icon={faDownload}/><strong id="strong_file"> Choose a file...</strong></label>
     </div>
   );
 };
