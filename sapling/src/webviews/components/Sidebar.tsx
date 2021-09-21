@@ -16,12 +16,18 @@ const Sidebar = () => {
         }
       }
     });
+
+    tsvscode.postMessage({
+      type: "onSaplingVisible",
+      value: null
+    });
+
   }, []);
   return (
     <div className="sidebar">
       <Navbar />
       <ul className="tree_beginning">
-        {treeData ? 
+        {treeData ?
           <Tree data={treeData} first={true} />
         : null}
       </ul>
