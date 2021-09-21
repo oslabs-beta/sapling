@@ -29,9 +29,11 @@ class SaplingParser {
       // Normalize filePath to posix
       console.log('Initial filepath: ', filePath);
       this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
+      console.log('Entryfile before slice: ', this.entryFile);
       // Temporary fix for wsl file system:
-      if(this.entryFile.includes('/wsl$/')) {
-        this.entryFile = this.entryFile.slice(12);
+      if (this.entryFile.includes('/wsl$/')) {
+        console.log(this.entryFile.split('/'));
+        this.entryFile = '/' + this.entryFile.split('/').slice(3).join('/');
       }
       console.log('ENTRY FILE PATH: ', this.entryFile);
       this.tree = undefined; //this.parser(this.entryFile);
