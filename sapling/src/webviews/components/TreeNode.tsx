@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, Fragment } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import * as ReactDOM from 'react-dom';
 import Tree from './Tree';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,9 +8,26 @@ import Tippy from '@tippy.js/react';
 import 'tippy.js/dist/tippy.css';
 
 const TreeNode = ({ node, htmlId }: any) => {
+  const [currFile, setCurrFile] = useState(false);
   const child = node.children.length > 0 ? true: false;
   // function that sends a message to the extension to open the file
-  
+  useEffect(() => {
+    // listener for the postMessage that sends the file currently open on the users computer
+    window.addEventListener('message', (event) => {
+      // const localNode = node;
+      // console.log(localNode);
+      const message = event.data;
+      switch (message.type) {
+        case("current-tab"): {
+          if (message.value === node.filePath) {
+            setCurrFile(true);
+          } else {
+            setCurrFile(false);
+          }
+        }
+      }
+    });
+  }, [currFile]);
   const viewFile = () => {
     if (node.filePath) {
       tsvscode.postMessage({
@@ -33,7 +50,10 @@ const TreeNode = ({ node, htmlId }: any) => {
       {child ? (
         <li>
           <input type="checkbox" id={htmlId} />
-          <label className="tree_label" htmlFor={htmlId} >{node.name}</label>
+          {currFile ? 
+            <label className="tree_label" htmlFor={htmlId}><strong style={{ fontStyle: 'italic', fontWeight: 800 }}>{node.name}</strong></label>
+            : 
+            <label className="tree_label" htmlFor={htmlId}>{node.name}</label>}
           {!node.thirdParty && !node.reactRouter ? (
             <Fragment>
               <Tippy content={<p><strong>Props available:</strong>{propsList}</p>}>
@@ -46,7 +66,10 @@ const TreeNode = ({ node, htmlId }: any) => {
         </li>
       ): 
         <li>
-          <span className="tree_label">{node.name}</span>
+          {currFile ? 
+            <span className="tree_label"><strong style={{ fontStyle: 'italic', fontWeight: 800 }}>{node.name}</strong></span> 
+          : <span className="tree_label">{node.name}</span>
+          }
           {!node.thirdParty && !node.reactRouter ? (
             <Fragment>
               <Tippy content={<p><strong>Props available:</strong>{propsList}</p>}>
