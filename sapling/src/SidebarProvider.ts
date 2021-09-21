@@ -63,7 +63,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       }
     });
 
-    // Event that triggers when Webview changes visibility:
+    // Event that triggers when Webview changes visibility :
     webviewView.onDidChangeVisibility((e) => {
       console.log('Visibility Changed! ', e);
       console.log('Webview visible? ', webviewView.visible);
