@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import * as ReactDOM from 'react-dom';
 import Tree from './Tree';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -34,19 +34,27 @@ const TreeNode = ({ node, htmlId }: any) => {
         <li>
           <input type="checkbox" id={htmlId} />
           <label className="tree_label" htmlFor={htmlId} >{node.name}</label>
-          <Tippy content={<p><strong>Props available:</strong>{propsList}</p>}>
-            <a className="node_icons" href=""><FontAwesomeIcon icon={faInfoCircle} /></a>
-          </Tippy>
-          <a className="node_icons" href="" onClick={viewFile}><FontAwesomeIcon icon={faArrowCircleRight} /></a>
+          {!node.thirdParty && !node.reactRouter ? (
+            <Fragment>
+              <Tippy content={<p><strong>Props available:</strong>{propsList}</p>}>
+                <a className="node_icons" href=""><FontAwesomeIcon icon={faInfoCircle} /></a>
+              </Tippy>
+              <a className="node_icons" href="" onClick={viewFile}><FontAwesomeIcon icon={faArrowCircleRight} /></a>
+            </Fragment>
+          ): null}
           <Tree data={node.children} first={false} />
         </li>
       ): 
         <li>
           <span className="tree_label">{node.name}</span>
-          <Tippy content={<p><strong>Props available:</strong>{propsList}</p>}>
-            <a className="node_icons" href=""><FontAwesomeIcon icon={faInfoCircle} /></a>
-          </Tippy>
-          <a className="node_icons" href="" onClick={viewFile}><FontAwesomeIcon icon={faArrowCircleRight} /></a>
+          {!node.thirdParty && !node.reactRouter ? (
+            <Fragment>
+              <Tippy content={<p><strong>Props available:</strong>{propsList}</p>}>
+                <a className="node_icons" href=""><FontAwesomeIcon icon={faInfoCircle} /></a>
+              </Tippy>
+              <a className="node_icons" href="" onClick={viewFile}><FontAwesomeIcon icon={faArrowCircleRight} /></a>
+            </Fragment>
+          ): null}
         </li>
       }
     </>
