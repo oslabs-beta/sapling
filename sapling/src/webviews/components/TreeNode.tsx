@@ -51,7 +51,7 @@ const TreeNode = ({ node, htmlId }: any) => {
         <li>
           <input type="checkbox" id={htmlId} />
           {currFile ? 
-            <label className="tree_label" htmlFor={htmlId}><strong style={{ fontStyle: 'italic', fontWeight: 800 }}>{node.name}</strong></label>
+            <label className="tree_label" htmlFor={htmlId}><strong style={{ fontWeight: 800 }}>{node.name}</strong></label>
             : 
             <label className="tree_label" htmlFor={htmlId}>{node.name}</label>}
           {!node.thirdParty && !node.reactRouter ? (
@@ -67,7 +67,7 @@ const TreeNode = ({ node, htmlId }: any) => {
       ): 
         <li>
           {currFile ? 
-            <span className="tree_label"><strong style={{ fontStyle: 'italic', fontWeight: 800 }}>{node.name}</strong></span> 
+            <span className="tree_label"><strong style={{ fontWeight: 800 }}>{node.name}</strong></span> 
           : <span className="tree_label">{node.name}</span>
           }
           {!node.thirdParty && !node.reactRouter ? (

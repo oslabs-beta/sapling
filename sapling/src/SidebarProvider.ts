@@ -87,6 +87,16 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             value: parsed
           });
         }
+        case "onSettingCheck": {
+          // use getConfiguration to check what the current settings are for the user
+          const settings = await vscode.workspace.getConfiguration('sapling');
+          console.log('This is the output from using getConfig for settings: ', settings.view);
+          // send a message back to the webview with the data on settings
+          webviewView.webview.postMessage({
+            type: "settings-data",
+            value: settings.view
+          });
+        }
       }
     });
 

@@ -6,6 +6,7 @@ import Tree from './Tree';
 const Sidebar = () => {
   // state that holds the parsed data
   const [treeData, setTreeData]: any = useState();
+  const [settings, setSettings] = useState();
   useEffect(() => {
     // listener for the postMessage that sends the parsed data in message.value
     window.addEventListener('message', (event) => {
@@ -14,28 +15,30 @@ const Sidebar = () => {
         case("parsed-data"): {
           setTreeData([message.value]);
         }
+        // when we get message back regarding settings, we can update state variables to then conditionally render html
+        case("settings-data"): {
+          console.log('we are receiving the message back from the extension: ', message);
+          setSettings(message.value);
+        }
       }
     });
-
+    // recursive function that checks the nested arrays for nodes that arent based on the user's settings
     tsvscode.postMessage({
       type: "onSaplingVisible",
       value: null
     });
-
   }, []);
   return (
     <div className="sidebar">
       <Navbar />
       <ul className="tree_beginning">
-        {treeData ?
-          <Tree data={treeData} first={true} />
+        {treeData && settings ?
+          <Tree data={treeData} settings={settings} first={true} />
         : null}
       </ul>
     </div>
   );
 };
-
-
 
 export default Sidebar;
 
