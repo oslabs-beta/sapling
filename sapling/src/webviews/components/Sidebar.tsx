@@ -38,7 +38,7 @@ const Sidebar = () => {
       type: "onSettingsAcquire",
       value: null
     });
-    
+
   }, []);
 
   // Run this function whenever treeData changes
@@ -54,7 +54,7 @@ const Sidebar = () => {
     // console.log('this is the value of the treeData passed into parseViewTree: ', treeData);
     // console.log('these are the current settings saved in state: ', settings);
     const treeParsed = JSON.parse(JSON.stringify(treeData[0]));
-    
+
     const traverse = (node: any) : void => {
       let validChildren = [];
 
@@ -85,7 +85,7 @@ const Sidebar = () => {
     traverse(treeParsed);
     setViewData([treeParsed]);
   };
-    
+
 
   return (
     <div className="sidebar">

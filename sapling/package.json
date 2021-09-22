@@ -48,20 +48,20 @@
 			}
 		],
 		"configuration": {
-      "title": "Sapling",
-      "properties": {
-        "sapling.view.thirdParty": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show Third Party components in the tree view."
-        },
+			"title": "Sapling",
+			"properties": {
+				"sapling.view.thirdParty": {
+					"type": "boolean",
+					"default": true,
+					"description": "Show Third Party components in the tree view."
+				},
 				"sapling.view.reactRouter": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show React Router components in the tree view."
-        }
-      }
-    }
+					"type": "boolean",
+					"default": true,
+					"description": "Show React Router components in the tree view."
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",
