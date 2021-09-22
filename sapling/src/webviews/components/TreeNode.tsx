@@ -7,10 +7,11 @@ import { faInfoCircle, faArrowCircleRight } from '@fortawesome/free-solid-svg-ic
 import Tippy from '@tippy.js/react';
 import 'tippy.js/dist/tippy.css';
 
-const TreeNode = ({ node, htmlId }: any) => {
+const TreeNode = ({ node }: any) => {
   const [currFile, setCurrFile] = useState(false);
+  const [expanded, setExpanded] = useState(node.expanded);
   const child = node.children.length > 0 ? true: false;
-  console.log('these are the settings in each node: ', node.name, node.thirdParty, node.reactRouter);
+  // console.log('these are the settings in each node: ', node.name, node.thirdParty, node.reactRouter);
   // function that sends a message to the extension to open the file
   useEffect(() => {
     // listener for the postMessage that sends the file currently open on the users computer
@@ -28,7 +29,7 @@ const TreeNode = ({ node, htmlId }: any) => {
         }
       }
     });
-  }, [currFile]);
+  }, []);
   const viewFile = () => {
     if (node.filePath) {
       tsvscode.postMessage({
@@ -46,15 +47,27 @@ const TreeNode = ({ node, htmlId }: any) => {
     });
   };
   const propsList = propsGenerator();
+
+  const toggleNode = () => {
+    // toggle the change based on the current checked value
+    const newExpanded = !expanded;
+    setExpanded(newExpanded);
+    // send a message to the extension on the changed checked value of the current node
+    tsvscode.postMessage({
+        type: "onNodeToggle",
+        value: {id: node.id, expanded: newExpanded}
+    });
+  };
+
   return (
     <>
       {child ? (
         <li>
-          <input type="checkbox" id={htmlId} />
-          {currFile ? 
-            <label className="tree_label" htmlFor={htmlId}><strong style={{ fontWeight: 800 }}>{node.name}</strong></label>
-            : 
-            <label className="tree_label" htmlFor={htmlId}>{node.name}</label>}
+          <input type="checkbox" checked={expanded} id={node.id} onClick={toggleNode} />
+          {currFile ?
+            <label className="tree_label" htmlFor={node.id}><strong style={{ fontWeight: 800 }}>{node.name}</strong></label>
+            :
+            <label className="tree_label" htmlFor={node.id}>{node.name}</label>}
           {!node.thirdParty && !node.reactRouter ? (
             <Fragment>
               <Tippy content={<p><strong>Props available:</strong>{propsList}</p>}>
@@ -65,10 +78,10 @@ const TreeNode = ({ node, htmlId }: any) => {
           ): null}
           <Tree data={node.children} first={false} />
         </li>
-      ): 
+      ):
         <li>
-          {currFile ? 
-            <span className="tree_label"><strong style={{ fontWeight: 800 }}>{node.name}</strong></span> 
+          {currFile ?
+            <span className="tree_label"><strong style={{ fontWeight: 800 }}>{node.name}</strong></span>
           : <span className="tree_label">{node.name}</span>
           }
           {!node.thirdParty && !node.reactRouter ? (

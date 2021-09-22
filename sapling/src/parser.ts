@@ -91,10 +91,11 @@ class SaplingParser {
   }
 
   // Traverses the tree and changes expanded property of node whose id matches provided id
-  public toggleNode(id : string) : Tree {
+  public toggleNode(id : string, expanded : boolean) : Tree {
     const callback = (node) => {
       if (node.id === id) {
-        node.expanded = !node.expanded;
+        console.log('These are the ids we\'re changing: ', node.id, id);
+        node.expanded = expanded;
       }
     };
 

@@ -44,7 +44,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     });
     // Do something when a text file is saved in the workspace
     vscode.workspace.onDidSaveTextDocument((document) => {
-      // console.log('Text file was saved: ', document);
+      console.log('Text file was saved: ', document);
       if (!this.parser) {
         return;
       }
@@ -114,6 +114,12 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             type: "settings-data",
             value: settings.view
           });
+          break;
+        }
+        case "onNodeToggle": {
+          console.log('we have this data inside on onNodeToggle: ', data.value);
+          // let the parser know that the specific node clicked changed it's expanded value
+          this.parser.toggleNode(data.value.id, data.value.expanded);
           break;
         }
       }
