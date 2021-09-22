@@ -10,6 +10,7 @@ import 'tippy.js/dist/tippy.css';
 const TreeNode = ({ node, htmlId }: any) => {
   const [currFile, setCurrFile] = useState(false);
   const child = node.children.length > 0 ? true: false;
+  console.log('these are the settings in each node: ', node.name, node.thirdParty, node.reactRouter);
   // function that sends a message to the extension to open the file
   useEffect(() => {
     // listener for the postMessage that sends the file currently open on the users computer

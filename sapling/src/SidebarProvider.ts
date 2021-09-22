@@ -23,7 +23,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       localResourceRoots: [this._extensionUri],
     };
     vscode.workspace.onDidChangeConfiguration((e) => {
-      console.log('onDidChangeConfiguration: ', e);
       // use getConfiguration to check what the current settings are for the user
       const settings = vscode.workspace.getConfiguration('sapling');
       console.log('This is the output inside onDidChangeConfiguration: ', settings.view);
@@ -34,6 +33,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       });
     });
     vscode.window.onDidChangeActiveTextEditor((e) => {
+      if (!e) {
+        return;
+      }
       console.log('this is the output when the text doc changes: ', e.document.fileName);
       webviewView.webview.postMessage({
         type: "current-tab",
@@ -42,7 +44,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     });
     // Do something when a text file is saved in the workspace
     vscode.workspace.onDidSaveTextDocument((document) => {
-      console.log('Text file was saved: ', document);
+      // console.log('Text file was saved: ', document);
       if (!this.parser) {
         return;
       }
@@ -61,7 +63,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     // message section that will listen for messages sent from the React components to communicate with the extension
     webviewView.webview.onDidReceiveMessage(async (data) => {
-      console.log('EXTENSION RECEIVED MESSAGE: ', data);
+      // console.log('EXTENSION RECEIVED MESSAGE: ', data);
       switch (data.type) {
         // case to respond to the message from the webview
         case "onFile": {
@@ -72,7 +74,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           // run the parser passing in the data.value information
           this.parser = new SaplingParser(data.value);
           const parsed = this.parser.parse();
-          console.log('Parser result: ', parsed);
+          // console.log('Parser result: ', parsed);
           // pass the parser result into the value of the postMessage
           webviewView.webview.postMessage({
             type: "parsed-data",
@@ -106,7 +108,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         case "onSettingsAcquire": {
           // use getConfiguration to check what the current settings are for the user
           const settings = await vscode.workspace.getConfiguration('sapling');
-          console.log('This is the output from using getConfig for settings: ', settings.view);
+          // console.log('This is the output from using getConfig for settings: ', settings.view);
           // send a message back to the webview with the data on settings
           webviewView.webview.postMessage({
             type: "settings-data",
@@ -119,13 +121,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     // Event that triggers when Webview changes visibility :
     webviewView.onDidChangeVisibility((e) => {
-      console.log('Visibility Changed! ', e);
-      console.log('Webview visible? ', webviewView.visible);
+      // console.log('Visibility Changed! ', e);
+      // console.log('Webview visible? ', webviewView.visible);
     });
 
     // Event that triggers when Webview is disposed:
     webviewView.onDidDispose((e) => {
-      console.log('Webview Was Disposed! ', e);
+      // console.log('Webview Was Disposed! ', e);
     });
   }
 
