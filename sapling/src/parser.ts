@@ -35,10 +35,10 @@ class SaplingParser {
     // Normalize filePath to posix
     this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
     if (this.entryFile.includes('/wsl$/')) {
-      console.log(this.entryFile.split('/'));
+      // console.log(this.entryFile.split('/'));
       this.entryFile = '/' + this.entryFile.split('/').slice(3).join('/');
     }
-    console.log('ENTRY FILE PATH: ', this.entryFile);
+    // console.log('ENTRY FILE PATH: ', this.entryFile);
     this.tree = undefined;
     // Break down and reasemble given filePath safely for any OS using path?
   }
@@ -118,7 +118,7 @@ class SaplingParser {
 
   // Recursively builds the React component tree structure starting from root node
   private parser(componentTree: Tree) : Tree {
-    console.log('Parsing node: ', componentTree.fileName);
+    // console.log('Parsing node: ', componentTree.fileName);
 
     // If import is a node module, do not parse any deeper
     if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
@@ -133,7 +133,7 @@ class SaplingParser {
     const fileName = this.getFileName(componentTree);
     if (!fileName) {
       componentTree.error = 'File not found.';
-      console.log('FILE NOT FOUND', componentTree);
+      // console.log('FILE NOT FOUND', componentTree);
       return;
     }
 
@@ -148,7 +148,7 @@ class SaplingParser {
         ]
       });
     } catch (err) {
-      console.log('Error when trying to parse file', componentTree.filePath, fs.readdirSync('/Ubuntu'));
+      // console.log('Error when trying to parse file', componentTree.filePath, fs.readdirSync('/Ubuntu'));
       componentTree.error = 'Error while processing this file/node';
       return componentTree;
     }

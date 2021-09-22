@@ -10,6 +10,7 @@ import 'tippy.js/dist/tippy.css';
 const TreeNode = ({ node, htmlId }: any) => {
   const [currFile, setCurrFile] = useState(false);
   const child = node.children.length > 0 ? true: false;
+  console.log('these are the settings in each node: ', node.name, node.thirdParty, node.reactRouter);
   // function that sends a message to the extension to open the file
   useEffect(() => {
     // listener for the postMessage that sends the file currently open on the users computer
@@ -51,7 +52,7 @@ const TreeNode = ({ node, htmlId }: any) => {
         <li>
           <input type="checkbox" id={htmlId} />
           {currFile ? 
-            <label className="tree_label" htmlFor={htmlId}><strong style={{ fontStyle: 'italic', fontWeight: 800 }}>{node.name}</strong></label>
+            <label className="tree_label" htmlFor={htmlId}><strong style={{ fontWeight: 800 }}>{node.name}</strong></label>
             : 
             <label className="tree_label" htmlFor={htmlId}>{node.name}</label>}
           {!node.thirdParty && !node.reactRouter ? (
@@ -67,7 +68,7 @@ const TreeNode = ({ node, htmlId }: any) => {
       ): 
         <li>
           {currFile ? 
-            <span className="tree_label"><strong style={{ fontStyle: 'italic', fontWeight: 800 }}>{node.name}</strong></span> 
+            <span className="tree_label"><strong style={{ fontWeight: 800 }}>{node.name}</strong></span> 
           : <span className="tree_label">{node.name}</span>
           }
           {!node.thirdParty && !node.reactRouter ? (

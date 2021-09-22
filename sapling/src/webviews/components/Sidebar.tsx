@@ -1,3 +1,4 @@
+import { parse } from '@fortawesome/fontawesome-svg-core';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import Navbar from './Navbar';
@@ -6,13 +7,24 @@ import Tree from './Tree';
 const Sidebar = () => {
   // state that holds the parsed data
   const [treeData, setTreeData]: any = useState();
+  const [viewData, setViewData]: any = useState();
+  const [settings, setSettings]: any = useState();
   useEffect(() => {
+    // console.log('entering useEffect inside of Sidebar');
     // listener for the postMessage that sends the parsed data in message.value
     window.addEventListener('message', (event) => {
       const message = event.data;
       switch (message.type) {
         case("parsed-data"): {
+          // console.log('we are in the case for parsed-data', message.value);
           setTreeData([message.value]);
+          break;
+        }
+        // when we get message back regarding settings, we can update state variables to then conditionally render html
+        case("settings-data"): {
+          // console.log('we are receiving the message back from the extension: ', message.value);
+          setSettings(message.value);
+          break;
         }
       }
     });
@@ -22,20 +34,70 @@ const Sidebar = () => {
       value: null
     });
 
+    tsvscode.postMessage({
+      type: "onSettingsAcquire",
+      value: null
+    });
+    
   }, []);
+
+  // Run this function whenever treeData changes
+  useEffect(() => {
+    // console.log('Immediate value of TreeData is: ', treeData);
+    if (treeData && settings) {
+      parseViewTree();
+    }
+  }, [treeData, settings]);
+
+  // Edits and returns component tree based on users settings
+  const parseViewTree = () : void => {
+    // console.log('this is the value of the treeData passed into parseViewTree: ', treeData);
+    // console.log('these are the current settings saved in state: ', settings);
+    const treeParsed = JSON.parse(JSON.stringify(treeData[0]));
+    
+    const traverse = (node: any) : void => {
+      let validChildren = [];
+
+      for (let i = 0; i < node.children.length; i++) {
+        if (node.children[i].thirdParty && settings.thirdParty && !node.children[i].reactRouter) {
+          validChildren.push(node.children[i]);
+        } else if (node.children[i].reactRouter && settings.reactRouter) {
+          validChildren.push(node.children[i]);
+        } else if (!node.children[i].thirdParty && !node.children[i].reactRouter) {
+          validChildren.push(node.children[i]);
+        }
+      }
+
+      //   if ((node.children[i].thirdParty && settings.thirdParty) && (node.children[i].reactRouter && settings.reactRouter)) {
+      //     validChildren.push(node.children[i]);
+      //   } else if (!node.children[i].thirdParty && !node.children[i].reactRouter) {
+      //     validChildren.push(node.children[i]);
+      //   }
+      // }
+
+      // Update children with only valid nodes, and recurse through each node
+      node.children = validChildren;
+      node.children.forEach((child: any) => {
+        traverse(child);
+      });
+    };
+
+    traverse(treeParsed);
+    setViewData([treeParsed]);
+  };
+    
+
   return (
     <div className="sidebar">
       <Navbar />
       <ul className="tree_beginning">
-        {treeData ?
-          <Tree data={treeData} first={true} />
+        {viewData && settings ?
+          <Tree data={viewData} first={true} />
         : null}
       </ul>
     </div>
   );
 };
-
-
 
 export default Sidebar;
 
