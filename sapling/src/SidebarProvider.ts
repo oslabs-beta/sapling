@@ -35,11 +35,14 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       if (!this.parser) {
         return;
       }
-      const parsed = this.parser.parse();
-      webviewView.webview.postMessage({
-          type: "parsed-data",
-          value: parsed
-        });
+      const parsed = this.parser.updateTree(document.fileName);
+      // Send updated tree if extension is visible
+      if (webviewView.visible) {
+        webviewView.webview.postMessage({
+            type: "parsed-data",
+            value: parsed
+          });
+      }
     });
 
     // reaches out to the project file connecter function below
@@ -81,7 +84,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             return;
           }
 
-          const parsed = this.parser.parse();
+          const parsed = this.parser.getTree();
           webviewView.webview.postMessage({
             type: "parsed-data",
             value: parsed
