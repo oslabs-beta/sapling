@@ -26,6 +26,16 @@ const Sidebar = () => {
           setSettings(message.value);
           break;
         }
+        case("start-tree"): {
+          console.log('made it into start-tree with: ', message.value);
+          if (message.value) {
+            tsvscode.postMessage({
+              type: "onFile",
+              value: message.value
+            });
+          }
+          break;
+        }
       }
     });
 

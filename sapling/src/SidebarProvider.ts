@@ -8,6 +8,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
   parser: SaplingParser | undefined;
+  fileName: any;
 
   constructor(private readonly _extensionUri: vscode.Uri) {}
 
@@ -72,13 +73,26 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           }
           // console.log('extension has received: ', data.value);
           // run the parser passing in the data.value information
-          this.parser = new SaplingParser(data.value);
+          if (typeof data.value === 'object') {
+            this.fileName = data.value.fileName;
+            this.parser = new SaplingParser(data.value.filePath);
+          } else {
+            const n = data.value.lastIndexOf('/');
+            const fileName = data.value.substring(n + 1);
+            console.log(fileName);
+            this.fileName = fileName;
+            this.parser = new SaplingParser(data.value);
+          }
           const parsed = this.parser.parse();
           // console.log('Parser result: ', parsed);
           // pass the parser result into the value of the postMessage
           webviewView.webview.postMessage({
             type: "parsed-data",
             value: parsed
+          });
+          webviewView.webview.postMessage({
+            type: "saved-file",
+            value: this.fileName
           });
           break;
         }
@@ -102,6 +116,11 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           webviewView.webview.postMessage({
             type: "parsed-data",
             value: parsed
+          });
+          const fileName = this.fileName;
+          webviewView.webview.postMessage({
+            type: "saved-file",
+            value: fileName
           });
           break;
         }

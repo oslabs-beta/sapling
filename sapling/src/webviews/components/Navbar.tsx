@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as ReactDOM from 'react-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
@@ -12,14 +12,28 @@ const Navbar = () => {
   //   setFileName(e.target.files[0].path);
   // };
   // function to post a message to the extension that will pass the path of the file the user selected
+  useEffect(() => {
+    window.addEventListener('message', (event) => {
+      const message = event.data;
+      switch (message.type) {
+        case("saved-file"): {
+          if (message.value) {
+            const fileLabel = document.querySelector('#strong_file');
+            fileLabel.innerHTML = ' ' + message.value;
+          }
+        }
+      }
+    });
+  });
   const fileMessage = (e: any) => {
     const fileLabel = document.querySelector('#strong_file');
     fileLabel.innerHTML = ' ' + e.target.files[0].name;
-    const file = e.target.files[0].path;
-    if (file) {
+    const fileName = e.target.files[0].name;
+    const filePath = e.target.files[0].path;
+    if (filePath) {
       tsvscode.postMessage({
         type: "onFile",
-        value: file
+        value: { fileName, filePath }
       });
     }
   };
