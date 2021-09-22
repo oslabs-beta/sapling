@@ -22,6 +22,17 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       enableScripts: true,
       localResourceRoots: [this._extensionUri],
     };
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      console.log('onDidChangeConfiguration: ', e);
+      // use getConfiguration to check what the current settings are for the user
+      const settings = vscode.workspace.getConfiguration('sapling');
+      console.log('This is the output inside onDidChangeConfiguration: ', settings.view);
+      // send a message back to the webview with the data on settings
+      webviewView.webview.postMessage({
+        type: "settings-data",
+        value: settings.view
+      });
+    });
     vscode.window.onDidChangeActiveTextEditor((e) => {
       console.log('this is the output when the text doc changes: ', e.document.fileName);
       webviewView.webview.postMessage({
@@ -50,6 +61,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     // message section that will listen for messages sent from the React components to communicate with the extension
     webviewView.webview.onDidReceiveMessage(async (data) => {
+      console.log('EXTENSION RECEIVED MESSAGE: ', data);
       switch (data.type) {
         // case to respond to the message from the webview
         case "onFile": {
@@ -60,7 +72,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           // run the parser passing in the data.value information
           this.parser = new SaplingParser(data.value);
           const parsed = this.parser.parse();
-          // console.log('Parser result: ', parsed);
+          console.log('Parser result: ', parsed);
           // pass the parser result into the value of the postMessage
           webviewView.webview.postMessage({
             type: "parsed-data",
@@ -89,8 +101,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             type: "parsed-data",
             value: parsed
           });
+          break;
         }
-        case "onSettingCheck": {
+        case "onSettingsAcquire": {
           // use getConfiguration to check what the current settings are for the user
           const settings = await vscode.workspace.getConfiguration('sapling');
           console.log('This is the output from using getConfig for settings: ', settings.view);
@@ -99,6 +112,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             type: "settings-data",
             value: settings.view
           });
+          break;
         }
       }
     });
