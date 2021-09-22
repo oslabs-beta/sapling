@@ -1,14 +1,17 @@
 import * as babelParser from '@babel/parser';
 import * as path from 'path';
 import * as fs from 'fs';
+import { getNonce } from "./getNonce";
 
 
 // React component tree is a nested data structure, children are Trees
 type Tree = {
+  id: string,
   name: string,
   fileName: string,
   filePath: string,
   importPath: string,
+  expanded: boolean,
   depth: number,
   count: number,
   thirdParty: boolean,
@@ -16,6 +19,10 @@ type Tree = {
   children: Tree[],
   props: {[key: string]: boolean},
   error: string;
+};
+
+type ImportObj = {
+  [key : string]: {importPath: string, importName: string}
 };
 
 
@@ -32,19 +39,20 @@ class SaplingParser {
       this.entryFile = '/' + this.entryFile.split('/').slice(3).join('/');
     }
     console.log('ENTRY FILE PATH: ', this.entryFile);
-    this.tree = undefined; //this.parser(this.entryFile);
+    this.tree = undefined;
     // Break down and reasemble given filePath safely for any OS using path?
   }
-
 
   // Public method to generate component tree based on current entryFile
   public parse() : Tree {
     // Create root Tree node
     const root = {
+      id: getNonce(),
       name: path.basename(this.entryFile).replace(/\.(t|j)sx?$/, ''),
       fileName: path.basename(this.entryFile),
       filePath : this.entryFile,
       importPath: this.entryFile,
+      expanded: false,
       depth: 0,
       count: 1,
       thirdParty: false,
@@ -59,9 +67,59 @@ class SaplingParser {
     return this.tree;
   }
 
+  public getTree() : Tree {
+    return this.tree;
+  }
+
+  public setTree(tree : Tree) : void {
+    this.entryFile = tree.filePath;
+    this.tree = tree;
+  }
+
+  // Updates tree when a file is saved, checking for new components added from the updated tree
+  public updateTree(filePath : string) : Tree {
+
+    const callback = (node) => {
+      if (node.filePath === filePath) {
+        this.parser(node);
+      }
+    };
+
+    this.traverseTree(callback, this.tree);
+
+    return this.tree;
+  }
+
+  // Traverses the tree and changes expanded property of node whose id matches provided id
+  public toggleNode(id : string) : Tree {
+    const callback = (node) => {
+      if (node.id === id) {
+        node.expanded = !node.expanded;
+      }
+    };
+
+    this.traverseTree(callback, this.tree);
+
+    return this.tree;
+  }
+
+  // Traverses all nodes of current component tree and applies callback to each node
+  private traverseTree(callback : Function, node : Tree = this.tree) : void {
+    if (!node) {
+      return;
+    }
+
+    callback(node);
+
+    node.children.forEach( (childNode) => {
+      this.traverseTree(callback, childNode);
+    });
+  }
 
   // Recursively builds the React component tree structure starting from root node
   private parser(componentTree: Tree) : Tree {
+    console.log('Parsing node: ', componentTree.fileName);
+
     // If import is a node module, do not parse any deeper
     if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
       componentTree.thirdParty = true;
@@ -109,7 +167,6 @@ class SaplingParser {
     return componentTree;
   }
 
-
   // Finds files where import string does not include a file extension
   private getFileName(componentTree: Tree) : string | undefined {
     const ext = path.extname(componentTree.filePath);
@@ -125,10 +182,8 @@ class SaplingParser {
     return fileName;
   }
 
-
   // Extracts Imports from current file
-  private getImports(body : {[key : string]: any}[])
-    : {[key : string]: {importPath: string, importName: string}} {
+  private getImports(body : {[key : string]: any}[]) : ImportObj {
     const bodyImports = body.filter(item => item.type === 'ImportDeclaration');
     return bodyImports.reduce((accum, curr) => {
       curr.specifiers.forEach( i => {
@@ -143,44 +198,61 @@ class SaplingParser {
     }, {});
   }
 
-
   // Finds JSX React Components in current file
-  private getJSXChildren(astTokens: [{[key: string]: any}],
-    importsObj : {[key : string]: {importPath: string, importName: string}},
-    parentNode: Tree) : Tree[] {
-
-    const childNodes: {[key : string]: Tree} = {};
+  private getJSXChildren(astTokens: [{[key: string]: any}], importsObj : ImportObj, parentNode: Tree) : Tree[] {
+    let childNodes: {[key : string]: Tree} = {};
+    let props : {[key : string]: boolean} = {};
+    let token : {[key: string]: any};
+    let loc : number;
 
     for (let i = 0; i < astTokens.length; i++) {
-      const token = astTokens[i + 1];
-
+      // Case for finding JSX tags eg <App .../>
       if (astTokens[i].type.label === 'jsxTagStart'
-      && token.type.label === 'jsxName'
-      && importsObj[token.value]) {
-        const props = this.getJSXProps(astTokens, i + 2);
+      && astTokens[i + 1].type.label === 'jsxName'
+      && importsObj[astTokens[i + 1].value]) {
+        token = astTokens[i + 1];
+        props = this.getJSXProps(astTokens, i + 2);
+        childNodes = this.getChildNodes(importsObj, token, props, parentNode, childNodes);
 
-        if (childNodes[token.value]) {
-          childNodes[token.value].count += 1;
-          childNodes[token.value].props = {...childNodes[token.value].props, ...props};
-        } else {
-          // Add tree node to childNodes if one does not exist
-          childNodes[token.value] = {
-            name: importsObj[token.value]['importName'],
-            fileName: path.basename(importsObj[token.value]['importPath']),
-            filePath: path.resolve(path.dirname(parentNode.filePath), importsObj[token.value]['importPath']),
-            importPath: importsObj[token.value]['importPath'],
-            depth: parentNode.depth + 1,
-            thirdParty: false,
-            reactRouter: false,
-            count: 1,
-            props: props,
-            children: [],
-            error: '',
-          };
-        }
+        // Case for finding components passed in as props e.g. <Route component={App} />
+      } else if (astTokens[i].type.label === 'jsxName'
+      && (astTokens[i].value === 'component' || astTokens[i].value === 'children')
+      && importsObj[astTokens[i + 3].value]) {
+        token = astTokens[i + 3];
+        childNodes = this.getChildNodes(importsObj, token, props, parentNode, childNodes);
       }
-     }
+    }
+
     return Object.values(childNodes);
+  }
+
+  private getChildNodes(imports : ImportObj,
+    astToken : {[key: string]: any}, props : {[key : string]: boolean},
+    parent : Tree, children : {[key : string] : Tree}) : {[key : string] : Tree} {
+
+    if (children[astToken.value]) {
+      children[astToken.value].count += 1;
+      children[astToken.value].props = {...children[astToken.value].props, ...props};
+    } else {
+      // Add tree node to childNodes if one does not exist
+      children[astToken.value] = {
+        id: getNonce(),
+        name: imports[astToken.value]['importName'],
+        fileName: path.basename(imports[astToken.value]['importPath']),
+        filePath: path.resolve(path.dirname(parent.filePath), imports[astToken.value]['importPath']),
+        importPath: imports[astToken.value]['importPath'],
+        expanded: false,
+        depth: parent.depth + 1,
+        thirdParty: false,
+        reactRouter: false,
+        count: 1,
+        props: props,
+        children: [],
+        error: '',
+      };
+    }
+
+    return children;
   }
 
   // Extracts prop names from a JSX element
