@@ -5,7 +5,7 @@ import { render } from 'react-dom';
 // Import React Components
 import App from './components/App.jsx';
 
-// TEST 8 - Simple React App with two App Components and one prop
+// TEST 9 - Simple React App with multiple Main components and different props passed in
 
 render(
   <div>
