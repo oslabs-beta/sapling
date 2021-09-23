@@ -33,6 +33,11 @@ const TreeNode = ({ node }: any) => {
         }
       }
     });
+    // Send message to the extension for the bolding
+    tsvscode.postMessage({
+      type: "onBoldCheck",
+      value: null
+    });
   }, []);
 
   // Function that will capture the file path of the current node clicked on + send a message to the extension

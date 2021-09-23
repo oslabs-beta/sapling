@@ -137,6 +137,17 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           this.parser.toggleNode(data.value.id, data.value.expanded);
           break;
         }
+
+        // Message sent to the webview to bold the active file
+        case "onBoldCheck": {
+          // Message sent to the webview to bold the active file
+          const { fileName } = vscode.window.activeTextEditor.document;
+          this._view.webview.postMessage({
+            type: "current-tab",
+            value: fileName
+          });
+          break;
+        }
       }
     });
 
