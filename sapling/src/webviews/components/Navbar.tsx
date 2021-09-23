@@ -20,18 +20,17 @@ const Navbar = () => {
         }
       }
     });
-  });
+  }, []);
 
   // onChange function that will send a message to the extension when the user selects a file
   const fileMessage = (e: any) => {
     const fileLabel = document.querySelector('#strong_file');
     fileLabel.innerHTML = ' ' + e.target.files[0].name;
-    const fileName = e.target.files[0].name;
     const filePath = e.target.files[0].path;
     if (filePath) {
       tsvscode.postMessage({
         type: "onFile",
-        value: { fileName, filePath }
+        value: filePath
       });
     }
   };
