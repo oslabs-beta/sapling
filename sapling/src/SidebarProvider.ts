@@ -1,9 +1,10 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
-const fs = require('fs');
+import { file } from "@babel/types";
 import SaplingParser from './parser';
+const fs = require('fs');
 
-
+// Sidebar class that creates a new instance of the sidebar + adds functionality with the parser
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
@@ -12,45 +13,51 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
   constructor(private readonly _extensionUri: vscode.Uri) {}
 
-  // this instantiates the connection to the webview
+  // Instantiate the connection to the webview
   public resolveWebviewView(webviewView: vscode.WebviewView) {
     this._view = webviewView;
 
-    console.log('WebView Initialised!');
+    // Log to know at what point the webview is initialized
+    console.log('WebView Initialized!');
 
     webviewView.webview.options = {
       // Allow scripts in the webview
       enableScripts: true,
       localResourceRoots: [this._extensionUri],
     };
+
+    // Event listener that triggers any moment that the user changes his/her settings preferences
     vscode.workspace.onDidChangeConfiguration((e) => {
-      // use getConfiguration to check what the current settings are for the user
+      // Get the current settings specifications the user selects
       const settings = vscode.workspace.getConfiguration('sapling');
-      console.log('This is the output inside onDidChangeConfiguration: ', settings.view);
-      // send a message back to the webview with the data on settings
+      // Send a message back to the webview with the data on settings
       webviewView.webview.postMessage({
         type: "settings-data",
         value: settings.view
       });
     });
+
+    // Event listener that triggers whenever the user changes their current active window
     vscode.window.onDidChangeActiveTextEditor((e) => {
+      // Catches edge case when the user closes all active tabs
       if (!e) {
         return;
       }
-      console.log('this is the output when the text doc changes: ', e.document.fileName);
+      // Post a message to the webview with the file path of the user's current active window
       webviewView.webview.postMessage({
         type: "current-tab",
         value: e.document.fileName
       });
     });
-    // Do something when a text file is saved in the workspace
+
+    // Event listener that triggers whenever the user saves a document
     vscode.workspace.onDidSaveTextDocument((document) => {
-      console.log('Text file was saved: ', document);
+      // Edge case that avoids sending messages to the webview when there is no tree currently populated
       if (!this.parser) {
         return;
       }
+      // Post a message to the webview with the newly parsed tree
       const parsed = this.parser.updateTree(document.fileName);
-      // Send updated tree if extension is visible
       if (webviewView.visible) {
         webviewView.webview.postMessage({
             type: "parsed-data",
@@ -59,20 +66,20 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       }
     });
 
-    // reaches out to the project file connecter function below
+    // Reaches out to the project file connector function below
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-    // message section that will listen for messages sent from the React components to communicate with the extension
+    // Message switch case that will listen for messages sent from the webview
     webviewView.webview.onDidReceiveMessage(async (data) => {
-      // console.log('EXTENSION RECEIVED MESSAGE: ', data);
+      // Switch cases based on the type sent as a message
       switch (data.type) {
-        // case to respond to the message from the webview
+        // Case when the user selects a file to begin a tree
         case "onFile": {
+          // Edge case if the user sends in nothing
           if (!data.value) {
             return;
           }
-          // console.log('extension has received: ', data.value);
-          // run the parser passing in the data.value information
+
           if (typeof data.value === 'object') {
             this.fileName = data.value.fileName;
             this.parser = new SaplingParser(data.value.filePath);
@@ -96,6 +103,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           });
           break;
         }
+
         // Case when clicking on tree to open file
         case "onViewFile": {
           if (!data.value) {
@@ -106,6 +114,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           const editor = await vscode.window.showTextDocument(doc, {preserveFocus: false, preview: false});
           break;
         }
+
         // Case when sapling becomes visible in sidebar
         case "onSaplingVisible": {
           if (!this.parser) {
@@ -124,6 +133,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           });
           break;
         }
+
         case "onSettingsAcquire": {
           // use getConfiguration to check what the current settings are for the user
           const settings = await vscode.workspace.getConfiguration('sapling');
@@ -135,6 +145,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           });
           break;
         }
+
         case "onNodeToggle": {
           console.log('we have this data inside on onNodeToggle: ', data.value);
           // let the parser know that the specific node clicked changed it's expanded value
@@ -144,17 +155,34 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       }
     });
 
-    // Event that triggers when Webview changes visibility :
+    // Event that triggers when Webview changes visibility
     webviewView.onDidChangeVisibility((e) => {
-      // console.log('Visibility Changed! ', e);
-      // console.log('Webview visible? ', webviewView.visible);
     });
 
-    // Event that triggers when Webview is disposed:
+    // Event that triggers when Webview is disposed
     webviewView.onDidDispose((e) => {
-      // console.log('Webview Was Disposed! ', e);
     });
   }
+
+  // function when the status-bar button is clicked
+  public statusButtonClicked = () => {
+    // file path of the file the user clicked
+    const { fileName } = vscode.window.activeTextEditor.document;
+    if (fileName) {
+      // begin new instance of the parser
+      this.parser = new SaplingParser(fileName);
+      this.parser.parse();
+      this.fileName = this.parser.tree.fileName;
+
+      // send the post message to the webview with the new tree
+      const parsed = this.parser.getTree();
+      this._view.webview.postMessage({
+        type: "parsed-data",
+        value: parsed
+      });
+
+    }
+  };
 
   // revive statement for the webview panel
   public revive(panel: vscode.WebviewView) {

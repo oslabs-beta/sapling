@@ -23,11 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand("sapling.generateTree", async () => {
 			await vscode.commands.executeCommand('workbench.view.extension.sapling-sidebar-view');
-			console.log('this is the file that the user is currently on: ', vscode.window.activeTextEditor.document);
-			sidebarProvider._view.webview.postMessage({
-				type: "start-tree",
-				value: vscode.window.activeTextEditor.document.fileName
-			});
+      sidebarProvider.statusButtonClicked();
 		})
 	);
 

@@ -1,27 +1,19 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+
+// import for the nodes
 import TreeNode from './TreeNode';
 
 const Tree = ({ data, first }: any) => {
-  // function to add a randomized variable to link the htmlFor in the tree node tags
-  // const idRandomizer = () => {
-  //   let text = "";
-  //   const possible =
-  //     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  //   for (let i = 0; i < 32; i++) {
-  //     text += possible.charAt(Math.floor(Math.random() * possible.length));
-  //   }
-  //   return text;
-  // };
+  // Render section
   return (
     <>
-      {first ? data.map((tree: any, i: any) => {
-          // const uniqueId = idRandomizer();
+    {/* Checks if the current iteration is the first time being run (adding in ul if not, and without ul if it is the first time) */}
+      {first ? data.map((tree: any) => {
           return <TreeNode key={tree.id} node={tree}/>;
         }):
         <ul>
-          {data.map((tree: any, i: any) => {
-            // const uniqueId = idRandomizer();
+          {data.map((tree: any) => {
             return <TreeNode key={tree.id} node={tree}/>;
           })}
         </ul>

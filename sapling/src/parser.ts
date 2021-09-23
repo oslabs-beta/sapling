@@ -76,19 +76,57 @@ class SaplingParser {
     this.tree = tree;
   }
 
-  // Updates tree when a file is saved, checking for new components added from the updated tree
+  // // Updates tree when a file is saved, checking for new components added from the updated tree
+  // public updateTree(filePath : string) : Tree {
+
+  //   const callback = (node) => {
+  //     if (node.filePath === filePath) {
+  //       this.parser(node);
+  //     }
+  //   };
+
+  //   this.traverseTree(callback, this.tree);
+
+  //   return this.tree;
+  // }
+
   public updateTree(filePath : string) : Tree {
+      let children = [];
 
-    const callback = (node) => {
-      if (node.filePath === filePath) {
-        this.parser(node);
-      }
-    };
+      const getChildNodes = (node) => {
+        const { depth, filePath, expanded } = node;
+        children.push({ depth, filePath, expanded });
+      };
 
-    this.traverseTree(callback, this.tree);
+      const matchExpand = (node) => {
+        for (let i = 0 ; i < children.length ; i += 1) {
+          const oldNode = children[i];
+            if (oldNode.depth === node.depth && oldNode.filePath === node.filePath && oldNode.expanded) {
+              node.expanded = true;
+            }
+        }
+      };
 
-    return this.tree;
-  }
+      const callback = (node) => {
+        if (node.filePath === filePath) {
+          node.children.forEach(child => {
+            this.traverseTree(getChildNodes, child);
+          });
+
+          const newNode = this.parser(node);
+
+          this.traverseTree(matchExpand, newNode);
+          
+          children = [];
+        }
+      };
+  
+      this.traverseTree(callback, this.tree);
+  
+      return this.tree;
+    }
+
+  
 
   // Traverses the tree and changes expanded property of node whose id matches provided id
   public toggleNode(id : string, expanded : boolean) : Tree {
@@ -124,7 +162,7 @@ class SaplingParser {
     // If import is a node module, do not parse any deeper
     if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
       componentTree.thirdParty = true;
-      if (componentTree.fileName === 'react-router-dom') {
+      if (componentTree.fileName === 'react-router-dom' || componentTree.fileName === 'react-router') {
         componentTree.reactRouter = true;
       }
       return;
