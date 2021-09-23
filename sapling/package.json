@@ -10,9 +10,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:sapling.helloWorld",
-		"onCommand:sapling.refresh",
-		"onView:sapling-sidebar"
+		"onStartupFinished"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -38,13 +36,14 @@
 		},
 		"commands": [
 			{
-				"command": "sapling.helloWorld",
-				"title": "Hello World"
-			},
-			{
 				"command": "sapling.refresh",
 				"category": "Sapling",
 				"title": "Refresh"
+			},
+			{
+				"command": "sapling.generateTree",
+				"category": "Sapling",
+				"title": "Generate Tree"
 			}
 		],
 		"configuration": {
