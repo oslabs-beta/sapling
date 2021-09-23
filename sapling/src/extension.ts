@@ -23,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand("sapling.generateTree", async () => {
 			await vscode.commands.executeCommand('workbench.view.extension.sapling-sidebar-view');
-      sidebarProvider.statusButtonClicked();
+			sidebarProvider.statusButtonClicked();
 		})
 	);
 

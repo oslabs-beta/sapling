@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
-import { file } from "@babel/types";
 import SaplingParser from './parser';
 const fs = require('fs');
 
@@ -9,7 +8,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
   parser: SaplingParser | undefined;
-  fileName: any;
 
   constructor(private readonly _extensionUri: vscode.Uri) {}
 
@@ -79,27 +77,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           if (!data.value) {
             return;
           }
-
-          if (typeof data.value === 'object') {
-            this.fileName = data.value.fileName;
-            this.parser = new SaplingParser(data.value.filePath);
-          } else {
-            const n = data.value.lastIndexOf('/');
-            const fileName = data.value.substring(n + 1);
-            console.log(fileName);
-            this.fileName = fileName;
-            this.parser = new SaplingParser(data.value);
-          }
+          // Run an instance of the parser
+          this.parser = new SaplingParser(data.value);
           const parsed = this.parser.parse();
-          // console.log('Parser result: ', parsed);
           // pass the parser result into the value of the postMessage
           webviewView.webview.postMessage({
             type: "parsed-data",
             value: parsed
-          });
-          webviewView.webview.postMessage({
-            type: "saved-file",
-            value: this.fileName
           });
           break;
         }
@@ -109,7 +93,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           if (!data.value) {
             return;
           }
-          // const fileUri = vscode.Uri.file(data.value);
+          // Open and the show the user the file they want to see
           const doc = await vscode.workspace.openTextDocument(data.value);
           const editor = await vscode.window.showTextDocument(doc, {preserveFocus: false, preview: false});
           break;
@@ -120,24 +104,25 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           if (!this.parser) {
             return;
           }
-
+          // Get and send the saved tree to the webview
           const parsed = this.parser.getTree();
           webviewView.webview.postMessage({
             type: "parsed-data",
             value: parsed
           });
-          const fileName = this.fileName;
+          // Get the name of the prev. file saved and send it to the webview
+          const shortFileName = this.parser.tree.fileName;
           webviewView.webview.postMessage({
             type: "saved-file",
-            value: fileName
+            value: shortFileName
           });
           break;
         }
 
+        // Case to retrieve the user's settings
         case "onSettingsAcquire": {
           // use getConfiguration to check what the current settings are for the user
           const settings = await vscode.workspace.getConfiguration('sapling');
-          // console.log('This is the output from using getConfig for settings: ', settings.view);
           // send a message back to the webview with the data on settings
           webviewView.webview.postMessage({
             type: "settings-data",
@@ -146,8 +131,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           break;
         }
 
+        // Case that changes the parser's recorded node expanded/collapsed structure
         case "onNodeToggle": {
-          console.log('we have this data inside on onNodeToggle: ', data.value);
           // let the parser know that the specific node clicked changed it's expanded value
           this.parser.toggleNode(data.value.id, data.value.expanded);
           break;
@@ -172,15 +157,18 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       // begin new instance of the parser
       this.parser = new SaplingParser(fileName);
       this.parser.parse();
-      this.fileName = this.parser.tree.fileName;
-
       // send the post message to the webview with the new tree
       const parsed = this.parser.getTree();
       this._view.webview.postMessage({
         type: "parsed-data",
         value: parsed
       });
-
+      // Get the name of the prev. file saved and send it to the webview
+      const shortFileName = this.parser.tree.fileName;
+      this._view.webview.postMessage({
+        type: "saved-file",
+        value: shortFileName
+      });
     }
   };
 
