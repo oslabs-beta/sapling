@@ -1,0 +1,76 @@
+@import "../assets/mixins.less";
+@import "../assets/palette.less";
+
+.QuizTile {
+    width: 100%;
+    height: calc(~"100% + 50px");
+    position: relative;
+    background-color: @white-darker;
+}
+
+.QuizTile__text {
+    background-color: @white-darker;
+    height: 50px;
+    width: 100%;
+
+    .QuizTile__name {
+        font-size: 14px;
+        color: @text-color;
+        text-decoration: none;
+        display: block;
+        width: 100%;
+        font-weight: 600;
+        cursor: pointer;
+
+        .text-ellipsis;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .QuizTile__author {
+        margin-top: 3px;
+        font-size: 12px;
+        color: @secondary-text-color;
+        font-weight: 500;
+
+        .text-ellipsis;
+    }
+}
+
+.QuizTile__title {
+    color: @white-darker;
+    padding: 0;
+    position: relative;
+    cursor: default;
+}
+
+.QuizTile__overlay {
+    opacity: 1;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left:0;
+    background-color: rgba(0, 0, 0, 0.35);
+    display: flex;
+    transition: .3s;
+
+    &:hover {
+        opacity: 0;
+    }
+}
+
+.QuizTile__account-score {
+    margin: auto;
+    font-size: 60px;
+    color: white;
+}
+
+.QuizTile__survey--passed {
+    display: block;
+    margin: auto;
+    font-size: 90px;
+    color: white;
+}

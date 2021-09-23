@@ -1,0 +1,32 @@
+@import "../assets/media.less";
+
+@line-height: 22px;
+
+.ExpandableText {
+    padding: 24px;
+    font-weight: 200;
+
+    @media @phone {
+        margin-top: 20px;
+        padding: 16px;
+    }
+}
+
+.ExpandableText__text {
+    p {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        line-height: @line-height;
+        margin-bottom: @line-height;
+    }
+
+    &.minimized {
+        height: @line-height * 3;
+        overflow: hidden;
+    }
+}
+
+.ExpandableText__expand-button {
+    display: block;
+    margin: 0 auto;
+}

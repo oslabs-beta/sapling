@@ -1,0 +1,251 @@
+@import "../../assets/palette.less";
+@import "../../assets/media.less";
+
+.ActivationsPage {
+    background-color: @background-color;
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+
+    .ActivationsPage__toolbar-container {
+        height: 48px;
+        background-color: @primary-1-color;
+        display: flex;
+        justify-content: center;
+
+        @media @phone {
+            width: 100%;
+            overflow: auto;
+
+            .mdl-tabs {
+                width: 500px;
+            }
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+
+        .mdl-tabs {
+            width: auto;
+        }
+
+        .mdl-tabs__tab-bar {
+            width: auto;
+            justify-content: center;
+            border-bottom: none;
+        }
+
+        .mdl-tabs__tab {
+            color: @white-dark;
+            font-weight: regular;
+            font-size: 14px;
+
+            &::after {
+                background: @accent-1-color;
+            }
+
+            &.is-active {
+                color: @white-darker;
+            }
+
+            .mdl-ripple {
+                background: white;
+            }
+        }
+
+        .mdl-tabs__tab.is-active::after {
+            background: @accent-1-color;
+        }
+    }
+
+    .ActivationsPage__toolbar {
+        display: flex;
+        padding-left: 50px;
+        padding-right: 50px;
+        width: 100%;
+        max-width: 1300px;
+        box-sizing: border-box;
+        justify-content: center;
+    }
+}
+
+.ActivationsPage__header {
+    box-shadow: 0 3px 4px 0 rgba(0,0,0,.14),0 3px 3px -2px rgba(0,0,0,.2),0 1px 8px 0 rgba(0,0,0,.12);
+    position: fixed;
+    z-index: 999;
+    width: 100%;
+    top: 0;
+}
+
+.ActivationsPage__content {
+    margin-top: 120px;
+    margin-bottom: 120px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.ActivationsPage__empty-state {
+    font-size: 20px;
+    text-align: center;
+    max-width: 500px;
+    line-height: 30px;
+    color: @additional-text-color;
+    margin-top: 50px;
+    font-weight: 300;
+}
+
+.ActivationsPage__special-tab {
+    background-color: rgba(0, 0, 0, 0);
+
+    // temporary hide special-tab
+    display: none;
+}
+
+.ActivationsPage__tab-text {
+    @media @phone {
+        display: none;
+    }
+}
+
+.ActivationsPage__tab-icon {
+    display: none;
+    font-size: 18px;
+
+    @media @phone {
+        display: inline-block;
+    }
+}
+
+.ActivationsPage__list {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.ActivationsPage__spinner {
+    margin: 10px;
+}
+
+.ActivationsPage__subscribe-btn {
+    background-color: @accent-1-color !important;
+    color: white !important;
+    margin-top: 8px;
+}
+
+.ActivationsPage--embedded {
+    width: 100%;
+
+    .ActivationsPage__app-bar {
+        display: none;
+    }
+
+    .ActivationPage__select {
+        color: @accent-1-color;
+    }
+
+    .ActivationsPage__toolbar-container {
+        background-color: @white-darker;
+        top: 0;
+
+        .mdl-tabs__tab {
+            color: @black-dark;
+            font-weight: medium;
+            font-size: 14px;
+
+            &.is-active {
+                color: @black-darker;
+            }
+        }
+    }
+
+    .ActivationsPage__content {
+        margin-top: 60px;
+        margin-bottom: 60px;
+    }
+}
+
+.ActivationsPage__grid-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 1300px;
+    align-items: center;
+    justify-content: center;
+}
+
+.ActivationsPage__grid {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.ActivationsPage__grid-toolbar {
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.ActivationPage__select {
+    background-color: transparent;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 0;
+    height: 49px;
+    font-size: 14px;
+    padding: 0 5px;
+    font-weight: 500;
+    text-overflow: "";
+    color: @white-darker;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0 10px;
+
+    option {
+        color: black;
+        background-color: white;
+    }
+
+    &:focus{
+        outline: 0;
+    }
+
+    &::-ms-expand { display: none; }
+
+    @media @phone {
+        display: none;
+        font-size: 11px;
+    }
+}
+
+.ActivationsPage__loading-next-spinner-container {
+    width: 100%;
+    margin-top: 70px;
+    display: flex;
+    justify-content: center;
+}
+
+.ActivationsPage__quiz-card {
+    margin: 10px;
+    width: 300px;
+    height: 394px;
+}
+
+.ActivationsPage__card-spinner {
+    margin: auto;
+}
+
+.ActivationsPage__loading-card {
+    width: 300px;
+    height: 393px;
+    margin: 10px;
+    display: flex;
+}
