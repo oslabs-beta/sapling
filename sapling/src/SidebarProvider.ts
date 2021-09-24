@@ -1,15 +1,27 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
-import SaplingParser from './parser';
-const fs = require('fs');
+import { SaplingParser, Tree } from './parser';
+
 
 // Sidebar class that creates a new instance of the sidebar + adds functionality with the parser
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
   parser: SaplingParser | undefined;
+  private readonly _extensionUri: vscode.Uri;
+  private readonly context: vscode.ExtensionContext;
 
-  constructor(private readonly _extensionUri: vscode.Uri) {}
+  constructor(context: vscode.ExtensionContext) {
+    this.context = context;
+    this._extensionUri = context.extensionUri;
+    // Check for sapling state in workspace and set tree with previous state
+    const state: Tree | undefined = context.workspaceState.get('sapling');
+    console.log('this is the state we get in sidebar provider: ', state);
+    if (state) {
+      this.parser = new SaplingParser(state.filePath);
+      this.parser.setTree(state);
+    }
+  }
 
   // Instantiate the connection to the webview
   public resolveWebviewView(webviewView: vscode.WebviewView) {
@@ -55,13 +67,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         return;
       }
       // Post a message to the webview with the newly parsed tree
-      const parsed = this.parser.updateTree(document.fileName);
-      if (webviewView.visible) {
-        webviewView.webview.postMessage({
-            type: "parsed-data",
-            value: parsed
-          });
-      }
+      this.parser.updateTree(document.fileName);
+      this.updateView();
     });
 
     // Reaches out to the project file connector function below
@@ -79,12 +86,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           }
           // Run an instance of the parser
           this.parser = new SaplingParser(data.value);
-          const parsed = this.parser.parse();
-          // pass the parser result into the value of the postMessage
-          webviewView.webview.postMessage({
-            type: "parsed-data",
-            value: parsed
-          });
+          this.parser.parse();
+          this.updateView();
           break;
         }
 
@@ -105,17 +108,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             return;
           }
           // Get and send the saved tree to the webview
-          const parsed = this.parser.getTree();
-          webviewView.webview.postMessage({
-            type: "parsed-data",
-            value: parsed
-          });
-          // Get the name of the prev. file saved and send it to the webview
-          const shortFileName = this.parser.tree.fileName;
-          webviewView.webview.postMessage({
-            type: "saved-file",
-            value: shortFileName
-          });
+          this.updateView();
           break;
         }
 
@@ -133,8 +126,11 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
         // Case that changes the parser's recorded node expanded/collapsed structure
         case "onNodeToggle": {
-          // let the parser know that the specific node clicked changed it's expanded value
-          this.parser.toggleNode(data.value.id, data.value.expanded);
+          // let the parser know that the specific node clicked changed it's expanded value, save in state
+          this.context.workspaceState.update(
+            'sapling',
+            this.parser.toggleNode(data.value.id, data.value.expanded)
+          );
           break;
         }
 
@@ -168,24 +164,31 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       // begin new instance of the parser
       this.parser = new SaplingParser(fileName);
       this.parser.parse();
-      // send the post message to the webview with the new tree
-      const parsed = this.parser.getTree();
-      this._view.webview.postMessage({
-        type: "parsed-data",
-        value: parsed
-      });
-      // Get the name of the prev. file saved and send it to the webview
-      const shortFileName = this.parser.tree.fileName;
-      this._view.webview.postMessage({
-        type: "saved-file",
-        value: shortFileName
-      });
+      this.updateView();
     }
   };
 
   // revive statement for the webview panel
   public revive(panel: vscode.WebviewView) {
     this._view = panel;
+  }
+
+  // Helper method to send updated tree data to view, and saves current tree to workspace
+  private updateView() {
+    // Save current state of tree to workspace state:
+    const tree = this.parser.getTree();
+    this.context.workspaceState.update('sapling', tree);
+    // Send updated tree to webview
+    this._view.webview.postMessage({
+      type: "parsed-data",
+      value: tree
+    });
+    // Send up tree root filename too
+    const shortFileName = this.parser.tree.fileName;
+    this._view.webview.postMessage({
+      type: "saved-file",
+      value: shortFileName
+    });
   }
 
   // paths and return statement that connects the webview to React project files
