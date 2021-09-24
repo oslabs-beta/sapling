@@ -1,3 +1,7 @@
+.tree_view {
+  overflow-x: scroll;
+}
+
 .inputfile {
 	width: 0.1px;
 	height: 0.1px;
@@ -27,12 +31,12 @@
 .inputfile + label {
 	cursor: pointer;
 }
-/* 
+/*
 .inputfile:focus + label {
 	outline: 1px dotted #000;
 	outline: -webkit-focus-ring-color auto 2px;
 } */
-/* 
+/*
 .navbar {
   display: grid;
   grid-template-columns: repeat(auto-fill, 210px);
@@ -62,7 +66,7 @@
   border-radius: 100px;
   transition: .2s;
   width: 40px;
-  margin-left: 5px; 
+  margin-left: 5px;
   border-radius: 100px;
   border-top-right-radius: 100px;
   border-bottom-right-radius: 100px;
@@ -96,6 +100,7 @@
 /* ————————————————————–
   Tree rows
 */
+
 .tree_beginning li {
   line-height: 1.2;
   position: relative;

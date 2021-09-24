@@ -184,11 +184,11 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       value: tree
     });
     // Send up tree root filename too
-    const shortFileName = this.parser.tree.fileName;
-    this._view.webview.postMessage({
-      type: "saved-file",
-      value: shortFileName
-    });
+    // const shortFileName = this.parser.tree.fileName;
+    // this._view.webview.postMessage({
+    //   type: "saved-file",
+    //   value: shortFileName
+    // });
   }
 
   // paths and return statement that connects the webview to React project files
