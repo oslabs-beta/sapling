@@ -32,12 +32,14 @@ export class SaplingParser {
   fileList: {[key: string] : boolean};
 
   constructor(filePath: string) {
-    // Normalize filePath to posix
-    this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
-    if (this.entryFile.includes('/wsl$/')) {
-      // console.log(this.entryFile.split('/'));
+    // Fix when selecting files in wsl file system
+    console.log('This is the file path for the parser: ', filePath);
+    this.entryFile = filePath;
+    if (process.platform === 'linux' && this.entryFile.includes('wsl$')) {
+      this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
       this.entryFile = '/' + this.entryFile.split('/').slice(3).join('/');
     }
+
     // console.log('ENTRY FILE PATH: ', this.entryFile);
     this.tree = undefined;
     // Break down and reasemble given filePath safely for any OS using path?
@@ -64,6 +66,7 @@ export class SaplingParser {
 
     this.tree = root;
     this.parser(root);
+    console.log('This is the parsed Tree: ', this.tree);
     return this.tree;
   }
 
@@ -180,6 +183,7 @@ export class SaplingParser {
     // Create abstract syntax tree of current component tree file
     let ast;
     try {
+      console.log('Trying to build an AST for file: ', path.resolve(componentTree.filePath));
       ast = babelParser.parse(fs.readFileSync(path.resolve(componentTree.filePath), 'utf-8'), {
         sourceType: 'module',
         tokens: true,
@@ -192,6 +196,8 @@ export class SaplingParser {
       componentTree.error = 'Error while processing this file/node';
       return componentTree;
     }
+
+    console.log('This is the ast from the file: ', ast);
 
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);
