@@ -38,6 +38,10 @@ export class SaplingParser {
     if (process.platform === 'linux' && this.entryFile.includes('wsl$')) {
       this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
       this.entryFile = '/' + this.entryFile.split('/').slice(3).join('/');
+    // Fix for when running wsl but selecting files held on windows file system
+    } else if (process.platform === 'linux' && (/[a-zA-Z]/).test(this.entryFile[0])) {
+      const root = `/mnt/${this.entryFile[0].toLowerCase()}`;
+      this.entryFile = path.join(root, filePath.split(path.win32.sep).slice(1).join(path.posix.sep));
     }
 
     // console.log('ENTRY FILE PATH: ', this.entryFile);
