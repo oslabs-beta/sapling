@@ -2,7 +2,6 @@ import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
 import { SaplingParser, Tree } from './parser';
 
-
 // Sidebar class that creates a new instance of the sidebar + adds functionality with the parser
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
@@ -16,7 +15,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     this._extensionUri = context.extensionUri;
     // Check for sapling state in workspace and set tree with previous state
     const state: Tree | undefined = context.workspaceState.get('sapling');
-    console.log('this is the state we get in sidebar provider: ', state);
     if (state) {
       this.parser = new SaplingParser(state.filePath);
       this.parser.setTree(state);
@@ -138,10 +136,12 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         case "onBoldCheck": {
           // Message sent to the webview to bold the active file
           const { fileName } = vscode.window.activeTextEditor.document;
-          this._view.webview.postMessage({
-            type: "current-tab",
-            value: fileName
-          });
+          if (fileName) {
+            this._view.webview.postMessage({
+              type: "current-tab",
+              value: fileName
+            });
+          }
           break;
         }
       }
@@ -183,12 +183,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       type: "parsed-data",
       value: tree
     });
-    // Send up tree root filename too
-    // const shortFileName = this.parser.tree.fileName;
-    // this._view.webview.postMessage({
-    //   type: "saved-file",
-    //   value: shortFileName
-    // });
   }
 
   // paths and return statement that connects the webview to React project files

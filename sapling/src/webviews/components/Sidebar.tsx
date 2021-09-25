@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Tree as TreeType } from '../../parser';
+// import { Tree as TreeType } from '../../parser';
 
 // component imports
 import Navbar from './Navbar';
@@ -8,8 +8,8 @@ import Tree from './Tree';
 
 const Sidebar = () => {
   // state variables for the incomimg treeData, parsed viewData, user's settings, and the root file name
-  const [treeData, setTreeData]: [[TreeType], Function] = useState();
-  const [viewData, setViewData]: [[TreeType], Function] = useState();
+  const [treeData, setTreeData]: any = useState();
+  const [viewData, setViewData]: any = useState();
   const [settings, setSettings]: [{[key : string]: boolean}, Function] = useState();
   const [rootFile, setRootFile]: [string | undefined, Function] = useState();
 
