@@ -57,7 +57,7 @@ export class SaplingParser {
       name: path.basename(this.entryFile).replace(/\.(t|j)sx?$/, ''),
       fileName: path.basename(this.entryFile),
       filePath : this.entryFile,
-      importPath: this.entryFile,
+      importPath: '/', // this.entryFile here breaks windows file path on root e.g. C:\\ is detected as third party
       expanded: false,
       depth: 0,
       count: 1,
