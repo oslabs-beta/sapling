@@ -4,6 +4,13 @@
   background-color: var(--vscode-menu-background);
 }
 
+.line_break {
+  border: none;
+  border-top: 2px solid;
+  opacity: 40%;
+  margin: 0;
+}
+
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -12,6 +19,7 @@
 
 .navbar {
   flex-grow: 0;
+  padding: 10px 0px;
 }
 
 .tree_view {
