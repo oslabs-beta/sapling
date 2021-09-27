@@ -17,6 +17,7 @@ export type Tree = {
   thirdParty: boolean,
   reactRouter: boolean,
   children: Tree[],
+  parentList: string[],
   props: {[key: string]: boolean},
   error: string;
 };
@@ -29,7 +30,6 @@ type ImportObj = {
 export class SaplingParser {
   entryFile: string;
   tree: Tree | undefined;
-  fileList: {[key: string] : boolean};
 
   constructor(filePath: string) {
     // Fix when selecting files in wsl file system
@@ -64,6 +64,7 @@ export class SaplingParser {
       thirdParty: false,
       reactRouter: false,
       children: [],
+      parentList: [],
       props: {},
       error: ''
     };
@@ -83,20 +84,6 @@ export class SaplingParser {
     this.entryFile = tree.filePath;
     this.tree = tree;
   }
-
-  // // Updates tree when a file is saved, checking for new components added from the updated tree
-  // public updateTree(filePath : string) : Tree {
-
-  //   const callback = (node) => {
-  //     if (node.filePath === filePath) {
-  //       this.parser(node);
-  //     }
-  //   };
-
-  //   this.traverseTree(callback, this.tree);
-
-  //   return this.tree;
-  // }
 
   public updateTree(filePath : string) : Tree {
       let children = [];
@@ -184,6 +171,12 @@ export class SaplingParser {
       return;
     }
 
+    console.log('About to parse file: ', componentTree.filePath, 'with parents: ', componentTree.parentList);
+    // If current node recursively calls itself, do not parse any deeper:
+    if (componentTree.parentList.includes(componentTree.filePath)) {
+      return;
+    }
+
     // Create abstract syntax tree of current component tree file
     let ast;
     try {
@@ -192,11 +185,12 @@ export class SaplingParser {
         sourceType: 'module',
         tokens: true,
         plugins: [
-          'jsx'
+          'jsx',
+          'typescript',
         ]
       });
     } catch (err) {
-      // console.log('Error when trying to parse file', componentTree.filePath, fs.readdirSync('/Ubuntu'));
+      console.log('Error when trying to parse file', err);
       componentTree.error = 'Error while processing this file/node';
       return componentTree;
     }
@@ -253,7 +247,6 @@ export class SaplingParser {
     let childNodes: {[key : string]: Tree} = {};
     let props : {[key : string]: boolean} = {};
     let token : {[key: string]: any};
-    let loc : number;
 
     for (let i = 0; i < astTokens.length; i++) {
       // Case for finding JSX tags eg <App .../>
@@ -298,6 +291,7 @@ export class SaplingParser {
         count: 1,
         props: props,
         children: [],
+        parentList: [parent.filePath].concat(parent.parentList),
         error: '',
       };
     }
