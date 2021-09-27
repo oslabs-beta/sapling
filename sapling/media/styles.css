@@ -1,5 +1,26 @@
+#root {
+  margin: 0;
+  height: 100%;
+  background-color: var(--vscode-menu-background);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.navbar {
+  flex-grow: 0;
+}
+
 .tree_view {
   overflow-x: scroll;
+  flex-grow: 1;
+}
+
+.node_error {
+  color: var(--vscode-editorError-foreground);
 }
 
 .inputfile {

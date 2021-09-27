@@ -62,7 +62,7 @@ const TreeNode = ({ node }: any) => {
       return <p>{prop}</p>;
     });
   };
-  
+
   // Variable that holds the props that will be fed into the tooltip (Tippy)
   const propsList = propsGenerator();
 
@@ -81,6 +81,10 @@ const TreeNode = ({ node }: any) => {
     });
   };
 
+  const classString = "tree_label" + (node.error ? " node_error" : "");
+  console.log('Node error: ', node.error);
+  //const classString = "tree_label";
+
   // Render section
   return (
     <>
@@ -90,8 +94,8 @@ const TreeNode = ({ node }: any) => {
           <input type="checkbox" checked={expanded} id={node.id} onClick={toggleNode} />
           {/* Checks for the user's current active file */}
           {currFile ?
-            <label className="tree_label" htmlFor={node.id}><strong style={{ fontWeight: 800 }}>{node.name}</strong></label>
-          : <label className="tree_label" htmlFor={node.id}>{node.name}</label>}
+            <label className={classString} htmlFor={node.id}><strong style={{ fontWeight: 800 }}>{node.name}</strong></label>
+          : <label className={classString} htmlFor={node.id}>{node.name}</label>}
           {/* Checks to make sure there are no thirdParty or reactRouter node_icons */}
           {!node.thirdParty && !node.reactRouter ? (
             <Fragment>
@@ -107,8 +111,8 @@ const TreeNode = ({ node }: any) => {
         <li>
           {/* Checks for the user's current active file */}
           {currFile ?
-            <span className="tree_label"><strong style={{ fontWeight: 800 }}>{node.name}</strong></span>
-          : <span className="tree_label">{node.name}</span>
+            <span className={classString}><strong style={{ fontWeight: 800 }}>{node.name}</strong></span>
+          : <span className={classString}>{node.name}</span>
           }
           {/* Checks to make sure there are no thirdParty or reactRouter node_icons */}
           {!node.thirdParty && !node.reactRouter ? (
