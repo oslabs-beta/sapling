@@ -47,14 +47,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     // Event listener that triggers whenever the user changes their current active window
     vscode.window.onDidChangeActiveTextEditor((e) => {
-      // Catches edge case when the user closes all active tabs
-      if (!e) {
-        return;
-      }
       // Post a message to the webview with the file path of the user's current active window
       webviewView.webview.postMessage({
         type: "current-tab",
-        value: e.document.fileName
+        value: e ? e.document.fileName : undefined
       });
     });
 
@@ -134,8 +130,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
         // Message sent to the webview to bold the active file
         case "onBoldCheck": {
+          // Check there is an activeText Editor
+          const fileName = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document.fileName: null;
           // Message sent to the webview to bold the active file
-          const { fileName } = vscode.window.activeTextEditor.document;
           if (fileName) {
             this._view.webview.postMessage({
               type: "current-tab",
