@@ -1,3 +1,7 @@
+.tree_view {
+  overflow-x: scroll;
+}
+
 .inputfile {
 	width: 0.1px;
 	height: 0.1px;
@@ -27,54 +31,16 @@
 .inputfile + label {
 	cursor: pointer;
 }
-/* 
-.inputfile:focus + label {
-	outline: 1px dotted #000;
-	outline: -webkit-focus-ring-color auto 2px;
-} */
-/* 
-.navbar {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, 210px);
-  grid-gap: 10px;
-  width: 70%;
-  margin: auto;
-  contain: content;
-}
-
-#file_input {
-  text-align: center;
-  align-items: center;
-  border: 1px solid rgb(171, 171, 171);
-  padding: 6px 8px;
-  border-top-left-radius: 100px;
-  border-bottom-left-radius: 100px;
-  cursor: pointer;
-  transition: .2s;
-}
-
-#file_input:hover {
-  background-color: rgb(38, 38, 38);
-}
-
-#file_message {
-  padding: 6px 12px;
-  border-radius: 100px;
-  transition: .2s;
-  width: 40px;
-  margin-left: 5px; 
-  border-radius: 100px;
-  border-top-right-radius: 100px;
-  border-bottom-right-radius: 100px;
-} */
 
 .node_icons {
   margin-left: 5px;
   opacity: 25%;
+  color: var(--vscode-button-background);
 }
 
 .node_icons:hover {
   opacity: 100%;
+  color: var(--vscode-button-background);
 }
 
 /* ————————————————————–
@@ -94,6 +60,11 @@
 /* ————————————————————–
   Tree rows
 */
+
+.tree_view li {
+  white-space: nowrap;
+}
+
 .tree_beginning li {
   line-height: 1.2;
   position: relative;

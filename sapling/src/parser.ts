@@ -5,7 +5,7 @@ import { getNonce } from "./getNonce";
 
 
 // React component tree is a nested data structure, children are Trees
-type Tree = {
+export type Tree = {
   id: string,
   name: string,
   fileName: string,
@@ -26,7 +26,7 @@ type ImportObj = {
 };
 
 
-class SaplingParser {
+export class SaplingParser {
   entryFile: string;
   tree: Tree | undefined;
   fileList: {[key: string] : boolean};
@@ -71,6 +71,7 @@ class SaplingParser {
     return this.tree;
   }
 
+  // Set Sapling Parser with a specific Data Tree (from workspace state)
   public setTree(tree : Tree) : void {
     this.entryFile = tree.filePath;
     this.tree = tree;
@@ -110,23 +111,23 @@ class SaplingParser {
       const callback = (node) => {
         if (node.filePath === filePath) {
           node.children.forEach(child => {
-            this.traverseTree(getChildNodes, child);
+            this.#traverseTree(getChildNodes, child);
           });
 
           const newNode = this.parser(node);
 
-          this.traverseTree(matchExpand, newNode);
-          
+          this.#traverseTree(matchExpand, newNode);
+
           children = [];
         }
       };
-  
-      this.traverseTree(callback, this.tree);
-  
+
+      this.#traverseTree(callback, this.tree);
+
       return this.tree;
     }
 
-  
+
 
   // Traverses the tree and changes expanded property of node whose id matches provided id
   public toggleNode(id : string, expanded : boolean) : Tree {
@@ -137,13 +138,13 @@ class SaplingParser {
       }
     };
 
-    this.traverseTree(callback, this.tree);
+    this.#traverseTree(callback, this.tree);
 
     return this.tree;
   }
 
   // Traverses all nodes of current component tree and applies callback to each node
-  private traverseTree(callback : Function, node : Tree = this.tree) : void {
+  #traverseTree(callback : Function, node : Tree = this.tree) : void {
     if (!node) {
       return;
     }
@@ -151,7 +152,7 @@ class SaplingParser {
     callback(node);
 
     node.children.forEach( (childNode) => {
-      this.traverseTree(callback, childNode);
+      this.#traverseTree(callback, childNode);
     });
   }
 
@@ -306,5 +307,3 @@ class SaplingParser {
     return props;
   }
 }
-
-export default SaplingParser;

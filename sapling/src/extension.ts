@@ -4,7 +4,7 @@ import { SidebarProvider } from './SidebarProvider';
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 	// instantiating the sidebar webview
-  const sidebarProvider = new SidebarProvider(context.extensionUri);
+  const sidebarProvider = new SidebarProvider(context);
 
 	const item = vscode.window.createStatusBarItem(
 		vscode.StatusBarAlignment.Right
@@ -23,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand("sapling.generateTree", async () => {
 			await vscode.commands.executeCommand('workbench.view.extension.sapling-sidebar-view');
-      sidebarProvider.statusButtonClicked();
+			sidebarProvider.statusButtonClicked();
 		})
 	);
 
