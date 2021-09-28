@@ -72,6 +72,12 @@
   color: var(--vscode-button-background);
 }
 
+.redux_connect {
+  margin-left: 5px;
+  color: var(--vscode-button-hoverBackground);
+  opacity: 100%;
+}
+
 /* ————————————————————–
   Tree core styles
 */

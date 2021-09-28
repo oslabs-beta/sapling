@@ -103,7 +103,7 @@ const TreeNode = ({ node }: any) => {
             <Fragment>
               {node.reduxConnect ?
               <Tippy content={<p><strong>Connected to Redux Store</strong></p>}>
-                <a className="node_icons" href=""><FontAwesomeIcon icon={faStore} /></a>
+                <a className="redux_connect" href=""><FontAwesomeIcon icon={faStore} /></a>
               </Tippy>
               : null}
               <Tippy content={<p><strong>Props available:</strong>{propsList}</p>}>
@@ -126,7 +126,7 @@ const TreeNode = ({ node }: any) => {
             <Fragment>
               {node.reduxConnect ?
               <Tippy content={<p><strong>Connected to Redux Store</strong></p>}>
-                <a className="node_icons" href=""><FontAwesomeIcon icon={faStore} /></a>
+                <a className="redux_connect" href=""><FontAwesomeIcon icon={faStore} /></a>
               </Tippy>
               : null}
               <Tippy content={<p><strong>Props available:</strong>{propsList}</p>}>
