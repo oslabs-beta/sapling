@@ -34,7 +34,7 @@ export class SaplingParser {
 
   constructor(filePath: string) {
     // Fix when selecting files in wsl file system
-    console.log('This is the file path for the parser: ', filePath);
+    // console.log('This is the file path for the parser: ', filePath);
     this.entryFile = filePath;
     if (process.platform === 'linux' && this.entryFile.includes('wsl$')) {
       this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
@@ -73,7 +73,7 @@ export class SaplingParser {
 
     this.tree = root;
     this.parser(root);
-    console.log('This is the parsed Tree: ', this.tree);
+    // console.log('This is the parsed Tree: ', this.tree);
     return this.tree;
   }
 
@@ -129,7 +129,7 @@ export class SaplingParser {
   public toggleNode(id : string, expanded : boolean) : Tree {
     const callback = (node) => {
       if (node.id === id) {
-        console.log('These are the ids we\'re changing: ', node.id, id);
+        // console.log('These are the ids we\'re changing: ', node.id, id);
         node.expanded = expanded;
       }
     };
@@ -173,7 +173,7 @@ export class SaplingParser {
       return;
     }
 
-    console.log('About to parse file: ', componentTree.filePath, 'with parents: ', componentTree.parentList);
+    // console.log('About to parse file: ', componentTree.filePath, 'with parents: ', componentTree.parentList);
     // If current node recursively calls itself, do not parse any deeper:
     if (componentTree.parentList.includes(componentTree.filePath)) {
       return;
@@ -182,7 +182,7 @@ export class SaplingParser {
     // Create abstract syntax tree of current component tree file
     let ast;
     try {
-      console.log('Trying to build an AST for file: ', path.resolve(componentTree.filePath));
+      // console.log('Trying to build an AST for file: ', path.resolve(componentTree.filePath));
       ast = babelParser.parse(fs.readFileSync(path.resolve(componentTree.filePath), 'utf-8'), {
         sourceType: 'module',
         tokens: true,
@@ -192,12 +192,12 @@ export class SaplingParser {
         ]
       });
     } catch (err) {
-      console.log('Error when trying to parse file', err);
+      // console.log('Error when trying to parse file', err);
       componentTree.error = 'Error while processing this file/node';
       return componentTree;
     }
 
-    console.log('This is the ast from the file: ', ast);
+    // console.log('This is the ast from the file: ', ast);
 
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);

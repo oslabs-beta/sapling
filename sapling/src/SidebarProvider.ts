@@ -26,7 +26,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     this._view = webviewView;
 
     // Log to know at what point the webview is initialized
-    console.log('WebView Initialized!');
+    // console.log('WebView Initialized!');
 
     webviewView.webview.options = {
       // Allow scripts in the webview

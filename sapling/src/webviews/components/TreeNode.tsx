@@ -83,7 +83,7 @@ const TreeNode = ({ node }: any) => {
   };
 
   const classString = "tree_label" + (node.error ? " node_error" : "");
-  console.log('Node error: ', node.error);
+  // console.log('Node error: ', node.error);
   //const classString = "tree_label";
 
   // Render section
