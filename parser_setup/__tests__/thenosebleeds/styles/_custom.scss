@@ -1,0 +1,81 @@
+/* ### CUSTOM STYLES ### */
+
+/* ### OVERALL STYLES ### */
+
+
+body {
+  background-color:  lightgray;
+}
+
+li {
+  list-style-type: none;
+}
+
+.nav-bar {
+  display: flex;
+
+}
+
+.nav-link {
+  margin-right: 10px;
+}
+
+/* ### NAVBAR ### */
+
+.navbar.navbar-light.bg-light {
+  background-color: dodgerblue !important;
+  margin-bottom: 20px;
+
+  .navbar-brand {
+    font-size: 24px;
+    font-weight: 600;
+    color: #FFF;
+    border: none;
+    background-color: transparent;
+  }
+
+  .navbar-nav.ml-auto {
+    margin-left: auto;
+  }
+
+  .nav-item {
+    font-size: 16px;
+    a {
+      text-decoration: none;
+    }
+    .nav-link {
+      border: none;
+      background-color: transparent;
+    }
+  }
+}
+
+
+/* ### CARDS ### */
+
+.event-card.card {
+  padding: 0 0;
+
+  .card-body {
+    .card-subtitle {
+      margin-bottom: 16px;
+    }
+    .card-text {
+      margin-bottom: 20px;
+      font-size: 20px;
+      span {
+        margin-right: 28px;
+      }
+    }
+    // .prices {
+    //   display: flex;
+    //   justify-content: space-between;
+    // }
+    .btn-group {
+      margin-top: 28px;
+      a {
+        margin-right: 20px;
+      }
+    }
+  }
+}

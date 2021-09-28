@@ -91,6 +91,7 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
       <Navbar rootFile={rootFile}/>
+      <hr className="line_break"/>
       <div className="tree_view">
         <ul className="tree_beginning">
           {viewData && settings ?
