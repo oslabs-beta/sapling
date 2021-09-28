@@ -193,6 +193,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     const styleMainUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "media", "styles.css")
     );
+
     const scriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "dist", "sidebar.js")
     );
@@ -211,7 +212,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         <meta http-equiv="Content-Security-Policy"
           content="default-src 'none';
           style-src 'unsafe-inline' ${webview.cspSource};
-          img-src '${webview.cspSource} https:';
+          img-src ${webview.cspSource} https:;
           script-src 'nonce-${nonce}';">
           <link href="${styleResetUri}" rel="stylesheet">
           <link href="${styleVSCodeUri}" rel="stylesheet">

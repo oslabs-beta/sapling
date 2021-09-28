@@ -8,7 +8,6 @@ import Tree from './Tree';
 // imports for the icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle, faArrowCircleRight, faStore } from '@fortawesome/free-solid-svg-icons';
-import { Icon } from '@iconify/react';
 
 // imports for the tooltip
 import Tippy from '@tippy.js/react';
@@ -89,7 +88,6 @@ const TreeNode = ({ node }: any) => {
   // Render section
   return (
     <>
-    <Icon icon="logos:redux" />
     {/* Conditional to check whether there are children or not on the current node */}
       {child ? (
         <li>
