@@ -16,6 +16,7 @@ export type Tree = {
   count: number,
   thirdParty: boolean,
   reactRouter: boolean,
+  reduxConnect: boolean,
   children: Tree[],
   parentList: string[],
   props: {[key: string]: boolean},
@@ -63,6 +64,7 @@ export class SaplingParser {
       count: 1,
       thirdParty: false,
       reactRouter: false,
+      reduxConnect: false,
       children: [],
       parentList: [],
       props: {},
@@ -205,6 +207,9 @@ export class SaplingParser {
       componentTree.children = this.getJSXChildren(ast.tokens, imports, componentTree);
     }
 
+    // Check if current node is connected to the Redux store
+    componentTree.reduxConnect = this.checkForRedux(ast.tokens, imports);
+
     // Recursively parse all child components
     componentTree.children.forEach(child => this.parser(child));
 
@@ -288,6 +293,7 @@ export class SaplingParser {
         depth: parent.depth + 1,
         thirdParty: false,
         reactRouter: false,
+        reduxConnect: false,
         count: 1,
         props: props,
         children: [],
@@ -309,5 +315,30 @@ export class SaplingParser {
       j += 1;
     }
     return props;
+  }
+
+  // Checks if current Node is connected to React-Redux Store
+  private checkForRedux(astTokens: [{[key: string]: any}], importsObj : ImportObj) : boolean {
+    // Check that react-redux is imported in this file (and we have a connect method or otherwise)
+    let reduxImported = false;
+    let connectAlias;
+    Object.keys(importsObj).forEach( key => {
+      if (importsObj[key].importPath === 'react-redux' && importsObj[key].importName === 'connect') {
+        reduxImported = true;
+        connectAlias = key;
+      }
+    });
+
+    if (!reduxImported) {
+      return false;
+    }
+
+    // Check that connect method is invoked and exported in the file
+    for (let i = 0; i < astTokens.length; i += 1) {
+      if (astTokens[i].type.label === 'export' && astTokens[i + 1].type.label === 'default' && astTokens[i + 2].value === connectAlias) {
+        return true;
+      }
+    }
+    return false;
   }
 }
