@@ -19,6 +19,8 @@
 	"exclude": [
 		"node_modules",
 		".vscode-test",
-		"src/webviews"
+		"src/webviews",
+    "src/test/test_apps"
 	]
 }
+
