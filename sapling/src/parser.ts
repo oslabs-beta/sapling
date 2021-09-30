@@ -107,18 +107,18 @@ export class SaplingParser {
       const callback = (node) => {
         if (node.filePath === filePath) {
           node.children.forEach(child => {
-            this.traverseTree(getChildNodes, child);
+            this.#traverseTree(getChildNodes, child);
           });
 
           const newNode = this.parser(node);
 
-          this.traverseTree(matchExpand, newNode);
+          this.#traverseTree(matchExpand, newNode);
 
           children = [];
         }
       };
 
-      this.traverseTree(callback, this.tree);
+      this.#traverseTree(callback, this.tree);
 
       return this.tree;
     }
@@ -134,13 +134,13 @@ export class SaplingParser {
       }
     };
 
-    this.traverseTree(callback, this.tree);
+    this.#traverseTree(callback, this.tree);
 
     return this.tree;
   }
 
   // Traverses all nodes of current component tree and applies callback to each node
-  private traverseTree(callback : Function, node : Tree = this.tree) : void {
+  #traverseTree(callback : Function, node : Tree = this.tree) : void {
     if (!node) {
       return;
     }
@@ -148,7 +148,7 @@ export class SaplingParser {
     callback(node);
 
     node.children.forEach( (childNode) => {
-      this.traverseTree(callback, childNode);
+      this.#traverseTree(callback, childNode);
     });
   }
 
@@ -220,6 +220,7 @@ export class SaplingParser {
   private getFileName(componentTree: Tree) : string | undefined {
     const ext = path.extname(componentTree.filePath);
     let fileName = componentTree.fileName;
+
     if (!ext) {
       // Try and find file extension that exists in directory:
       const fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
