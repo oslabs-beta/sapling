@@ -72,7 +72,8 @@
 		"test-watch": "tsc -watch -p ./",
 		"pretest": "npm run test-compile && npm run lint",
 		"lint": "eslint src --ext ts",
-		"test": "node ./out/test/runTest.js"
+		"test": "node ./out/test/runTest.js",
+		"mocha": "npx mocha --require esm --require ts-node/register src/test/suite/parser.test.ts"
 	},
 	"devDependencies": {
 		"@babel/parser": "^7.15.7",

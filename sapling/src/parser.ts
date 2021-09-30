@@ -211,6 +211,7 @@ export class SaplingParser {
   private getFileName(componentTree: Tree) : string | undefined {
     const ext = path.extname(componentTree.filePath);
     let fileName = componentTree.fileName;
+
     if (!ext) {
       // Try and find file extension that exists in directory:
       const fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
