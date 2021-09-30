@@ -10,6 +10,8 @@ const Navbar = ({ rootFile }: any) => {
   // onChange function that will send a message to the extension when the user selects a file
   const fileMessage = (e: any) => {
     const filePath = e.target.files[0].path;
+    // Reset event target value to null so the same file selection causes onChange event to trigger
+    e.target.value = null;
     if (filePath) {
       tsvscode.postMessage({
         type: "onFile",

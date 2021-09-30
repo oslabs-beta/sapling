@@ -1,0 +1,16 @@
+body {
+  background-color:  lightgray;
+}
+
+li {
+  list-style-type: none;
+}
+
+.nav-bar {
+  display: flex;
+
+}
+
+.nav-link {
+  margin-right: 10px;
+}

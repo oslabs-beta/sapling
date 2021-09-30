@@ -16,7 +16,9 @@ export type Tree = {
   count: number,
   thirdParty: boolean,
   reactRouter: boolean,
+  reduxConnect: boolean,
   children: Tree[],
+  parentList: string[],
   props: {[key: string]: boolean},
   error: string;
 };
@@ -29,15 +31,20 @@ type ImportObj = {
 export class SaplingParser {
   entryFile: string;
   tree: Tree | undefined;
-  fileList: {[key: string] : boolean};
 
   constructor(filePath: string) {
-    // Normalize filePath to posix
-    this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
-    if (this.entryFile.includes('/wsl$/')) {
-      // console.log(this.entryFile.split('/'));
+    // Fix when selecting files in wsl file system
+    // console.log('This is the file path for the parser: ', filePath);
+    this.entryFile = filePath;
+    if (process.platform === 'linux' && this.entryFile.includes('wsl$')) {
+      this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
       this.entryFile = '/' + this.entryFile.split('/').slice(3).join('/');
+    // Fix for when running wsl but selecting files held on windows file system
+    } else if (process.platform === 'linux' && (/[a-zA-Z]/).test(this.entryFile[0])) {
+      const root = `/mnt/${this.entryFile[0].toLowerCase()}`;
+      this.entryFile = path.join(root, filePath.split(path.win32.sep).slice(1).join(path.posix.sep));
     }
+
     // console.log('ENTRY FILE PATH: ', this.entryFile);
     this.tree = undefined;
     // Break down and reasemble given filePath safely for any OS using path?
@@ -51,19 +58,22 @@ export class SaplingParser {
       name: path.basename(this.entryFile).replace(/\.(t|j)sx?$/, ''),
       fileName: path.basename(this.entryFile),
       filePath : this.entryFile,
-      importPath: this.entryFile,
+      importPath: '/', // this.entryFile here breaks windows file path on root e.g. C:\\ is detected as third party
       expanded: false,
       depth: 0,
       count: 1,
       thirdParty: false,
       reactRouter: false,
+      reduxConnect: false,
       children: [],
+      parentList: [],
       props: {},
       error: ''
     };
 
     this.tree = root;
     this.parser(root);
+    // console.log('This is the parsed Tree: ', this.tree);
     return this.tree;
   }
 
@@ -76,20 +86,6 @@ export class SaplingParser {
     this.entryFile = tree.filePath;
     this.tree = tree;
   }
-
-  // // Updates tree when a file is saved, checking for new components added from the updated tree
-  // public updateTree(filePath : string) : Tree {
-
-  //   const callback = (node) => {
-  //     if (node.filePath === filePath) {
-  //       this.parser(node);
-  //     }
-  //   };
-
-  //   this.traverseTree(callback, this.tree);
-
-  //   return this.tree;
-  // }
 
   public updateTree(filePath : string) : Tree {
       let children = [];
@@ -133,7 +129,7 @@ export class SaplingParser {
   public toggleNode(id : string, expanded : boolean) : Tree {
     const callback = (node) => {
       if (node.id === id) {
-        console.log('These are the ids we\'re changing: ', node.id, id);
+        // console.log('These are the ids we\'re changing: ', node.id, id);
         node.expanded = expanded;
       }
     };
@@ -177,21 +173,31 @@ export class SaplingParser {
       return;
     }
 
+    // console.log('About to parse file: ', componentTree.filePath, 'with parents: ', componentTree.parentList);
+    // If current node recursively calls itself, do not parse any deeper:
+    if (componentTree.parentList.includes(componentTree.filePath)) {
+      return;
+    }
+
     // Create abstract syntax tree of current component tree file
     let ast;
     try {
+      // console.log('Trying to build an AST for file: ', path.resolve(componentTree.filePath));
       ast = babelParser.parse(fs.readFileSync(path.resolve(componentTree.filePath), 'utf-8'), {
         sourceType: 'module',
         tokens: true,
         plugins: [
-          'jsx'
+          'jsx',
+          'typescript',
         ]
       });
     } catch (err) {
-      // console.log('Error when trying to parse file', componentTree.filePath, fs.readdirSync('/Ubuntu'));
+      // console.log('Error when trying to parse file', err);
       componentTree.error = 'Error while processing this file/node';
       return componentTree;
     }
+
+    // console.log('This is the ast from the file: ', ast);
 
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);
@@ -200,6 +206,9 @@ export class SaplingParser {
     if (imports.React) {
       componentTree.children = this.getJSXChildren(ast.tokens, imports, componentTree);
     }
+
+    // Check if current node is connected to the Redux store
+    componentTree.reduxConnect = this.checkForRedux(ast.tokens, imports);
 
     // Recursively parse all child components
     componentTree.children.forEach(child => this.parser(child));
@@ -244,7 +253,6 @@ export class SaplingParser {
     let childNodes: {[key : string]: Tree} = {};
     let props : {[key : string]: boolean} = {};
     let token : {[key: string]: any};
-    let loc : number;
 
     for (let i = 0; i < astTokens.length; i++) {
       // Case for finding JSX tags eg <App .../>
@@ -286,9 +294,11 @@ export class SaplingParser {
         depth: parent.depth + 1,
         thirdParty: false,
         reactRouter: false,
+        reduxConnect: false,
         count: 1,
         props: props,
         children: [],
+        parentList: [parent.filePath].concat(parent.parentList),
         error: '',
       };
     }
@@ -306,5 +316,30 @@ export class SaplingParser {
       j += 1;
     }
     return props;
+  }
+
+  // Checks if current Node is connected to React-Redux Store
+  private checkForRedux(astTokens: [{[key: string]: any}], importsObj : ImportObj) : boolean {
+    // Check that react-redux is imported in this file (and we have a connect method or otherwise)
+    let reduxImported = false;
+    let connectAlias;
+    Object.keys(importsObj).forEach( key => {
+      if (importsObj[key].importPath === 'react-redux' && importsObj[key].importName === 'connect') {
+        reduxImported = true;
+        connectAlias = key;
+      }
+    });
+
+    if (!reduxImported) {
+      return false;
+    }
+
+    // Check that connect method is invoked and exported in the file
+    for (let i = 0; i < astTokens.length; i += 1) {
+      if (astTokens[i].type.label === 'export' && astTokens[i + 1].type.label === 'default' && astTokens[i + 2].value === connectAlias) {
+        return true;
+      }
+    }
+    return false;
   }
 }
