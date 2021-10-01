@@ -1,10 +1,9 @@
 <!-- SAPLING README -->
-
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
   <a href="https://github.com/oslabs-beta/sapling">
-    <img src="./sapling/media/sapling-logo.png" alt="Logo" height="120">
+    <img src="sapling/media/sapling-logo.png" alt="Logo" height="120">
   </a>
 
   <h3 align="center">Sapling</h3>
@@ -69,11 +68,12 @@
 
 <hr>
 
-
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+<br/>
+<img width="1000" src="./sapling/media/quizwall_demo.gif">
+<br/>
+<br/>
 
 Sapling is a VS Code extension built with React developers in mind. As your codebase grows, your native file structure becomes less and less intuitive. Wouldn't it be nice to have a file structure that represents the actual relationships between the components and containers in your application? Wouldn't you like a quick reference to your available props, and an indication of routes and conditional rendering?
 
@@ -82,15 +82,14 @@ With Sapling, you don't have to guess at the parent component of your current fi
 
 ### Built With
 
-* [<img style="height: 1em;" src="./sapling/media/react-brands.svg">]()  [React](https://reactjs.org/)
-* [<img style="height: 1em;" src="./sapling/media/vscode.svg">]()  [VSCode Extension API](https://code.visualstudio.com/api)
-* [<img style="height: 1em;" src="./sapling/media/mochajs-icon.svg">]()  [Mocha](https://mochajs.org/)
-* [<img style="height: 1em;" src="./sapling/media/chai_icon.svg">]()  [Chai](https://www.chaijs.com/)
-* [<img style="height: 1em;" src="./sapling/media/babel-logo-minimal.svg">]()  [Babel Parser](https://babeljs.io/docs/en/babel-parser)
-* [<img style="height: 1em;" src="./sapling/media/webpack.svg">]()  [Webpack](https://webpack.js.org/)
-* [<img style="height: 1em;" src="./sapling/media/github-actions.svg">]()  [GitHub Actions](https://github.com/features/actions)
+* [<img style="height: 1em;" src="sapling/media/react-brands.svg">]()  [React](https://reactjs.org/)
+* [<img style="height: 1em;" src="sapling/media/vscode.svg">]()  [VSCode Extension API](https://code.visualstudio.com/api)
+* [<img style="height: 1em;" src="sapling/media/mochajs-icon.svg">]()  [Mocha](https://mochajs.org/)
+* [<img style="height: 1em;" src="sapling/media/chai_icon.svg">]()  [Chai](https://www.chaijs.com/)
+* [<img style="height: 1em;" src="sapling/media/babel-logo-minimal.svg">]()  [Babel Parser](https://babeljs.io/docs/en/babel-parser)
+* [<img style="height: 1em;" src="sapling/media/webpack.svg">]()  [Webpack](https://webpack.js.org/)
+* [<img style="height: 1em;" src="sapling/media/github-actions.svg">]()  [GitHub Actions](https://github.com/features/actions)
 
-<!-- Installation -->
 ## Installation
 
 Installing from VS Code Extension Marketplace (or downloading package from GitHub?).
@@ -99,11 +98,8 @@ Installing from VS Code Extension Marketplace (or downloading package from GitHu
 
 2. Install the Sapling extension for Visual Studio Code.
 
-<!-- 3. Wait for the extension to finish downloading and then reload VS Code when prompted. -->
-
 3. Once complete, you'll see Sapling appear in your sidebar. You can now begin using Sapling! Check out the Getting Started below for information on how to get started.
 
-<!-- GETTING STARTED -->
 ## Getting Started
 
 1. After installing VSCode Extension, you will see the extension on your sidebar. Click the "Choose a File" button.
@@ -112,17 +108,15 @@ Installing from VS Code Extension Marketplace (or downloading package from GitHu
 
 3. Your sidebar will now display a component tree.
 
-
-<!-- USAGE EXAMPLES -->
 ## Usage
 
 After installing, click the Sapling tree icon in your extension sidebar (image of icon here). From there, you can either click "Choose a file" to select your root component, or build your tree directly from a file open in your editor with the "Build Tree" button on the right hand side of your status bar. Click the + and - buttons to expand and collapse subsets of your tree, and hover over the information icon (image of icon here) to get a list of props available to that component. You can also press the view file icon (image of icon here) to open the file where the component is defined in your editor window. Below is a quick-reference legend for icon and text format meanings. If you prefer not to view React Router or other third-party components imported to your app, you can disable either of these in the VS Code Extension Settings.
 
 Icon Legend in Sapling Tree View:
-* [<img style="height: 1em;" src="./sapling/media/circle-info-solid.svg">]()  available props (hover)
-* [<img style="height: 1em;" src="./sapling/media/circle-arrow-right-solid.svg" >]()  open file (click)
-* [<img style="height: 1em;" src="./sapling/media/store-solid.svg" >]()  Redux store connection
-* <span style='color:red'>Navbar</span>: error in file (matches the error color of your theme)
+* [<img style="height: 1em;" src="sapling/media/circle-info-solid.svg">]()  available props (hover)
+* [<img style="height: 1em;" src="sapling/media/circle-arrow-right-solid.svg" >]()  open file (click)
+* [<img style="height: 1em;" src="sapling/media/store-solid.svg" >]() Redux store connection
+* [<span style='color:red;'>Navbar</span>](): error in file (matches the error color of your theme)
 * <b>Navbar</b>: currently open file
 
 Sapling can currently display React apps made with TSX/JSX and ES6 import syntax.
@@ -194,11 +188,6 @@ App
   - Home
   - Navbar
 
-<!-- Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_ -->
-
-<!-- OPEN SOURCE CONTRIBUTOR NOTES-->
 ### Contributor Usage
 
 1. Download/clone the project from [Github](https://github.com/oslabs-beta/sapling/)
@@ -217,7 +206,6 @@ This extension contributes the following settings:
 * `sapling.reactRouter`: enable/disable React Router component nodes
 * `sapling.thirdParty`: enable/disable all third party component nodes
 
-<!-- CONTRIBUTING -->
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -228,12 +216,11 @@ Contributions are what make the open source community such an amazing place to l
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<!-- LICENSE -->
+
 ## License
 
-Distributed under the MIT License. See [`LICENSE`]() for more information.
+Distributed under the MIT License. See [`LICENSE`](https://github.com/oslabs-beta/sapling/blob/master/LICENSE) for more information.
 
-<!-- CREATED BY -->
 ## Creators
 
 * [Charles Gutwirth](https://github.com/charlesgutwirth)
@@ -241,15 +228,12 @@ Distributed under the MIT License. See [`LICENSE`]() for more information.
 * [Lindsay Baird](https://github.com/labaird)
 * [Paul Coster](https://github.com/PLCoster)
 
-<!-- CONTACT -->
 ## Contact
 
-[<img style="height: 1em; width: 1em;" src="./sapling/media/twitter-logo.svg">]()  Twitter: [@TeamSapling](https://twitter.com/teamsapling) | Email: saplingextension@gmail.com
+[<img style="height: 1em; width: 1em;" src="sapling/media/twitter-logo.svg">]()  Twitter: [@TeamSapling](https://twitter.com/teamsapling) | Email: saplingextension@gmail.com
 
-[<img style="height: 1em; width: 1em;" src="./sapling/media/github-icon.svg">]()  GitHub: [https://github.com/oslabs-beta/sapling/](https://github.com/oslabs-beta/sapling/)
+[<img style="height: 1em; width: 1em;" src="sapling/media/github-icon.svg">]()  GitHub: [https://github.com/oslabs-beta/sapling/](https://github.com/oslabs-beta/sapling/)
 
-
-<!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 * Parsing Strategy inspired by [React Component Hierarchy](https://www.npmjs.com/package/react-component-hierarchy)
 * Interactive tree view styling adapted from [Pure CSS Tree Menu](https://codepen.io/bisserof/pen/fdtBm)
