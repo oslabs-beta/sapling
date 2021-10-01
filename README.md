@@ -81,11 +81,11 @@ With Sapling, you don't have to guess at the parent component of your current fi
 
 * [<img style="height: 1em;" src="sapling/media/react-brands.svg">]()  [React](https://reactjs.org/)
 * [<img style="height: 1em;" src="sapling/media/vscode.svg">]()  [VSCode Extension API](https://code.visualstudio.com/api)
-* [<img style="height: 1em;" src="sapling/media/mochajs-icon.svg">]()  [Mocha](https://mochajs.org/)
-* [<img style="height: 1em;" src="sapling/media/chai_icon.svg">]()  [Chai](https://www.chaijs.com/)
-* [<img style="height: 1em;" src="sapling/media/babel-logo-minimal.svg">]()  [Babel Parser](https://babeljs.io/docs/en/babel-parser)
-* [<img style="height: 1em;" src="sapling/media/webpack.svg">]()  [Webpack](https://webpack.js.org/)
-* [<img style="height: 1em;" src="sapling/media/github-actions.svg">]()  [GitHub Actions](https://github.com/features/actions)
+* [<img style="height: 1em;" src="sapling/media/mochajs-icon.svg"> [Mocha](https://mochajs.org/)
+* [<img style="height: 1em;" src="sapling/media/chai_icon.svg">]() [Chai](https://www.chaijs.com/)
+* [<img style="height: 1em;" src="sapling/media/babel-logo-minimal.svg">]() [Babel Parser](https://babeljs.io/docs/en/babel-parser)
+* [<img style="height: 1em;" src="sapling/media/webpack.svg">]() [Webpack](https://webpack.js.org/)
+* [<img style="height: 1em;" src="sapling/media/github-actions.svg">]() [GitHub Actions](https://github.com/features/actions)
 
 ## Installation
 
@@ -110,10 +110,10 @@ Installing from VS Code Extension Marketplace (or downloading package from GitHu
 After installing, click the Sapling tree icon in your extension sidebar (image of icon here). From there, you can either click "Choose a file" to select your root component, or build your tree directly from a file open in your editor with the "Build Tree" button on the right hand side of your status bar. Click the + and - buttons to expand and collapse subsets of your tree, and hover over the information icon (image of icon here) to get a list of props available to that component. You can also press the view file icon (image of icon here) to open the file where the component is defined in your editor window. Below is a quick-reference legend for icon and text format meanings. If you prefer not to view React Router or other third-party components imported to your app, you can disable either of these in the VS Code Extension Settings.
 
 Icon Legend in Sapling Tree View:
-* [<img style="height: 1em;" src="sapling/media/circle-info-solid.svg">]()  available props (hover)
-* [<img style="height: 1em;" src="sapling/media/circle-arrow-right-solid.svg" >]()  open file (click)
+* [<img style="height: 1em;" src="sapling/media/circle-info-solid.svg">]() available props (hover)
+* [<img style="height: 1em;" src="sapling/media/circle-arrow-right-solid.svg">]() open file (click)
 * [<img style="height: 1em;" src="sapling/media/store-solid.svg" >]() Redux store connection
-* [<span style='color:red;'>Navbar</span>](): error in file (matches the error color of your theme)
+* <span style='color:red;'>Navbar</span>: error in file (matches the error color of your theme)
 * <b>Navbar</b>: currently open file
 
 Sapling can currently display React apps made with TSX/JSX and ES6 import syntax.

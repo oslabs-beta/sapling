@@ -74,13 +74,13 @@ With Sapling, you don't have to guess at the parent component of your current fi
 
 ### Built With
 
-* [<img style="height: 1em;" src="media/react-brands.png">]()  [React](https://reactjs.org/)
-* [<img style="height: 1em;" src="media/vscode.png">]()  [VSCode Extension API](https://code.visualstudio.com/api)
-* [<img style="height: 1em;" src="media/mochajs-icon.png">]()  [Mocha](https://mochajs.org/)
-* [<img style="height: 1em;" src="media/chai_icon.png">]()  [Chai](https://www.chaijs.com/)
-* [<img style="height: 1em;" src="media/babel-logo-minimal.png">]()  [Babel Parser](https://babeljs.io/docs/en/babel-parser)
-* [<img style="height: 1em;" src="media/webpack.png">]()  [Webpack](https://webpack.js.org/)
-* [<img style="height: 1em;" src="media/github-actions.png">]()  [GitHub Actions](https://github.com/features/actions)
+* <img style="height: 1em;" src="media/react-brands.png"> [React](https://reactjs.org/)
+* <img style="height: 1em;" src="media/vscode.png">  [VSCode Extension API](https://code.visualstudio.com/api)
+* <img style="height: 1em;" src="media/mochajs-icon.png">  [Mocha](https://mochajs.org/)
+* <img style="height: 1em;" src="media/chai_icon.png">  [Chai](https://www.chaijs.com/)
+* <img style="height: 1em;" src="media/babel-logo-minimal.png">  [Babel Parser](https://babeljs.io/docs/en/babel-parser)
+* <img style="height: 1em;" src="media/webpack.png">  [Webpack](https://webpack.js.org/)
+* <img style="height: 1em;" src="media/github-actions.png"> [GitHub Actions](https://github.com/features/actions)
 
 ## Installation
 
@@ -105,9 +105,9 @@ Installing from VS Code Extension Marketplace (or downloading package from GitHu
 After installing, click the Sapling tree icon in your extension sidebar (image of icon here). From there, you can either click "Choose a file" to select your root component, or build your tree directly from a file open in your editor with the "Build Tree" button on the right hand side of your status bar. Click the + and - buttons to expand and collapse subsets of your tree, and hover over the information icon (image of icon here) to get a list of props available to that component. You can also press the view file icon (image of icon here) to open the file where the component is defined in your editor window. Below is a quick-reference legend for icon and text format meanings. If you prefer not to view React Router or other third-party components imported to your app, you can disable either of these in the VS Code Extension Settings.
 
 Icon Legend in Sapling Tree View:
-* [<img style="height: 1em;" src="media/circle-info-solid.png">]()  available props (hover)
-* [<img style="height: 1em;" src="media/circle-arrow-right-solid.png" >]()  open file (click)
-* [<img style="height: 1em;" src="media/store-solid.png" >]()  Redux store connection
+* <img style="height: 1em;" src="media/circle-info-solid.png">  available props (hover)
+* <img style="height: 1em;" src="media/circle-arrow-right-solid.png" >  open file (click)
+* <img style="height: 1em;" src="media/store-solid.png" >  Redux store connection
 * <span style='color:red;'>Navbar</span> error in file (matches the error color of your theme)
 * <b>Navbar</b>: currently open file
 
@@ -200,9 +200,9 @@ Distributed under the MIT License. See [`LICENSE`](https://github.com/oslabs-bet
 
 ## Contact
 
-[<img style="height: 1em; width: 1em;" src="media/twitter-logo.png">]()  Twitter: [@TeamSapling](https://twitter.com/teamsapling) | Email: saplingextension@gmail.com
+<img style="height: 1em; width: 1em;" src="media/twitter-logo.png">  Twitter: [@TeamSapling](https://twitter.com/teamsapling) | Email: saplingextension@gmail.com
 
-[<img style="height: 1em; width: 1em;" src="media/github-icon.png">]()  GitHub: [https://github.com/oslabs-beta/sapling/](https://github.com/oslabs-beta/sapling/)
+<img style="height: 1em; width: 1em;" src="media/github-icon.png">  GitHub: [https://github.com/oslabs-beta/sapling/](https://github.com/oslabs-beta/sapling/)
 
 ## Acknowledgements
 * Parsing Strategy inspired by [React Component Hierarchy](https://www.npmjs.com/package/react-component-hierarchy)
