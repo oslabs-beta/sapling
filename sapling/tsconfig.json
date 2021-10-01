@@ -7,7 +7,7 @@
 			"es6",
 			"dom"
 		],
-		"jsx": "react-jsx",
+		"jsx": "react",
 		"sourceMap": true,
 		"rootDir": "src",
 		"strict": false  /* enable all strict type-checking options */,
@@ -19,6 +19,8 @@
 	"exclude": [
 		"node_modules",
 		".vscode-test",
-		"src/webviews"
+		"src/webviews",
+    "src/test/test_apps"
 	]
 }
+

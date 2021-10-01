@@ -1,24 +1,27 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+// import { Tree as TreeType } from '../../parser';
 
 // component imports
 import Navbar from './Navbar';
 import Tree from './Tree';
 
 const Sidebar = () => {
-  // state variables for the incomimg treeData, parsed viewData, and the user's settings
+  // state variables for the incomimg treeData, parsed viewData, user's settings, and the root file name
   const [treeData, setTreeData]: any = useState();
   const [viewData, setViewData]: any = useState();
-  const [settings, setSettings]: any = useState();
-  
+  const [settings, setSettings]: [{[key : string]: boolean}, Function] = useState();
+  const [rootFile, setRootFile]: [string | undefined, Function] = useState();
+
   // useEffect whenever the Sidebar is rendered
   useEffect(() => {
     // Event Listener for 'message' from the extension
     window.addEventListener('message', (event) => {
       const message = event.data;
       switch (message.type) {
-        // Listener to receive the tree data
+        // Listener to receive the tree data, update navbar and tree view
         case("parsed-data"): {
+          setRootFile(message.value.fileName);
           setTreeData([message.value]);
           break;
         }
@@ -87,12 +90,15 @@ const Sidebar = () => {
   // Render section
   return (
     <div className="sidebar">
-      <Navbar />
-      <ul className="tree_beginning">
-        {viewData && settings ?
-          <Tree data={viewData} first={true} />
-        : null}
-      </ul>
+      <Navbar rootFile={rootFile}/>
+      <hr className="line_break"/>
+      <div className="tree_view">
+        <ul className="tree_beginning">
+          {viewData && settings ?
+            <Tree data={viewData} first={true} />
+          : null}
+        </ul>
+      </div>
     </div>
   );
 };
