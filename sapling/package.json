@@ -2,6 +2,7 @@
 	"name": "sapling",
 	"displayName": "Sapling",
 	"description": "React Component Hierarchy Visualizer",
+	"repository": "https://github.com/oslabs-beta/sapling",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.60.0"
