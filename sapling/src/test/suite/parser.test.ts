@@ -15,10 +15,10 @@ suite('Parser Test Suite', () => {
 	// UNPARSED TREE TEST
 	describe('It initializes correctly', () => {
 		before( () => {
-			file = path.resolve(__dirname, '../test_apps/test_0/index.js');
+			file = path.join(__dirname, '../../../src/test/test_apps/test_0/index.js');
 			parser = new SaplingParser(file);
 		});
-		
+
 		test('A new instance of the parser class is an object', () => {
 			expect(parser).to.be.an('object');
 		});
@@ -29,16 +29,16 @@ suite('Parser Test Suite', () => {
 		});
 	});
 
-	// TEST_0: ONE CHILD
+	// TEST 0: ONE CHILD
 	describe('It works for simple apps', () => {
 		before( () => {
-			file = path.resolve(__dirname, '../test_apps/test_0/index.js');
+			file = path.join(__dirname, '../../../src/test/test_apps/test_0/index.js');
 			parser = new SaplingParser(file);
 			tree = parser.parse();
 		});
 
 		test('Parsing returns a object tree that is not undefined', () => {
-			expect(tree).to.be.an('object').that.is.not.undefined;
+			expect(tree).to.be.an('object');
 		});
 
 		test('Parsed tree has a property called name with value index and one child with name App', () => {
@@ -48,10 +48,10 @@ suite('Parser Test Suite', () => {
 		});
 	});
 
-	// TEST_1: NESTED CHILDREN
+	// TEST 1: NESTED CHILDREN
 	describe('It works for 2 components', () => {
 		before(() => {
-			file = path.resolve(__dirname, '../test_apps/test_1/index.js');
+			file = path.join(__dirname, '../../../src/test/test_apps/test_1/index.js');
 			parser = new SaplingParser(file);
 			tree = parser.parse();
 		});
@@ -75,16 +75,16 @@ suite('Parser Test Suite', () => {
 		});
 	});
 
-	// TEST_2: THIRD PARTY, REACT ROUTER, DESTRUCTURED IMPORTS
+	// TEST 2: THIRD PARTY, REACT ROUTER, DESTRUCTURED IMPORTS
 	describe('It works for third party / React Router components and destructured imports', () => {
 		before(() => {
-			file = path.resolve(__dirname, '../test_apps/test_2/index.js');
+			file = path.join(__dirname, '../../../src/test/test_apps/test_2/index.js');
 			parser = new SaplingParser(file);
 			tree = parser.parse();
 		});
 
 		test('Should parse destructured imports', () => {
-			expect(tree.children).to.have.lengthOf(2); 
+			expect(tree.children).to.have.lengthOf(2);
 			expect(tree.children[0]).to.have.own.property('name').that.is.oneOf(['Switch', 'Route']);
 			expect(tree.children[1]).to.have.own.property('name').that.is.oneOf(['Switch', 'Route']);
 		});
@@ -100,12 +100,12 @@ suite('Parser Test Suite', () => {
 		//test for third party without reactRouter
 	});
 
-	// TEST_3: WOBBEGAINZ
+	// TEST 3: WOBBEGAINZ
 
-	// TEST_4: ALIASED IMPORTS
+	// TEST 4: ALIASED IMPORTS
 	describe('It works for aliases', () => {
 		before(() => {
-			file = path.resolve(__dirname, '../test_apps/test_4/index.js');
+			file = path.join(__dirname, '../../../src/test/test_apps/test_4/index.js');
 			parser = new SaplingParser(file);
 			tree = parser.parse();
 		});
@@ -120,11 +120,11 @@ suite('Parser Test Suite', () => {
 		});
 	});
 
-	// TEST_5: MISSING EXTENSIONS AND UNUSED IMPORTS
+	// TEST 5: MISSING EXTENSIONS AND UNUSED IMPORTS
 	describe('It works for extension-less imports', () => {
 		let names, paths, expectedNames, expectedPaths;
 		before(() => {
-			file = path.resolve(__dirname, '../test_apps/test_5/index.js');
+			file = path.join(__dirname, '../../../src/test/test_apps/test_5/index.js');
 			parser = new SaplingParser(file);
 			tree = parser.parse();
 
@@ -132,10 +132,11 @@ suite('Parser Test Suite', () => {
 			paths = tree.children.map(child => child.filePath);
 
 			expectedNames = ['JS', 'JSX', 'TS', 'TSX'];
-			expectedPaths = ['../test_apps/test_5/components/JS.js',
-				'../test_apps/test_5/components/JSX.jsx',
-				'../test_apps/test_5/components/TS.ts',
-				'../test_apps/test_5/components/TSX.tsx'
+			expectedPaths = [
+        '../../../src/test/test_apps/test_5/components/JS.js',
+				'../../../src/test/test_apps/test_5/components/JSX.jsx',
+				'../../../src/test/test_apps/test_5/components/TS.ts',
+				'../../../src/test/test_apps/test_5/components/TSX.tsx'
 			].map( el => path.resolve(__dirname, el));
 		});
 
@@ -155,10 +156,10 @@ suite('Parser Test Suite', () => {
 		});
 	});
 
-	// TEST_6: Bad import of App2 from App1 Component
+	// TEST 6: Bad import of App2 from App1 Component
 	describe('It works for badly imported children nodes', () => {
 		before(() => {
-			file = path.resolve(__dirname, '../test_apps/test_6/index.js');
+			file = path.join(__dirname, '../../../src/test/test_apps/test_6/index.js');
 			parser = new SaplingParser(file);
 			tree = parser.parse();
 		});
@@ -169,10 +170,10 @@ suite('Parser Test Suite', () => {
 		});
 	});
 
-	// TEST_7: SYNTAX ERROR
+	// TEST 7: Syntax error in app file causes parser error
 	describe('It should log an error when the parser encounters a javascript syntax error', () => {
 		before(() => {
-			file = path.resolve(__dirname, '../test_apps/test_7/index.js');
+			file = path.join(__dirname, '../../../src/test/test_apps/test_7/index.js');
 			parser = new SaplingParser(file);
 			tree = parser.parse();
 		});
@@ -184,10 +185,10 @@ suite('Parser Test Suite', () => {
 		});
 	});
 
-	//Test 8: Props check
+	// Test 8: Props check
 	describe('It should properly count repeat components and consolidate and grab their props', () => {
 		before(() => {
-			file = path.resolve(__dirname, '../test_apps/test_8/index.js');
+			file = path.join(__dirname, '../../../src/test/test_apps/test_8/index.js');
 			parser = new SaplingParser(file);
 			tree = parser.parse();
 		});
@@ -201,12 +202,11 @@ suite('Parser Test Suite', () => {
 			expect(tree.children[0].children[0].props).has.own.property('prop2').that.is.true;
 		});
 	});
-	
-	//Test 10: check children works and component works
 
+	// Test 10: check children works and component works
 	describe('It should render children when children are rendered as values of prop called component', () => {
 		before(() => {
-			file = path.resolve(__dirname, '../test_apps/test_10/index.jsx');
+			file = path.join(__dirname, '../../../src/test/test_apps/test_10/index.jsx');
 			parser = new SaplingParser(file);
 			tree = parser.parse();
 		});

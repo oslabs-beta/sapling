@@ -5,7 +5,7 @@
 {
 	"version": "0.2.0",
 	"configurations": [
-		
+
 		{
 			"name": "Run Extension",
 			"type": "extensionHost",
@@ -25,7 +25,6 @@
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}",
 				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index",
-				"--require global-jsdom/register"
 			],
 			"outFiles": [
 				"${workspaceFolder}/out/test/**/*.js"

@@ -19,6 +19,7 @@
     "ignorePatterns": [
         "out",
         "dist",
-        "**/*.d.ts"
+        "**/*.d.ts",
+        "src/test/test_apps/*"
     ]
 }
