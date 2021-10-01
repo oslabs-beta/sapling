@@ -64,7 +64,9 @@
 ## About The Project
 
 <br/>
-<img width="1000" src="media/quizwall_demo.gif">
+<p align="center">
+  <img width="900" src="media/quizwall_demo.gif">
+</p>
 <br/>
 
 Sapling is a VS Code extension built with React developers in mind. As your codebase grows, your native file structure becomes less and less intuitive. Wouldn't it be nice to have a file structure that represents the actual relationships between the components and containers in your application? Wouldn't you like a quick reference to your available props, and an indication of routes and conditional rendering?
