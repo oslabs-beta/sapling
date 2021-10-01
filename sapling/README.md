@@ -1,4 +1,5 @@
 <!-- SAPLING README -->
+<!-- NOTE: this README is the one that shows inside VSCode extension marketplace -->
 
 <!-- PROJECT LOGO -->
 <br />
@@ -7,7 +8,7 @@
     <img src="./media/sapling-logo.png" alt="Logo" height="120">
   </a>
 
-  <h3 align="center">Sapling</h3>
+  <h2 align="center">Sapling</h2>
 
   <p align="center">
     A convenient way to traverse your React application.
@@ -22,7 +23,7 @@
     <a href="https://github.com/oslabs-beta/sapling/issues">Request Feature</a>
   </p>
     <!-- BADGES -->
-  <center>
+  <p align="center">
     <!-- FORKS -->
     <a href="https://github.com/oslabs-beta/sapling/network/members"><img alt="GitHub forks" src="https://img.shields.io/github/forks/oslabs-beta/sapling"></a>
     <!-- STARS -->
@@ -33,7 +34,7 @@
     <a href="https://github.com/oslabs-beta/sapling/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/oslabs-beta/sapling"></a>
     <!-- CONTRIBUTIONS -->
     <a href="https://github.com/oslabs-beta/sapling/blob/master/README.md"><img alt="Contributions" src="https://img.shields.io/badge/contributors-welcome-brightgreen"></a>
-  </center>
+  </p>
 </p>
 
 <hr>
@@ -48,22 +49,13 @@
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
+    <li><a href="#installation">Installation</a></li>
     <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a>
-      <ul>
-        <li>
-          <a href="#contributor-usage">Contributor Usage</a>
-        </li>
-      </ul>
-    </li>
+      <a href="#getting-started">Getting Started</a></li>
+    <li><a href="#usage">Usage</a></li>
     <li><a href="#extension-settings">Extension Settings</a></li>
-    <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
+    <li><a href="#creators">Creators</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgements">Acknowledgements</a></li>
   </ol>
@@ -84,13 +76,13 @@ With Sapling, you don't have to guess at the parent component of your current fi
 
 ### Built With
 
-* [<img style="height: 1em; width: 1em;" src="./media/react-brands.svg">]()  [React](https://reactjs.org/)
-* [<img style="height: 1em; color:red;" src="./media/vscode.svg">]()  [VSCode Extension API](https://code.visualstudio.com/api)
-* [<img style="height: 1em; color:red;" src="./media/mochajs-icon.svg">]()  [Mocha](https://mochajs.org/)
-* [<img style="height: 1em; color:red;" src="./media/chai_icon.svg">]()  [Chai](https://www.chaijs.com/)
-* [<img style="height: 1em; color:red;" src="./media/babel-logo-minimal.svg">]()  [Babel Parser](https://babeljs.io/docs/en/babel-parser)
-* [<img style="height: 1em; color:red;" src="./media/webpack.svg">]()  [Webpack](https://webpack.js.org/)
-* [<img style="height: 1em; color:red;" src="./media/github-icon.svg">]()  [GitHub Actions](https://github.com/features/actions)
+* [<img style="height: 1em;" src="./media/react-brands.svg">]()  [React](https://reactjs.org/)
+* [<img style="height: 1em;" src="./media/vscode.svg">]()  [VSCode Extension API](https://code.visualstudio.com/api)
+* [<img style="height: 1em;" src="./media/mochajs-icon.svg">]()  [Mocha](https://mochajs.org/)
+* [<img style="height: 1em;" src="./media/chai_icon.svg">]()  [Chai](https://www.chaijs.com/)
+* [<img style="height: 1em;" src="./media/babel-logo-minimal.svg">]()  [Babel Parser](https://babeljs.io/docs/en/babel-parser)
+* [<img style="height: 1em;" src="./media/webpack.svg">]()  [Webpack](https://webpack.js.org/)
+* [<img style="height: 1em;" src="./media/github-actions.svg">]()  [GitHub Actions](https://github.com/features/actions)
 
 <!-- Installation -->
 ## Installation
@@ -200,17 +192,17 @@ App
 
 _For more examples, please refer to the [Documentation](https://example.com)_ -->
 
-<!-- OPEN SOURCE CONTRIBUTOR NOTES-->
+<!-- OPEN SOURCE CONTRIBUTOR NOTES
 ### Contributor Usage
 
 1. Download/clone the project from [Github](https://github.com/oslabs-beta/sapling/)
 2. Open the 'sapling' folder in your VS Code IDE. The outer 'sapling' folder must be the root folder in the workspace.
 2. Open sapling/src/extension.ts
-3. To view the webview, in your terminal navigate into the inner 'sapling' folder and run the following command in the terminal: `npm run watch`
+3. To view the webview, in your terminal navigate into the inner 'sapling' folder and run the following command: `npm run watch`
 4. Press F5. A new VSCode window will open with the Sapling Extension.
 5. Click the Sapling icon on the left to see the Sapling sidebar.
 
-Note: `Ctrl+R` (or `Cmd+R` on Mac) will refresh the extension development host
+Note: `Ctrl+R` (or `Cmd+R` on Mac) will refresh the extension development host -->
 
 ## Extension Settings
 
@@ -219,7 +211,7 @@ This extension contributes the following settings:
 * `sapling.reactRouter`: enable/disable React Router component nodes
 * `sapling.thirdParty`: enable/disable all third party component nodes
 
-<!-- CONTRIBUTING -->
+<!-- CONTRIBUTING
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -228,14 +220,20 @@ Contributions are what make the open source community such an amazing place to l
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+5. Open a Pull Request -->
 
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License. See [`LICENSE`]() for more information.
 
+<!-- CREATED BY -->
+## Creators
 
+* [Charles Gutwirth](https://github.com/charlesgutwirth)
+* [Jordan Hisel](https://github.com/jo-cella)
+* [Lindsay Baird](https://github.com/labaird)
+* [Paul Coster](https://github.com/PLCoster)
 
 <!-- CONTACT -->
 ## Contact
