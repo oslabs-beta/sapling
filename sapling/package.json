@@ -3,7 +3,7 @@
 	"displayName": "Sapling",
 	"description": "React Component Hierarchy Visualizer",
 	"repository": "https://github.com/oslabs-beta/sapling",
-	"icon": "./media/sapling-logo-128px.png",
+	"icon": "media/sapling-logo-128px.png",
 	"publisher": "team-sapling",
 	"version": "1.0.0",
 	"engines": {
