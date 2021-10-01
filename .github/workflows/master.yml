@@ -1,0 +1,20 @@
+name: Master branch sapling extension CI/CD
+
+# Run this workflow on PR into dev branch
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+  # Run tests on ubuntu linux
+    runs-on: ubuntu-latest
+
+    # Run full test suite for sapling extension
+    steps:
+      - uses: actions/checkout@v2
+      - name: Sapling Mocha Tests
+        run: |
+          cd sapling
+          npm install
+          xvfb-run -a npm test

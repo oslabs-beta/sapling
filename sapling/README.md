@@ -73,14 +73,29 @@ With Sapling, you don't have to guess at the parent component of your current fi
 
 
 ### Built With
-
-* <img style="height: 1em;" src="media/react-brands.png"> [React](https://reactjs.org/)
-* <img style="height: 1em;" src="media/vscode.png">  [VSCode Extension API](https://code.visualstudio.com/api)
-* <img style="height: 1em;" src="media/mochajs-icon.png">  [Mocha](https://mochajs.org/)
-* <img style="height: 1em;" src="media/chai_icon.png">  [Chai](https://www.chaijs.com/)
-* <img style="height: 1em;" src="media/babel-logo-minimal.png">  [Babel Parser](https://babeljs.io/docs/en/babel-parser)
-* <img style="height: 1em;" src="media/webpack.png">  [Webpack](https://webpack.js.org/)
-* <img style="height: 1em;" src="media/github-actions.png"> [GitHub Actions](https://github.com/features/actions)
+<ul>
+  <li>
+    <img height="14" src="media/react-brands.png"><a href="https://reactjs.org/"> React</a>
+  </li>
+  <li>
+    <img height="14" src="media/vscode.png"><a href="https://code.visualstudio.com/api"> VSCode Extension API</a>
+  </li>
+  <li>
+    <img height="14" src="media/mochajs-icon.png"><a href="https://mochajs.org/"> Mocha</a>
+  </li>
+  <li>
+    <img height="14" src="media/chai_icon.png"><a href="https://www.chaijs.com/"> Chai</a>
+  </li>
+  <li>
+    <img height="14" src="media/babel-logo-minimal.png"><a href="https://babeljs.io/docs/en/babel-parser"> Babel Parser</a>
+  </li>
+  <li>
+    <img height="14" src="media/webpack.png"><a href="https://webpack.js.org/"> Webpack</a>
+  </li>
+  <li>
+    <img height="14" src="media/github-actions.png"><a href="https://github.com/features/actions"> GitHub Actions</a>
+  </li>
+</ul>
 
 ## Installation
 
@@ -105,11 +120,23 @@ Installing from VS Code Extension Marketplace (or downloading package from GitHu
 After installing, click the Sapling tree icon in your extension sidebar (image of icon here). From there, you can either click "Choose a file" to select your root component, or build your tree directly from a file open in your editor with the "Build Tree" button on the right hand side of your status bar. Click the + and - buttons to expand and collapse subsets of your tree, and hover over the information icon (image of icon here) to get a list of props available to that component. You can also press the view file icon (image of icon here) to open the file where the component is defined in your editor window. Below is a quick-reference legend for icon and text format meanings. If you prefer not to view React Router or other third-party components imported to your app, you can disable either of these in the VS Code Extension Settings.
 
 Icon Legend in Sapling Tree View:
-* <img style="height: 1em;" src="media/circle-info-solid.png">  available props (hover)
-* <img style="height: 1em;" src="media/circle-arrow-right-solid.png" >  open file (click)
-* <img style="height: 1em;" src="media/store-solid.png" >  Redux store connection
-* <span style='color:red;'>Navbar</span> error in file (matches the error color of your theme)
-* <b>Navbar</b>: currently open file
+<ul>
+  <li>
+    <img height="14" src="media/circle-info-solid.png">  available props (hover)
+  </li>
+  <li>
+    <img height="14" src="media/circle-arrow-right-solid.png" >  open file (click)
+  </li>
+  <li>
+    <img height="14" src="media/store-solid.png" >  Redux store connection
+  </li>
+  <li>
+    <span color="red">Navbar</span>  error in file (matches the error color of your theme)
+  </li>
+  <li>
+    <b>Navbar</b>: currently open file
+  </li>
+</ul>
 
 Sapling can currently display React apps made with JSX/TSX and ES6 import syntax.
 
@@ -123,7 +150,7 @@ Sapling will detect React components invoked using JSX tag syntax and React-Rout
     <Navbar></Navbar>
 
     // Route and Navbar will be detected as child components of the current file
-    <Route component={Navbar} />  
+    <Route component={Navbar} />
 
     // Route and App will be detected as child components of the current file
     <Route children={App} />
@@ -133,7 +160,7 @@ Sapling will detect the names of inline props for JSX components it identifies:
 
 ```JSX
     // props 'userId' and 'userName' will be listed for Navbar in Sapling
-    <Navbar userId={...} userName={...} />  
+    <Navbar userId={...} userName={...} />
 ```
 
 Sapling can identify components connected to the Redux store, when 'connect' is imported from 'react-redux', and the component is the export default of the file:
@@ -142,14 +169,14 @@ Sapling can identify components connected to the Redux store, when 'connect' is 
     // App.jsx
     import React from 'react';
     import { connect } from 'react-redux';
-    
+
     const mapStateToProps = ...
     const mapDispatchToProps = ...
-    
+
     const App = (props) => {
       return <h1>This is the App</h1>
     }
-    
+
     // Sapling will detect App as connected to the Redux store
     export default connect(mapStateToProps, mapDispatchToProps)(App);
 ```
@@ -200,14 +227,14 @@ Distributed under the MIT License. See [`LICENSE`](https://github.com/oslabs-bet
 
 ## Contact
 
-<img style="height: 1em; width: 1em;" src="media/twitter-logo.png">  Twitter: [@TeamSapling](https://twitter.com/teamsapling) | Email: saplingextension@gmail.com
+<img height="14" src="media/twitter-logo.png">  Twitter: [@TeamSapling](https://twitter.com/teamsapling) | Email: saplingextension@gmail.com
 
-<img style="height: 1em; width: 1em;" src="media/github-icon.png">  GitHub: [https://github.com/oslabs-beta/sapling/](https://github.com/oslabs-beta/sapling/)
+<img height="14" src="media/github-icon.png">  GitHub: [https://github.com/oslabs-beta/sapling/](https://github.com/oslabs-beta/sapling/)
 
 ## Acknowledgements
 * Parsing Strategy inspired by [React Component Hierarchy](https://www.npmjs.com/package/react-component-hierarchy)
 * Interactive tree view styling adapted from [Pure CSS Tree Menu](https://codepen.io/bisserof/pen/fdtBm)
 * Icons from [Font Awesome](https://fontawesome.com)
 * Tooltips with [Tippy](https://www.npmjs.com/package/@tippy.js/react)
-* [Best README Template](https://github.com/othneildrew/Best-README-Template) 
+* [Best README Template](https://github.com/othneildrew/Best-README-Template)
 * Sapling Logo from [Freepik](https://www.freepik.com/vectors/tree)
