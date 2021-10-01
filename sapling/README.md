@@ -16,8 +16,6 @@
     <a href="https://github.com/oslabs-beta/sapling"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/oslabs-beta/sapling">View Demo</a>
-    ·
     <a href="https://github.com/oslabs-beta/sapling/issues">Report Bug</a>
     ·
     <a href="https://github.com/oslabs-beta/sapling/issues">Request Feature</a>
@@ -68,7 +66,6 @@
 <br/>
 <img width="1000" src="media/quizwall_demo.gif">
 <br/>
-<br/>
 
 Sapling is a VS Code extension built with React developers in mind. As your codebase grows, your native file structure becomes less and less intuitive. Wouldn't it be nice to have a file structure that represents the actual relationships between the components and containers in your application? Wouldn't you like a quick reference to your available props, and an indication of routes and conditional rendering?
 
@@ -111,7 +108,7 @@ Icon Legend in Sapling Tree View:
 * [<img style="height: 1em;" src="media/circle-info-solid.png">]()  available props (hover)
 * [<img style="height: 1em;" src="media/circle-arrow-right-solid.png" >]()  open file (click)
 * [<img style="height: 1em;" src="media/store-solid.png" >]()  Redux store connection
-* [<span style='color:red;'>Navbar</span>]() error in file (matches the error color of your theme)
+* <span style='color:red;'>Navbar</span> error in file (matches the error color of your theme)
 * <b>Navbar</b>: currently open file
 
 Sapling can currently display React apps made with JSX/TSX and ES6 import syntax.
