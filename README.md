@@ -81,7 +81,7 @@ With Sapling, you don't have to guess at the parent component of your current fi
 
 * [<img style="height: 1em;" src="sapling/media/react-brands.svg">]()  [React](https://reactjs.org/)
 * [<img style="height: 1em;" src="sapling/media/vscode.svg">]()  [VSCode Extension API](https://code.visualstudio.com/api)
-* [<img style="height: 1em;" src="sapling/media/mochajs-icon.svg"> [Mocha](https://mochajs.org/)
+* [<img style="height: 1em;" src="sapling/media/mochajs-icon.svg">]() [Mocha](https://mochajs.org/)
 * [<img style="height: 1em;" src="sapling/media/chai_icon.svg">]() [Chai](https://www.chaijs.com/)
 * [<img style="height: 1em;" src="sapling/media/babel-logo-minimal.svg">]() [Babel Parser](https://babeljs.io/docs/en/babel-parser)
 * [<img style="height: 1em;" src="sapling/media/webpack.svg">]() [Webpack](https://webpack.js.org/)
@@ -113,7 +113,7 @@ Icon Legend in Sapling Tree View:
 * [<img style="height: 1em;" src="sapling/media/circle-info-solid.svg">]() available props (hover)
 * [<img style="height: 1em;" src="sapling/media/circle-arrow-right-solid.svg">]() open file (click)
 * [<img style="height: 1em;" src="sapling/media/store-solid.svg" >]() Redux store connection
-* <span style='color:red;'>Navbar</span>: error in file (matches the error color of your theme)
+* [<span style='color:red;'>Navbar</span>](): error in file (matches the error color of your theme)
 * <b>Navbar</b>: currently open file
 
 Sapling can currently display React apps made with TSX/JSX and ES6 import syntax.
