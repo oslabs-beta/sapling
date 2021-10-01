@@ -25,9 +25,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   public resolveWebviewView(webviewView: vscode.WebviewView) {
     this._view = webviewView;
 
-    // Log to know at what point the webview is initialized
-    // console.log('WebView Initialized!');
-
     webviewView.webview.options = {
       // Allow scripts in the webview
       enableScripts: true,
@@ -142,14 +139,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           break;
         }
       }
-    });
-
-    // Event that triggers when Webview changes visibility
-    webviewView.onDidChangeVisibility((e) => {
-    });
-
-    // Event that triggers when Webview is disposed
-    webviewView.onDidDispose((e) => {
     });
   }
 
