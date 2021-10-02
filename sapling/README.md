@@ -104,13 +104,15 @@ With Sapling, you don't have to guess at the parent component of your current fi
 
 ## Installation
 
-Installing from VS Code Extension Marketplace (or downloading package from GitHub?).
+Installing from VS Code Extension Marketplace:
 
 1. If needed, install Visual Studio Code for Windows (7+), macOS (Sierra+), or Linux (details).
 
 2. Install the Sapling extension for Visual Studio Code.
 
 3. Once complete, you'll see Sapling appear in your sidebar. You can now begin using Sapling! Check out the Getting Started below for information on how to get started.
+
+To install sapling for development, please see the contributing section below.
 
 ## Getting Started
 
@@ -208,9 +210,9 @@ Sapling prioritizes file dependencies over component dependencies. Consider the 
 
 Sapling will display Home and Navbar as siblings, both children of App: (image of actual Sapling here)
 
-App
-  - Home
-  - Navbar
+<br />
+  <img src="media/readme-example.png">
+<br />
 
 ## Extension Settings
 
