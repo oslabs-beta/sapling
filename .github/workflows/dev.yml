@@ -1,4 +1,4 @@
-name: dev branch sapling extension CI
+name: dev CI
 
 # Run this workflow on PR into dev branch
 on:

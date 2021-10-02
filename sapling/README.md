@@ -28,6 +28,9 @@
     <a href="https://github.com/oslabs-beta/sapling/stargazers"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/oslabs-beta/sapling"></a>
     <!-- GITHUB RELEASE VERSION -->
     <a href="https://github.com/oslabs-beta/sapling/releases"><img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/oslabs-beta/sapling?include_prereleases"></a>
+    <!-- BUILD STATUS -->
+    <a href="https://github.com/oslabs-beta/sapling/actions/workflows/master.yml"><img alt="master CI/CD workflow status" src="https://github.com/oslabs-beta/sapling/actions/workflows/master.yml/badge.svg"></a>
+    <a href="https://github.com/oslabs-beta/sapling/actions/workflows/dev.yml"><img alt="dev CI workflow status" src="https://github.com/oslabs-beta/sapling/actions/workflows/dev.yml/badge.svg"></a>
     <!-- LICENSE -->
     <a href="https://github.com/oslabs-beta/sapling/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/oslabs-beta/sapling"></a>
     <!-- CONTRIBUTIONS -->
@@ -64,7 +67,9 @@
 ## About The Project
 
 <br/>
-<img width="1000" src="media/quizwall_demo.gif">
+<p align="center">
+  <img width="900" src="media/quizwall_demo.gif">
+</p>
 <br/>
 
 Sapling is a VS Code extension built with React developers in mind. As your codebase grows, your native file structure becomes less and less intuitive. Wouldn't it be nice to have a file structure that represents the actual relationships between the components and containers in your application? Wouldn't you like a quick reference to your available props, and an indication of routes and conditional rendering?
@@ -99,13 +104,15 @@ With Sapling, you don't have to guess at the parent component of your current fi
 
 ## Installation
 
-Installing from VS Code Extension Marketplace (or downloading package from GitHub?).
+Installing from VS Code Extension Marketplace:
 
 1. If needed, install Visual Studio Code for Windows (7+), macOS (Sierra+), or Linux (details).
 
 2. Install the Sapling extension for Visual Studio Code.
 
 3. Once complete, you'll see Sapling appear in your sidebar. You can now begin using Sapling! Check out the Getting Started below for information on how to get started.
+
+To install sapling for development, please see the contributing section below.
 
 ## Getting Started
 
@@ -203,9 +210,9 @@ Sapling prioritizes file dependencies over component dependencies. Consider the 
 
 Sapling will display Home and Navbar as siblings, both children of App: (image of actual Sapling here)
 
-App
-  - Home
-  - Navbar
+<br />
+  <img src="media/readme-example.png">
+<br />
 
 ## Extension Settings
 
