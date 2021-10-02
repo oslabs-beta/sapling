@@ -26,6 +26,9 @@
     <a href="https://github.com/oslabs-beta/sapling/stargazers"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/oslabs-beta/sapling"></a>
     <!-- GITHUB RELEASE VERSION -->
     <a href="https://github.com/oslabs-beta/sapling/releases"><img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/oslabs-beta/sapling?include_prereleases"></a>
+    <!-- BUILD STATUS -->
+    <a href="https://github.com/oslabs-beta/sapling/actions/workflows/master.yml"><img alt="master CI/CD workflow status" src="https://github.com/oslabs-beta/sapling/actions/workflows/master.yml/badge.svg"></a>
+    <a href="https://github.com/oslabs-beta/sapling/actions/workflows/dev.yml"><img alt="dev CI workflow status" src="https://github.com/oslabs-beta/sapling/actions/workflows/dev.yml/badge.svg"></a>
     <!-- LICENSE -->
     <a href="https://github.com/oslabs-beta/sapling/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/oslabs-beta/sapling"></a>
     <!-- CONTRIBUTIONS -->
@@ -69,7 +72,9 @@
 ## About The Project
 
 <br/>
-<img width="1000" src="./sapling/media/quizwall_demo.gif">
+<p align="center">
+  <img width="900" src="./sapling/media/quizwall_demo.gif">
+</p>
 <br/>
 
 Sapling is a VS Code extension built with React developers in mind. As your codebase grows, your native file structure becomes less and less intuitive. Wouldn't it be nice to have a file structure that represents the actual relationships between the components and containers in your application? Wouldn't you like a quick reference to your available props, and an indication of routes and conditional rendering?
@@ -79,13 +84,13 @@ With Sapling, you don't have to guess at the parent component of your current fi
 
 ### Built With
 
-* [<img style="height: 1em;" src="sapling/media/react-brands.svg">]()  [React](https://reactjs.org/)
-* [<img style="height: 1em;" src="sapling/media/vscode.svg">]()  [VSCode Extension API](https://code.visualstudio.com/api)
-* [<img style="height: 1em;" src="sapling/media/mochajs-icon.svg">]() [Mocha](https://mochajs.org/)
-* [<img style="height: 1em;" src="sapling/media/chai_icon.svg">]() [Chai](https://www.chaijs.com/)
-* [<img style="height: 1em;" src="sapling/media/babel-logo-minimal.svg">]() [Babel Parser](https://babeljs.io/docs/en/babel-parser)
-* [<img style="height: 1em;" src="sapling/media/webpack.svg">]() [Webpack](https://webpack.js.org/)
-* [<img style="height: 1em;" src="sapling/media/github-actions.svg">]() [GitHub Actions](https://github.com/features/actions)
+* [<img style="height: 1em;" src="sapling/media/react-brands.svg">](https://reactjs.org/)  [React](https://reactjs.org/)
+* [<img style="height: 1em;" src="sapling/media/vscode.svg">](https://code.visualstudio.com/api)  [VSCode Extension API](https://code.visualstudio.com/api)
+* [<img style="height: 1em;" src="sapling/media/mochajs-icon.svg">](https://mochajs.org/) [Mocha](https://mochajs.org/)
+* [<img style="height: 1em;" src="sapling/media/chai_icon.svg">](https://www.chaijs.com/) [Chai](https://www.chaijs.com/)
+* [<img style="height: 1em;" src="sapling/media/babel-logo-minimal.svg">](https://babeljs.io/docs/en/babel-parser) [Babel Parser](https://babeljs.io/docs/en/babel-parser)
+* [<img style="height: 1em;" src="sapling/media/webpack.svg">](https://webpack.js.org/) [Webpack](https://webpack.js.org/)
+* [<img style="height: 1em;" src="sapling/media/github-actions.svg">](https://github.com/features/actions) [GitHub Actions](https://github.com/features/actions)
 
 ## Installation
 
@@ -113,7 +118,7 @@ Icon Legend in Sapling Tree View:
 * [<img style="height: 1em;" src="sapling/media/circle-info-solid.svg">]() available props (hover)
 * [<img style="height: 1em;" src="sapling/media/circle-arrow-right-solid.svg">]() open file (click)
 * [<img style="height: 1em;" src="sapling/media/store-solid.svg" >]() Redux store connection
-* [<span style='color:red;'>Navbar</span>](): error in file (matches the error color of your theme)
+* <span>Navbar</span>: error in file (matches the error color of your theme)
 * <b>Navbar</b>: currently open file
 
 Sapling can currently display React apps made with TSX/JSX and ES6 import syntax.
@@ -128,7 +133,7 @@ Sapling will detect React components invoked using JSX tag syntax and React-Rout
     <Navbar></Navbar>
 
     // Route and Navbar will be detected as child components of the current file
-    <Route component={Navbar} />  
+    <Route component={Navbar} />
 
     // Route and App will be detected as child components of the current file
     <Route children={App} />
@@ -138,7 +143,7 @@ Sapling will detect the names of inline props for JSX components it identifies:
 
 ```JSX
     // props 'userId' and 'userName' will be listed for Navbar in Sapling
-    <Navbar userId={...} userName={...} />  
+    <Navbar userId={...} userName={...} />
 ```
 
 Sapling can identify components connected to the Redux store, when 'connect' is imported from 'react-redux', and the component is the export default of the file:
@@ -147,14 +152,14 @@ Sapling can identify components connected to the Redux store, when 'connect' is 
     // App.jsx
     import React from 'react';
     import { connect } from 'react-redux';
-    
+
     const mapStateToProps = ...
     const mapDispatchToProps = ...
-    
+
     const App = (props) => {
       return <h1>This is the App</h1>
     }
-    
+
     // Sapling will detect App as connected to the Redux store
     export default connect(mapStateToProps, mapDispatchToProps)(App);
 ```
@@ -236,5 +241,5 @@ Distributed under the MIT License. See [`LICENSE`](https://github.com/oslabs-bet
 * Interactive tree view styling adapted from [Pure CSS Tree Menu](https://codepen.io/bisserof/pen/fdtBm)
 * Icons from [Font Awesome](https://fontawesome.com)
 * Tooltips with [Tippy](https://www.npmjs.com/package/@tippy.js/react)
-* [Best README Template](https://github.com/othneildrew/Best-README-Template) 
+* [Best README Template](https://github.com/othneildrew/Best-README-Template)
 * Sapling Logo from [Freepik](https://www.freepik.com/vectors/tree)

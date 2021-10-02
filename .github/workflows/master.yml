@@ -1,4 +1,4 @@
-name: Master branch sapling extension CI/CD
+name: master CI/CD
 
 # Run this workflow on PR into dev branch
 on:
