@@ -1,0 +1,70 @@
+/* Import Bootstrap Styles */
+@import "bootstrap/scss/bootstrap";
+
+
+/* ### SASS VARIABLES ### */
+$sapling-light-green: #37cca2;
+$sapling-dark-green: #21b198;
+$sapling-brown: #442216;
+
+
+/* ### OVERALL STYLES ### */
+
+body {
+  background-color: #eaf8da;
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+.flex {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.btn-sapling {
+  color: #442216;
+  background-color: #37cca2;
+}
+
+.btn-sapling:hover {
+  background-color: #26baa1;
+}
+
+
+/* ### NAVBAR ### */
+
+
+// navbar navbar-expand-lg navbar-light bg-light
+nav#navbar {
+  background-color: #eaf8da;
+  box-shadow: rgba(146, 146, 151, 0.2) 0px 7px 29px 0px;;
+}
+
+.navbar-brand {
+  padding: 0;
+  img {
+    height: 40px;
+  }
+}
+
+// a {
+//   color: inherit;
+//   text-decoration: none;
+// }
+
+// * {
+//   box-sizing: border-box;
+// }
+
+/* ## CAROUSEL ## */
+.carousel-caption {
+  color: #CECECE;
+}

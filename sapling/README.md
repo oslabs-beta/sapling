@@ -212,7 +212,6 @@ Sapling will display Home and Navbar as siblings, both children of App: (image o
 
 <br />
   <img src="media/readme-example.png">
-<br />
 
 ## Extension Settings
 
