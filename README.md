@@ -190,7 +190,6 @@ Sapling will display Home and Navbar as siblings, both children of App:
 
 <br />
   <img src="sapling/media/readme-example.png">
-<br />
 
 ### Contributor Usage
 

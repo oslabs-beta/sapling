@@ -1,0 +1,28 @@
+import Image from 'next/image';
+import githubIcon from '../public/github-icon.svg';
+import mediumIcon from '../public/medium-logo.svg';
+
+const Links = () => {
+  return (
+    <div className="links-section mx-auto">
+      <hr className="my-4"/>
+      <h2 className="text-center">Links</h2>
+      <div className="links">
+        <div className="link mx-auto">
+          <p>View the product</p>
+          <a href="https://github.com/oslabs-beta/sapling" target="_blank">
+            <Image src={githubIcon}/>
+          </a>
+        </div>
+        <div className="link mx-auto">
+          <p>Read more about Sapling</p>
+          <a href="" target="_blank">
+            <Image src={mediumIcon}/>
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default Links;
