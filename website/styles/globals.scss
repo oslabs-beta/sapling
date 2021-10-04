@@ -3,15 +3,16 @@
 
 
 /* ### SASS VARIABLES ### */
-$sapling-light-green: #37cca2;
-$sapling-dark-green: #21b198;
-$sapling-brown: #442216;
-
+// $sapling-light-green: #36cda3;
+$sapling-dark-green: #36cda3;
+$sapling-brown: #432116;
+$sapling-green: #def4c6;
+$sapling-light-green: #e7f4d9;
 
 /* ### OVERALL STYLES ### */
 
 body {
-  background-color: #eaf8da;
+  background-color: $sapling-green;
   padding: 0;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
@@ -29,23 +30,29 @@ body {
   justify-content: center;
 }
 
+.flex-jc-center {
+  justify-content: center;
+}
+
 .btn-sapling {
   color: #442216;
-  background-color: #37cca2;
+  background-color: $sapling-dark-green;
 }
 
 .btn-sapling:hover {
-  background-color: #26baa1;
+  background-color: #21b198;
 }
 
+main.container {
+  max-width: 900px;
+}
 
 /* ### NAVBAR ### */
 
 
-// navbar navbar-expand-lg navbar-light bg-light
 nav#navbar {
-  background-color: #eaf8da;
-  box-shadow: rgba(146, 146, 151, 0.2) 0px 7px 29px 0px;;
+  background-color: $sapling-light-green;
+  box-shadow: rgba(146, 146, 151, 0.2) 0px 7px 29px 0px;
 }
 
 .navbar-brand {
@@ -55,16 +62,140 @@ nav#navbar {
   }
 }
 
-// a {
-//   color: inherit;
-//   text-decoration: none;
-// }
+/* ### JUMBOTRON ### */
 
-// * {
-//   box-sizing: border-box;
-// }
+.jumbotron {
+  img {
+    height: calc(1.475rem + 3.0vw);
+  }
+
+  .lead {
+    color: rgb(96, 96, 96);
+  }
+
+  .btn {
+    div {
+      box-sizing: border-box;
+      height: 1.4rem;
+      img {
+        height: 100%
+      }
+    }
+    span {
+      display: inline-block;
+      padding: 0 5px;
+    }
+  }
+}
 
 /* ## CAROUSEL ## */
+
 .carousel-caption {
   color: #CECECE;
+  background: rgb(0, 0, 0, 0.5);
+  border-radius: 20px;
+}
+
+/* ## Links ## */
+
+.links {
+  display: flex;
+  justify-content: column;
+}
+
+.link {
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  p {
+    font-size: 16pt;
+  }
+  img {
+    height: 3em;
+  }
+}
+
+/* ## Contributors ## */
+
+.contributors {
+  margin-bottom: 60px;
+
+  .card-body {
+    img {
+      display: none;
+    }
+
+    .person-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      img {
+        max-height: 40px;
+      }
+    }
+  }
+
+  @media screen and (max-width: 575px) {
+    .card {
+      min-width: 310px;
+    }
+    .card-img-top {
+      display:none;
+    }
+    .card-body {
+      display: flex;
+      .profile-small {
+        height: 140px;
+        display: block;
+        border-radius: 5px;
+      }
+      .person-info {
+        flex-grow: 1;
+      }
+    }
+  }
+}
+
+.people {
+  display: flex;
+  justify-content: column;
+}
+
+.person {
+  // background-color: $sapling-light-green;
+  // padding: 1em;
+  // display: flex;
+  // flex-direction: column;
+  // align-items: center;
+  // border-radius: 5px;
+  // box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  // img {
+  //   border-radius: 5px;
+  // }
+  // a {
+  //   img {
+  //     height: 3em;
+  //   }
+  // }
+  // p {
+  //   margin-top: .5em;
+  //   font-size: 14pt;
+  // }
+}
+
+/* ### FOOTER ### */
+
+footer {
+  background-color: $sapling-light-green;
+  box-shadow: rgba(146, 146, 151, 0.2) 0px -7px 29px 0px;
+  color: rgb(96, 96, 96);
+
+  div {
+    a {
+      img {
+        height: 2.5em;
+      }
+    }
+  }
 }
