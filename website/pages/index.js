@@ -6,6 +6,9 @@ import Jumbotron from '../components/Jumbotron';
 import Carousel from '../components/Carousel';
 import Links from '../components/Links';
 import Contributors from '../components/Contributors';
+import nextLogo from '../public/Nextjs-logo.svg';
+import osLabsLogo from '../public/oslabs-icon.png';
+import bootstrapLogo from '../public/Bootstrap_logo.svg';
 
 export default function Home() {
   return (
@@ -16,12 +19,20 @@ export default function Home() {
         <link rel="icon" href="/sapling-logo.png" />
       </Head>
       <Navbar />
-      <main className="container w-75">
+      <main className="container">
         <Jumbotron />
         <Carousel />
         <Links />
         <Contributors />
       </main>
+      <footer className="d-flex justify-content-around">
+        <div className="d-flex flex-column align-items-center">
+          <span>developed under</span>
+          <a href="https://opensourcelabs.io/" target="_blank">
+           <Image src={osLabsLogo} />
+          </a>
+        </div>
+      </footer>
     </div>
   )
 }
