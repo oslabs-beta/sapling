@@ -122,66 +122,30 @@ nav#navbar {
   margin-bottom: 60px;
 
   .card-body {
-    img {
-      display: none;
-    }
-
-    .person-info {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      img {
-        max-height: 40px;
-      }
-    }
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
   }
 
-  @media screen and (max-width: 575px) {
+  @media screen and (max-width: 576px) {
     .card {
-      min-width: 310px;
-    }
-    .card-img-top {
-      display:none;
-    }
-    .card-body {
+      margin-bottom: 10px;
+      min-width: 405px;
       display: flex;
-      .profile-small {
-        height: 140px;
-        display: block;
-        border-radius: 5px;
+      flex-direction: row;
+
+      .card-img-top {
+        width: 140px;
+        flex-shrink: 0;
       }
-      .person-info {
+
+      .card-body {
+        justify-content: center;
         flex-grow: 1;
       }
     }
   }
-}
-
-.people {
-  display: flex;
-  justify-content: column;
-}
-
-.person {
-  // background-color: $sapling-light-green;
-  // padding: 1em;
-  // display: flex;
-  // flex-direction: column;
-  // align-items: center;
-  // border-radius: 5px;
-  // box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  // img {
-  //   border-radius: 5px;
-  // }
-  // a {
-  //   img {
-  //     height: 3em;
-  //   }
-  // }
-  // p {
-  //   margin-top: .5em;
-  //   font-size: 14pt;
-  // }
 }
 
 /* ### FOOTER ### */

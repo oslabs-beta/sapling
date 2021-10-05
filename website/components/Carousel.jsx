@@ -1,3 +1,10 @@
+import Image from 'next/image';
+import firstSlide from '../public/gen_tree_demo.gif';
+import secondSlide from '../public/icons_demo.gif';
+import thirdSlide from '../public/rebuild_on_save_demo.gif';
+import fourthSlide from '../public/build_tree_demo.gif';
+import fifthSlide from '../public/settings_theme_demo.gif';
+
 const Carousel = () => {
   return (
     <div className="carousel mx-auto">
@@ -13,33 +20,33 @@ const Carousel = () => {
         </div>
         <div className="carousel-inner">
           <div className="carousel-item active">
-            <img className="d-block w-100" src='/gen_tree_demo.gif' alt="First slide"/>
+            <Image className="d-block w-100" src={firstSlide} alt="First slide"/>
             <div className="carousel-caption w-75 mx-auto d-none d-md-block">
-              <p>Open a root component to structure your app's files so they match its dependency relationships.</p>
+              <p>Open a root component to structure your app&apos;s files so they match its dependency relationships.</p>
             </div>
           </div>
           <div className="carousel-item">
-            <img className="d-block w-100" src='/icons_demo.gif' alt="Second slide"/>
+            <Image className="d-block w-100" src={secondSlide} alt="Second slide"/>
             <div className="carousel-caption w-75 mx-auto d-none d-md-block">
-              <p>Use Sapling's intuitive icons to get a list of props available to each component, see which components are connected to your Redux store, and open the file you wish to edit.</p>
+              <p>Use Sapling&apos;s intuitive icons to get a list of props available to each component, see which components are connected to your Redux store, and open the file you wish to edit.</p>
             </div>
           </div>
           <div className="carousel-item">
-            <img className="d-block w-100" src='/rebuild_on_save_demo.gif' alt="Third slide"/>
+            <Image className="d-block w-100" src={thirdSlide} alt="Third slide"/>
             <div className="carousel-caption w-75 mx-auto d-none d-md-block">
               <p>Sapling is highly responsive, and notices whenever you edit and save a file.</p>
             </div>
           </div>
           <div className="carousel-item">
-            <img className="d-block w-100" src='/build_tree_demo.gif' alt="Fourth slide"/>
+            <Image className="d-block w-100" src={fourthSlide} alt="Fourth slide"/>
             <div className="carousel-caption w-75 mx-auto d-none d-md-block">
               <p>Rebuild the tree with your currently open file as the root. Note that Sapling retains its expanded state between sessions.</p>
             </div>
           </div>
           <div className="carousel-item">
-            <img className="d-block w-100" src='/settings_theme_demo.gif' alt="Fifth slide"/>
+            <Image className="d-block w-100" src={fifthSlide} alt="Fifth slide"/>
             <div className="carousel-caption w-75 mx-auto d-none d-md-block">
-              <p>Toggle the display of third-party and React Router components, and watch as Sapling's theme changes to match your preferences.</p>
+              <p>Toggle the display of third-party and React Router components, and watch as Sapling&apos;s theme changes to match your preferences.</p>
             </div>
           </div>
         </div>
