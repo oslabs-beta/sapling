@@ -1,16 +1,19 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import logo from '../public/sapling-logo.png';
 
 const Navbar = () => {
   return (
         <nav id="navbar" className="navbar navbar-expand-lg navbar-light">
           <div className="container-fluid">
-            <a className="navbar-brand flex align-items-center" href="/">
-              <Image src={logo} />
-              <div className="flex-col">
-                <span>Sapling</span>
-              </div>
-            </a>
+            <Link href="/" passHref>
+              <a className="navbar-brand flex align-items-center">
+                <Image src={logo} alt="Sapling Tree Logo"/>
+                <div className="flex-col">
+                  <span>Sapling</span>
+                </div>
+              </a>
+            </Link>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
             </button>

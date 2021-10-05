@@ -28,8 +28,8 @@ export default function Home() {
       <footer className="d-flex justify-content-around">
         <div className="d-flex flex-column align-items-center">
           <span>developed under</span>
-          <a href="https://opensourcelabs.io/" target="_blank">
-           <Image src={osLabsLogo} />
+          <a href="https://opensourcelabs.io/" target="_blank" rel="noreferrer">
+           <Image src={osLabsLogo} alt="OSLabs Logo"/>
           </a>
         </div>
       </footer>
