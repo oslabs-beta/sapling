@@ -27,14 +27,15 @@
     <!-- STARS -->
     <a href="https://github.com/oslabs-beta/sapling/stargazers"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/oslabs-beta/sapling"></a>
     <!-- GITHUB RELEASE VERSION -->
-    <a href="https://github.com/oslabs-beta/sapling/releases"><img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/oslabs-beta/sapling?include_prereleases"></a>
+    <!-- <a href="https://github.com/oslabs-beta/sapling/releases"><img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/oslabs-beta/sapling?include_prereleases"></a> -->
     <!-- BUILD STATUS -->
     <a href="https://github.com/oslabs-beta/sapling/actions/workflows/master.yml"><img alt="master CI/CD workflow status" src="https://github.com/oslabs-beta/sapling/actions/workflows/master.yml/badge.svg"></a>
     <a href="https://github.com/oslabs-beta/sapling/actions/workflows/dev.yml"><img alt="dev CI workflow status" src="https://github.com/oslabs-beta/sapling/actions/workflows/dev.yml/badge.svg"></a>
+    <img alt="GitHub deployments" src="https://img.shields.io/github/deployments/oslabs-beta/sapling/production?label=website%20build&logo=vercel">
     <!-- LICENSE -->
-    <a href="https://github.com/oslabs-beta/sapling/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/oslabs-beta/sapling"></a>
+    <!-- <a href="https://github.com/oslabs-beta/sapling/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/oslabs-beta/sapling"></a> -->
     <!-- CONTRIBUTIONS -->
-    <a href="https://github.com/oslabs-beta/sapling/blob/master/README.md"><img alt="Contributions" src="https://img.shields.io/badge/contributors-welcome-brightgreen"></a>
+    <!-- <a href="https://github.com/oslabs-beta/sapling/blob/master/README.md"><img alt="Contributions" src="https://img.shields.io/badge/contributors-welcome-brightgreen"></a> -->
   </p>
 </p>
 
