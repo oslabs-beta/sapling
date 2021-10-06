@@ -41,7 +41,7 @@ const Navbar = () => {
                 </li> */}
               </ul>
               <ul className="navbar-nav mb-2 mb-lg-0">
-                <li><a className="btn btn-sapling" href="#">Get Sapling</a></li>
+                <li><a className="btn btn-sapling" href="https://marketplace.visualstudio.com/items?itemName=team-sapling.sapling">Get Sapling</a></li>
               </ul>
             </div>
           </div>

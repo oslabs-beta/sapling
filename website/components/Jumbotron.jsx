@@ -13,7 +13,7 @@ const Jumbotron = () => {
             <hr className="my-4"/>
             <p>React is a powerful tool for building your frontend applications, but at scale navigating the hierarchy of your components can become frustrating. Sapling&apos;s intuitive interface reflects the hierarchical nature of your app, so you&apos;ll never have to think twice about navigation again.</p>
             <p className="lead d-flex justify-content-center">
-                <a className="btn btn-sapling btn-lg d-flex align-items-center" href="#" role="button">
+                <a className="btn btn-sapling btn-lg d-flex align-items-center" href="https://marketplace.visualstudio.com/items?itemName=team-sapling.sapling" role="button">
                   <span>Get Sapling for </span><Image src={vscodeLogo} alt="VS Code Logo"/><span> VS Code </span>
                 </a>
             </p>
