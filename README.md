@@ -99,7 +99,7 @@ Installing from VS Code Extension Marketplace:
 
 1. If needed, install Visual Studio Code for Windows (7+), macOS (Sierra+), or Linux (details).
 
-2. Install the Sapling extension for Visual Studio Code.
+2. Install the Sapling extension for Visual Studio Code. Search for 'sapling' in the VS Code extensions tab, or click [here](https://marketplace.visualstudio.com/items?itemName=team-sapling.sapling).
 
 3. Once complete, you'll see Sapling appear in your sidebar. You can now begin using Sapling! Check out the Getting Started below for information on how to get started.
 
