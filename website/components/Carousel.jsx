@@ -4,6 +4,8 @@ import secondSlide from '../public/icons_demo.gif';
 import thirdSlide from '../public/rebuild_on_save_demo.gif';
 import fourthSlide from '../public/build_tree_demo.gif';
 import fifthSlide from '../public/settings_theme_demo.gif';
+import blurData from '../public/blurData.js';
+
 
 const Carousel = () => {
   return (
@@ -20,31 +22,31 @@ const Carousel = () => {
         </div>
         <div className="carousel-inner">
           <div className="carousel-item active">
-            <Image className="d-block w-100" src={firstSlide} alt="First slide" priority={true}/>
+            <Image className="d-block w-100" src={firstSlide} alt="First slide" placeholder="blur" blurDataURL={blurData.gen_tree_demo}/>
             <div className="carousel-caption w-75 mx-auto d-none d-md-block">
               <p>Open a root component to structure your app&apos;s files so they match its dependency relationships.</p>
             </div>
           </div>
           <div className="carousel-item">
-            <Image className="d-block w-100" src={secondSlide} alt="Second slide" priority={true}/>
+            <Image className="d-block w-100" src={secondSlide} alt="Second slide" placeholder="blur" blurDataURL={blurData.icons_demo}/>
             <div className="carousel-caption w-75 mx-auto d-none d-md-block">
               <p>Use Sapling&apos;s intuitive icons to get a list of props available to each component, see which components are connected to your Redux store, and open the file you wish to edit.</p>
             </div>
           </div>
           <div className="carousel-item">
-            <Image className="d-block w-100" src={thirdSlide} alt="Third slide" priority={true}/>
+            <Image className="d-block w-100" src={thirdSlide} alt="Third slide" placeholder="blur" blurDataURL={blurData.rebuild_on_save_demo}/>
             <div className="carousel-caption w-75 mx-auto d-none d-md-block">
               <p>Sapling is highly responsive, and notices whenever you edit and save a file.</p>
             </div>
           </div>
           <div className="carousel-item">
-            <Image className="d-block w-100" src={fourthSlide} alt="Fourth slide" priority={true}/>
+            <Image className="d-block w-100" src={fourthSlide} alt="Fourth slide" placeholder="blur" blurDataURL={blurData.build_tree_demo}/>
             <div className="carousel-caption w-75 mx-auto d-none d-md-block">
               <p>Rebuild the tree with your currently open file as the root. Note that Sapling retains its expanded state between sessions.</p>
             </div>
           </div>
           <div className="carousel-item">
-            <Image className="d-block w-100" src={fifthSlide} alt="Fifth slide" priority={true}/>
+            <Image className="d-block w-100" src={fifthSlide} alt="Fifth slide" placeholder="blur" blurDataURL={blurData.settings_theme_demo} />
             <div className="carousel-caption w-75 mx-auto d-none d-md-block">
               <p>Toggle the display of third-party and React Router components, and watch as Sapling&apos;s theme changes to match your preferences.</p>
             </div>
