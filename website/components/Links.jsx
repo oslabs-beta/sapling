@@ -9,13 +9,13 @@ const Links = () => {
       <h2 className="text-center">Links</h2>
       <div className="links">
         <div className="link mx-auto">
-          <p>View the product</p>
+          <p className="text-center">View the product</p>
           <a href="https://github.com/oslabs-beta/sapling" target="_blank" rel="noreferrer">
             <Image src={githubIcon} alt="Github OctoCat Logo"/>
           </a>
         </div>
         <div className="link mx-auto">
-          <p>Read more about Sapling</p>
+          <p className="text-center">Read more about Sapling</p>
           <a href="" target="_blank">
             <Image src={mediumIcon} alt="Medium M Logo"/>
           </a>
