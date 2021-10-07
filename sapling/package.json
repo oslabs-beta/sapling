@@ -5,7 +5,7 @@
 	"repository": "https://github.com/oslabs-beta/sapling",
 	"icon": "media/sapling-logo-128px.png",
 	"publisher": "team-sapling",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"engines": {
 		"vscode": "^1.60.0"
 	},
@@ -68,10 +68,13 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",
+    "build": "npm-run-all -p build:*",
+    "build:extension": "webpack --mode production",
+    "build:sidebar": "webpack --config ./src/webviews/webpack.views.config.js",
 		"watch": "npm-run-all -p watch:*",
-		"watch:extension": "webpack --watch --config ./src/webviews/webpack.views.config.js",
-		"watch:sidebar": "webpack --watch",
-		"package": "webpack --mode production --devtool hidden-source-map",
+    "watch:extension": "webpack --watch",
+		"watch:sidebar": "webpack --watch --config ./src/webviews/webpack.views.config.js",
+		"package": "webpack --mode production --devtool hidden-source-map && webpack ----config ./src/webviews/webpack.views.config.js --devtool hidden-source-map",
 		"test-compile": "tsc -p ./",
 		"test-watch": "tsc -watch -p ./",
 		"pretest": "npm run test-compile && npm run lint",
