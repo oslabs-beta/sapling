@@ -291,7 +291,7 @@ suite('Parser Test Suite', () => {
 			tree = parser.parse();
 		});
 
-		it('Root should be named index, children should be named Head, Navbar, and Image, children of Navbar should be named Link and Image', () => {
+		test('Root should be named index, children should be named Head, Navbar, and Image, children of Navbar should be named Link and Image', () => {
 			expect(tree).to.have.own.property('name').that.is.equal('index');
 			expect(tree.children).to.have.lengthOf(3);
 			expect(tree.children[0]).to.have.own.property('name').that.is.equal('Head');
@@ -301,7 +301,6 @@ suite('Parser Test Suite', () => {
 			expect(tree.children[1].children).to.have.lengthOf(2);
 			expect(tree.children[1].children[0]).to.have.own.property('name').that.is.equal('Link');
 			expect(tree.children[1].children[1]).to.have.own.property('name').that.is.equal('Image');
-		})
-
+		});
 	});
 });
