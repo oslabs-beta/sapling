@@ -4,6 +4,12 @@ All notable changes to the "sapling" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.1.0] - 2021-10-7
+
+### Added
+- Beta support for Next.js applications - 'page' files can be parsed to show component hierarchy when using create-next-app
+- Basic test case for Next.js compatibility included
+
 ## [1.0.0] - [Initial Release] - 2021-10-5
 
 ### Added

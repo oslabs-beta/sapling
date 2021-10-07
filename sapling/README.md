@@ -22,12 +22,17 @@
   </p>
     <!-- BADGES -->
   <p align="center">
-    <!-- FORKS -->
-    <!-- <a href="https://github.com/oslabs-beta/sapling/network/members"><img alt="GitHub forks" src="https://img.shields.io/github/forks/oslabs-beta/sapling"></a> -->
+     <!-- VSCode Version -->
+    <a href="https://marketplace.visualstudio.com/items?itemName=team-sapling.sapling"><img alt="Visual Studio Marketplace Version" src="https://img.shields.io/visual-studio-marketplace/v/team-sapling.sapling?label=Version"></a>
+    <!-- VSCode Installs -->
+    <a href="https://marketplace.visualstudio.com/items?itemName=team-sapling.sapling"><img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/team-sapling.sapling?label=Installs&logo=visualstudiocode"></a>
     <!-- STARS -->
-    <!-- <a href="https://github.com/oslabs-beta/sapling/stargazers"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/oslabs-beta/sapling"></a> -->
+    <a href="https://github.com/oslabs-beta/sapling/stargazers"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/oslabs-beta/sapling?label=Stars&logo=github"></a>
+    <!-- FORKS -->
+    <a href="https://github.com/oslabs-beta/sapling/network/members"><img alt="GitHub forks" src="https://img.shields.io/github/forks/oslabs-beta/sapling?label=Forks&logo=github"></a>
     <!-- GITHUB RELEASE VERSION -->
     <!-- <a href="https://github.com/oslabs-beta/sapling/releases"><img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/oslabs-beta/sapling?include_prereleases"></a> -->
+    <br>
     <!-- BUILD STATUS -->
     <!-- <a href="https://github.com/oslabs-beta/sapling/actions/workflows/master.yml"><img alt="master CI/CD workflow status" src="https://github.com/oslabs-beta/sapling/actions/workflows/master.yml/badge.svg"></a>
     <a href="https://github.com/oslabs-beta/sapling/actions/workflows/dev.yml"><img alt="dev CI workflow status" src="https://github.com/oslabs-beta/sapling/actions/workflows/dev.yml/badge.svg"></a>
@@ -245,3 +250,4 @@ Distributed under the MIT License. See [`LICENSE`](https://github.com/oslabs-bet
 * Tooltips with [Tippy](https://www.npmjs.com/package/@tippy.js/react)
 * [Best README Template](https://github.com/othneildrew/Best-README-Template)
 * Sapling Logo from [Freepik](https://www.freepik.com/vectors/tree)
+* Readme badges from [shields.io](https://shields.io/)
