@@ -74,7 +74,7 @@
 		"watch": "npm-run-all -p watch:*",
     "watch:extension": "webpack --watch",
 		"watch:sidebar": "webpack --watch --config ./src/webviews/webpack.views.config.js",
-		"package": "webpack --mode production --devtool hidden-source-map && webpack ----config ./src/webviews/webpack.views.config.js --devtool hidden-source-map",
+		"package": "webpack --mode production --devtool hidden-source-map && webpack --config ./src/webviews/webpack.views.config.js --devtool hidden-source-map",
 		"test-compile": "tsc -p ./",
 		"test-watch": "tsc -watch -p ./",
 		"pretest": "npm run test-compile && npm run lint",
