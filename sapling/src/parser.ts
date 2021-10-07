@@ -187,10 +187,8 @@ export class SaplingParser {
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);
 
-    // If current file imports React, get JSX Children:
-    if (imports.React) {
-      componentTree.children = this.getJSXChildren(ast.tokens, imports, componentTree);
-    }
+    // Get any JSX Children of current file:
+    componentTree.children = this.getJSXChildren(ast.tokens, imports, componentTree);
 
     // Check if current node is connected to the Redux store
     componentTree.reduxConnect = this.checkForRedux(ast.tokens, imports);
