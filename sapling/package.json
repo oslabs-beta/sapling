@@ -10,8 +10,9 @@
 		"vscode": "^1.60.0"
 	},
 	"categories": [
-		"Other"
+		"Visualization"
 	],
+	"keywords": ["react", "component hierarchy", "devtools"],
 	"activationEvents": [
 		"onStartupFinished"
 	],
