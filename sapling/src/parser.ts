@@ -216,18 +216,54 @@ export class SaplingParser {
   }
 
   // Extracts Imports from current file
+  // const Page1 = lazy(() => import('./page1')); -> is parsed as 'ImportDeclaration'
+  // import Page2 from './page2'; -> is parsed as 'VariableDeclaration'
   private getImports(body : {[key : string]: any}[]) : ImportObj {
-    const bodyImports = body.filter(item => item.type === 'ImportDeclaration');
+    const bodyImports = body.filter(item => item.type === 'ImportDeclaration' || 'VariableDeclaration');
+    // console.log('bodyImports are: ', bodyImports);
     return bodyImports.reduce((accum, curr) => {
-      curr.specifiers.forEach( i => {
-        accum[i.local.name] = {
-          importPath: curr.source.value,
-          importName: (i.imported)? i.imported.name : i.local.name
-        };
-      });
-
+      // Import Declarations:
+      if (curr.type === 'ImportDeclaration') {
+        curr.specifiers.forEach( i => {
+          accum[i.local.name] = {
+            importPath: curr.source.value,
+            importName: (i.imported)? i.imported.name : i.local.name
+          };
+        });
+      }
+      // Imports Inside Variable Declarations: // Not easy to deal with nested objects
+      if (curr.type === 'VariableDeclaration') {
+        const importPath = this.findVarDecImports(curr.declarations[0]);
+        if (importPath) {
+          const importName = curr.declarations[0].id.name;
+          accum[curr.declarations[0].id.name] = {
+            importPath,
+            importName
+          };
+        }
+      }
       return accum;
     }, {});
+  }
+
+  // Recursive helper method to find import path in Variable Declaration
+  private findVarDecImports(ast: {[key: string]: any}) {
+    // Base Case, find import path in variable declaration and return it,
+    if (ast.hasOwnProperty('callee') && ast.callee.type === 'Import') {
+      return ast.arguments[0].value;
+    }
+
+    // Otherwise look for imports in any other non null/undefined objects in the tree:
+    for (let key in ast) {
+      if (ast.hasOwnProperty(key) && typeof ast[key] === 'object' && ast[key]) {
+        const importPath = this.findVarDecImports(ast[key]);
+        if (importPath) {
+          return importPath;
+        }
+      }
+    }
+
+    return false;
   }
 
   // Finds JSX React Components in current file

@@ -303,4 +303,28 @@ suite('Parser Test Suite', () => {
 			expect(tree.children[1].children[1]).to.have.own.property('name').that.is.equal('Image');
 		});
 	});
+
+  // TEST 13: Variable Declaration Imports and React.lazy Imports
+  describe('It should parse VariableDeclaration imports including React.lazy imports', () => {
+		before(() => {
+			file = path.join(__dirname, '../../../src/test/test_apps/test_13/index.js');
+			parser = new SaplingParser(file);
+			tree = parser.parse();
+		});
+
+		test('Root should be named index, it should have one child named App', () => {
+			expect(tree).to.have.own.property('name').that.is.equal('index');
+			expect(tree.children).to.have.lengthOf(1);
+			expect(tree.children[0]).to.have.own.property('name').that.is.equal('App');
+		});
+
+    test('App should have three children, Page1, Page2 and Page3, all found successfully', () => {
+			expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('Page1');
+      expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
+			expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('Page2');
+      expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
+			expect(tree.children[0].children[2]).to.have.own.property('name').that.is.equal('Page3');
+      expect(tree.children[0].children[2]).to.have.own.property('thirdParty').that.is.false;
+		});
+	});
 });
