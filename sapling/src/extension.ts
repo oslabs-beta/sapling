@@ -19,6 +19,10 @@ export function activate(context: vscode.ExtensionContext) {
       sidebarProvider
     )
   );
+	
+  vscode.window.onDidChangeActiveTextEditor((e) =>
+    sidebarProvider.onActiveWindowChanged(e.document.fileName)
+  );
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand("sapling.generateTree", async () => {
