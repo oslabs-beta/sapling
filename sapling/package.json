@@ -5,7 +5,7 @@
 	"repository": "https://github.com/oslabs-beta/sapling",
 	"icon": "media/sapling-logo-128px.png",
 	"publisher": "team-sapling",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"engines": {
 		"vscode": "^1.60.0"
 	},

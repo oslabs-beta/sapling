@@ -4,6 +4,12 @@ All notable changes to the "sapling" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.0] - 2021-10-14
+
+### Added
+- Beta support for React.lazy() import syntax and `const component = import(../components/component)` syntax
+- Added Generate Tree option to explorer right-click context menu when clicking on JS/JSX/TS/TSX files
+
 ## [1.1.0] - 2021-10-7
 
 ### Added
