@@ -6,7 +6,6 @@ import { Tree } from './types/Tree';
 import { ImportObj } from './types/ImportObj';
 import { File } from '@babel/types';
 
-
 export class SaplingParser {
   entryFile: string;
   tree: Tree | undefined;

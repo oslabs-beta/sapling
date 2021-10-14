@@ -1,6 +1,5 @@
-// Tree type used by SaplingParser
+// React component tree is a nested data structure, children are Trees
 
-// The component tree is a nested data structure, where children are Trees
 export type Tree = {
   id: string;
   name: string;
