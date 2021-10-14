@@ -1,4 +1,7 @@
-export function getNonce() {
+/**
+ * Function that creates an unique ID string
+ */
+export function getNonce(): string {
   let text = "";
   const possible =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
