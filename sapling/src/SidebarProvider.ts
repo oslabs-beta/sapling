@@ -142,12 +142,18 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     });
   }
 
-  // function when the status-bar button is clicked
-  public statusButtonClicked = () => {
-    // file path of the file the user clicked
-    const { fileName } = vscode.window.activeTextEditor.document;
+  // Called when Generate Tree command triggered by status button or explorer context menu
+  public statusButtonClicked = (uri: vscode.Uri | undefined) => {
+    let fileName;
+    // If status menu button clicked, no uri, get active file uri
+    if (!uri) {
+      fileName  = vscode.window.activeTextEditor.document.fileName;
+    } else {
+      fileName = uri.path;
+    }
+
+    // Parse new tree with file as root
     if (fileName) {
-      // begin new instance of the parser
       this.parser = new SaplingParser(fileName);
       this.parser.parse();
       this.updateView();
