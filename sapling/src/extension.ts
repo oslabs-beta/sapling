@@ -1,18 +1,21 @@
 import * as vscode from 'vscode';
 import { SidebarProvider } from './SidebarProvider';
 
-// your extension is activated the very first time the command is executed
+// Sapling extension is activated after vscode startup
 export function activate(context: vscode.ExtensionContext) {
 	// instantiating the sidebar webview
   const sidebarProvider = new SidebarProvider(context);
 
+  // Create Build Tree Status Bar Button
 	const item = vscode.window.createStatusBarItem(
 		vscode.StatusBarAlignment.Right
 	);
+  item.tooltip = 'Generate hierarchy tree from current file';
 	item.text = '$(list-tree) Build Tree';
 	item.command = 'sapling.generateTree';
 	item.show();
 
+  // Register Sapling Sidebar Webview View
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       "sapling-sidebar",
@@ -20,10 +23,12 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
+  // Register command to generate tree from current file on status button click or from explorer context
 	context.subscriptions.push(
-		vscode.commands.registerCommand("sapling.generateTree", async () => {
+		vscode.commands.registerCommand("sapling.generateTree", async (uri: vscode.Uri | undefined) => {
+      console.log('URI is: ', uri);
 			await vscode.commands.executeCommand('workbench.view.extension.sapling-sidebar-view');
-			sidebarProvider.statusButtonClicked();
+			sidebarProvider.statusButtonClicked(uri);
 		})
 	);
 
