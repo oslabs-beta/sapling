@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { SaplingParser } from '../../parser';
+import { SaplingParser } from '../../SaplingParser';
 import { describe, suite , test, before} from 'mocha';
 import { expect } from 'chai';
 import * as path from 'path';
