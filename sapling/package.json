@@ -44,11 +44,6 @@
 				"category": "Sapling",
 				"title": "Refresh"
 			},
-      {
-        "command": "sapling.showSidebar",
-        "category": "Sapling",
-        "title":  "Show Sidebar View"
-      },
 			{
 				"command": "sapling.generateTree",
 				"category": "Sapling",
