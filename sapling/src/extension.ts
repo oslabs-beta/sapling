@@ -26,7 +26,6 @@ export function activate(context: vscode.ExtensionContext) {
   // Register command to generate tree from current file on status button click or from explorer context
 	context.subscriptions.push(
 		vscode.commands.registerCommand("sapling.generateTree", async (uri: vscode.Uri | undefined) => {
-      console.log('URI is: ', uri);
 			await vscode.commands.executeCommand('workbench.view.extension.sapling-sidebar-view');
 			sidebarProvider.statusButtonClicked(uri);
 		})
