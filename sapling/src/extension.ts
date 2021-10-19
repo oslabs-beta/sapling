@@ -23,10 +23,6 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  vscode.window.onDidChangeActiveTextEditor((e) =>
-  sidebarProvider.onActiveWindowChanged(e.document.fileName)
-	);
-
   // Register command to generate tree from current file on status button click or from explorer context
 	context.subscriptions.push(
 		vscode.commands.registerCommand("sapling.generateTree", async (uri: vscode.Uri | undefined) => {
