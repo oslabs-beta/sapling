@@ -173,12 +173,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     }
   };
 
-  public onActiveWindowChanged = (fileName: string) => {
-    this.parser = new SaplingParser(fileName);
-    this.parser.parse();
-    this.updateView();
-  };
-
   // revive statement for the webview panel
   public revive(panel: vscode.WebviewView) {
     this._view = panel;
