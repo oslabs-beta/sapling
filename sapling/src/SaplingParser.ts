@@ -2,29 +2,10 @@ import * as babelParser from '@babel/parser';
 import * as path from 'path';
 import * as fs from 'fs';
 import { getNonce } from "./getNonce";
+import { Tree } from './types/Tree';
+import { ImportObj } from './types/ImportObj';
+import { File } from '@babel/types';
 
-// React component tree is a nested data structure, children are Trees
-export type Tree = {
-  id: string,
-  name: string,
-  fileName: string,
-  filePath: string,
-  importPath: string,
-  expanded: boolean,
-  depth: number,
-  count: number,
-  thirdParty: boolean,
-  reactRouter: boolean,
-  reduxConnect: boolean,
-  children: Tree[],
-  parentList: string[],
-  props: {[key: string]: boolean},
-  error: string;
-};
-
-type ImportObj = {
-  [key : string]: {importPath: string, importName: string}
-};
 
 export class SaplingParser {
   entryFile: string;
@@ -85,12 +66,12 @@ export class SaplingParser {
   public updateTree(filePath : string) : Tree {
       let children = [];
 
-      const getChildNodes = (node) => {
+      const getChildNodes = (node: Tree) : void => {
         const { depth, filePath, expanded } = node;
         children.push({ depth, filePath, expanded });
       };
 
-      const matchExpand = (node) => {
+      const matchExpand = (node: Tree) : void => {
         for (let i = 0 ; i < children.length ; i += 1) {
           const oldNode = children[i];
             if (oldNode.depth === node.depth && oldNode.filePath === node.filePath && oldNode.expanded) {
@@ -99,7 +80,7 @@ export class SaplingParser {
         }
       };
 
-      const callback = (node) => {
+      const callback = (node: Tree) : void => {
         if (node.filePath === filePath) {
           node.children.forEach(child => {
             this.#traverseTree(getChildNodes, child);
@@ -169,7 +150,7 @@ export class SaplingParser {
     }
 
     // Create abstract syntax tree of current component tree file
-    let ast;
+    let ast: babelParser.ParseResult<File>;
     try {
       ast = babelParser.parse(fs.readFileSync(path.resolve(componentTree.filePath), 'utf-8'), {
         sourceType: 'module',
@@ -267,7 +248,7 @@ export class SaplingParser {
   }
 
   // Finds JSX React Components in current file
-  private getJSXChildren(astTokens: [{[key: string]: any}], importsObj : ImportObj, parentNode: Tree) : Tree[] {
+  private getJSXChildren(astTokens: any[], importsObj : ImportObj, parentNode: Tree) : Tree[] {
     let childNodes: {[key : string]: Tree} = {};
     let props : {[key : string]: boolean} = {};
     let token : {[key: string]: any};
@@ -337,7 +318,7 @@ export class SaplingParser {
   }
 
   // Checks if current Node is connected to React-Redux Store
-  private checkForRedux(astTokens: [{[key: string]: any}], importsObj : ImportObj) : boolean {
+  private checkForRedux(astTokens: any[], importsObj : ImportObj) : boolean {
     // Check that react-redux is imported in this file (and we have a connect method or otherwise)
     let reduxImported = false;
     let connectAlias;
