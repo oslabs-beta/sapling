@@ -197,12 +197,12 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     const nonce = getNonce();
 
     return `<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-				<!--
-					Use a content security policy to only allow loading images from https or from our extension directory,
-					and only allow scripts that have a specific nonce.
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <!--
+          Use a content security policy to only allow loading images from https or from our extension directory,
+          and only allow scripts that have a specific nonce.
         -->
         <meta http-equiv="Content-Security-Policy"
           content="default-src 'none';
@@ -212,15 +212,15 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           <link href="${styleResetUri}" rel="stylesheet">
           <link href="${styleVSCodeUri}" rel="stylesheet">
           <link href="${styleMainUri}" rel="stylesheet">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script nonce="${nonce}">
           const tsvscode = acquireVsCodeApi();
         </script>
-			</head>
+      </head>
       <body>
         <div id="root"></div>
-				<script nonce="${nonce}" src="${scriptUri}"></script>
-			</body>
-			</html>`;
+        <script nonce="${nonce}" src="${scriptUri}"></script>
+      </body>
+      </html>`;
   }
 }
