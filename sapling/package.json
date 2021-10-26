@@ -12,7 +12,11 @@
   "categories": [
     "Visualization"
   ],
-  "keywords": ["react", "component hierarchy", "devtools"],
+  "keywords": [
+    "react",
+    "component hierarchy",
+    "devtools"
+  ],
   "activationEvents": [
     "onStartupFinished"
   ],

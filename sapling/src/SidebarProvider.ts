@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
-import { SaplingParser, Tree } from './parser';
+import { SaplingParser } from './SaplingParser';
+import { Tree } from "./types/Tree";
 
 // Sidebar class that creates a new instance of the sidebar + adds functionality with the parser
 export class SidebarProvider implements vscode.WebviewViewProvider {
