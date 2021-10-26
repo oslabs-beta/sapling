@@ -36,7 +36,7 @@
     <!-- BUILD STATUS -->
     <!-- <a href="https://github.com/oslabs-beta/sapling/actions/workflows/master.yml"><img alt="master CI/CD workflow status" src="https://github.com/oslabs-beta/sapling/actions/workflows/master.yml/badge.svg"></a>
     <a href="https://github.com/oslabs-beta/sapling/actions/workflows/dev.yml"><img alt="dev CI workflow status" src="https://github.com/oslabs-beta/sapling/actions/workflows/dev.yml/badge.svg"></a>
-    <img alt="GitHub deployments" src="https://img.shields.io/github/deployments/oslabs-beta/sapling/production?label=website%20build&logo=vercel"> -->
+    <a href="https://github.com/PLCoster/sapling-website"><img alt="Vercel Website deployments" src="https://img.shields.io/github/deployments/PLCoster/sapling-website/production?label=build&logo=Vercel"></a> -->
     <!-- LICENSE -->
     <!-- <a href="https://github.com/oslabs-beta/sapling/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/oslabs-beta/sapling"></a> -->
     <!-- CONTRIBUTIONS -->
