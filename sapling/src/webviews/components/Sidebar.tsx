@@ -48,7 +48,7 @@ const Sidebar = () => {
 
   // Separate useEffect that gets triggered when the treeData and settings state variables get updated
   useEffect(() => {
-    if (treeData !== undefined && settings !== undefined) {
+    if (treeData && settings) {
       // Invoke parser to parse based on user's settings
       parseViewTree();
     }
