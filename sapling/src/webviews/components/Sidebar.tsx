@@ -10,7 +10,7 @@ const Sidebar = () => {
   // state variables for the incomimg treeData, parsed viewData, user's settings, and the root file name
   const [treeData, setTreeData]: any = useState();
   const [viewData, setViewData]: any = useState();
-  const [settings, setSettings]: [{[key : string]: boolean}, Function] = useState();
+  const [settings, setSettings]: [{[key : string]: boolean} | undefined, Function] = useState();
   const [rootFile, setRootFile]: [string | undefined, Function] = useState();
 
   // useEffect whenever the Sidebar is rendered
@@ -48,7 +48,7 @@ const Sidebar = () => {
 
   // Separate useEffect that gets triggered when the treeData and settings state variables get updated
   useEffect(() => {
-    if (treeData && settings) {
+    if (treeData !== undefined && settings !== undefined) {
       // Invoke parser to parse based on user's settings
       parseViewTree();
     }
