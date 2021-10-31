@@ -1,5 +1,5 @@
-import * as assert from 'assert';
 import { SaplingParser } from '../../SaplingParser';
+import { Tree } from '../../types/Tree';
 import { describe, suite , test, before} from 'mocha';
 import { expect } from 'chai';
 import * as path from 'path';
@@ -10,7 +10,7 @@ import * as path from 'path';
 // import * as myExtension from '../../extension';
 
 suite('Parser Test Suite', () => {
-  let parser, tree, file;
+  let parser : SaplingParser, tree : Tree, file : string;
 
   // UNPARSED TREE TEST
   describe('It initializes correctly', () => {
@@ -142,7 +142,7 @@ suite('Parser Test Suite', () => {
 
   // TEST 5: MISSING EXTENSIONS AND UNUSED IMPORTS
   describe('It works for extension-less imports', () => {
-    let names, paths, expectedNames, expectedPaths;
+    let names: string[], paths: string [], expectedNames : string[], expectedPaths : string[];
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_5/index.js');
       parser = new SaplingParser(file);

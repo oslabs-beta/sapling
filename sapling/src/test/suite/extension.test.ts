@@ -10,7 +10,7 @@ suite('Extension Test Suite', () => {
   vscode.window.showInformationMessage('Start all tests.');
 
   describe('Sapling loads correctly', () => {
-    let saplingExtension;
+    let saplingExtension : vscode.Extension<any> | undefined;
     before (() => {
       saplingExtension = vscode.extensions.getExtension('team-sapling.sapling');
     });
@@ -20,11 +20,19 @@ suite('Extension Test Suite', () => {
     });
 
     test('Sapling extension is activated after VSCode startup', () => {
-      expect(saplingExtension.isActive).to.be.true;
+      if (saplingExtension) {
+        expect(saplingExtension.isActive).to.be.true;
+      } else {
+        expect(saplingExtension).to.not.be.undefined;
+      }
     });
 
     test('Sapling extension package.json exists', () => {
-      expect(saplingExtension.packageJSON).to.not.be.undefined;
+      if (saplingExtension) {
+        expect(saplingExtension.packageJSON).to.not.be.undefined;
+      } else {
+        expect(saplingExtension).to.not.be.undefined;
+      }
     });
   });
 
