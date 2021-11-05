@@ -53,7 +53,7 @@ export class SaplingParser {
     return this.tree;
   }
 
-  public getTree() : Tree {
+  public getTree() : Tree | undefined {
     return this.tree;
   }
 
@@ -63,8 +63,19 @@ export class SaplingParser {
     this.tree = tree;
   }
 
-  public updateTree(filePath : string) : Tree {
-      let children = [];
+  // Updates the tree when a file is saved in VS Code
+  public updateTree(filePath : string) : Tree | undefined {
+      if (this.tree === undefined) {
+        return this.tree;
+      }
+
+      type ChildInfo = {
+        depth: number,
+        filePath: string,
+        expanded: boolean
+      };
+
+      let children : Array<ChildInfo> = [];
 
       const getChildNodes = (node: Tree) : void => {
         const { depth, filePath, expanded } = node;
@@ -100,8 +111,8 @@ export class SaplingParser {
     }
 
   // Traverses the tree and changes expanded property of node whose id matches provided id
-  public toggleNode(id : string, expanded : boolean) : Tree {
-    const callback = (node) => {
+  public toggleNode(id : string, expanded : boolean) : Tree | undefined {
+    const callback = (node : Tree) => {
       if (node.id === id) {
         node.expanded = expanded;
       }
@@ -113,7 +124,7 @@ export class SaplingParser {
   }
 
   // Traverses all nodes of current component tree and applies callback to each node
-  #traverseTree(callback : Function, node : Tree = this.tree) : void {
+  #traverseTree(callback : Function, node : Tree | undefined = this.tree) : void {
     if (!node) {
       return;
     }
@@ -134,19 +145,19 @@ export class SaplingParser {
       if (componentTree.fileName === 'react-router-dom' || componentTree.fileName === 'react-router') {
         componentTree.reactRouter = true;
       }
-      return;
+      return componentTree;
     }
 
     // Check that file has valid fileName/Path, if not found, add error to node and halt
     const fileName = this.getFileName(componentTree);
     if (!fileName) {
       componentTree.error = 'File not found.';
-      return;
+      return componentTree;
     }
 
     // If current node recursively calls itself, do not parse any deeper:
     if (componentTree.parentList.includes(componentTree.filePath)) {
-      return;
+      return componentTree;
     }
 
     // Create abstract syntax tree of current component tree file
@@ -160,6 +171,10 @@ export class SaplingParser {
           'typescript',
         ]
       });
+      // If no ast or ast tokens, error when parsing file
+      if (!ast || !ast.tokens) {
+        throw new Error();
+      }
     } catch (err) {
       componentTree.error = 'Error while processing this file/node';
       return componentTree;
@@ -181,19 +196,18 @@ export class SaplingParser {
   }
 
   // Finds files where import string does not include a file extension
-  private getFileName(componentTree: Tree) : string | undefined {
+  private getFileName(componentTree: Tree) : string | null {
     const ext = path.extname(componentTree.filePath);
-    let fileName = componentTree.fileName;
 
     if (!ext) {
       // Try and find file extension that exists in directory:
       const fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
       const regEx = new RegExp(`${componentTree.fileName}.(j|t)sx?$`);
-      fileName = fileArray.find(fileStr => fileStr.match(regEx));
-      fileName ? componentTree.filePath += path.extname(fileName) : null;
+      let fileName = fileArray.find(fileStr => fileStr.match(regEx));
+      return fileName ? componentTree.filePath += path.extname(fileName) : null;
+    } else {
+      return componentTree.fileName;
     }
-
-    return fileName;
   }
 
   // Extracts Imports from current file
@@ -205,7 +219,7 @@ export class SaplingParser {
     return bodyImports.reduce((accum, curr) => {
       // Import Declarations:
       if (curr.type === 'ImportDeclaration') {
-        curr.specifiers.forEach( i => {
+        curr.specifiers.forEach((i : {[key : string]: any}) => {
           accum[i.local.name] = {
             importPath: curr.source.value,
             importName: (i.imported)? i.imported.name : i.local.name
@@ -228,7 +242,7 @@ export class SaplingParser {
   }
 
   // Recursive helper method to find import path in Variable Declaration
-  private findVarDecImports(ast: {[key: string]: any}) {
+  private findVarDecImports(ast: {[key: string]: any}) : string | boolean {
     // Base Case, find import path in variable declaration and return it,
     if (ast.hasOwnProperty('callee') && ast.callee.type === 'Import') {
       return ast.arguments[0].value;
@@ -307,7 +321,7 @@ export class SaplingParser {
 
   // Extracts prop names from a JSX element
   private getJSXProps(astTokens: {[key: string]: any}[], j : number) : {[key : string]: boolean} {
-    const props = {};
+    const props : {[key : string]: boolean} = {};
     while (astTokens[j].type.label !== "jsxTagEnd") {
       if (astTokens[j].type.label === "jsxName" && astTokens[j + 1].value === "=") {
         props[astTokens[j].value] = true;

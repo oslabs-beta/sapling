@@ -118,6 +118,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
         // Case that changes the parser's recorded node expanded/collapsed structure
         case "onNodeToggle": {
+          if (!this.parser) {
+            return;
+          }
           // let the parser know that the specific node clicked changed it's expanded value, save in state
           this.context.workspaceState.update(
             'sapling',
@@ -128,6 +131,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
         // Message sent to the webview to bold the active file
         case "onBoldCheck": {
+          // If no view then return:
+          if (!this._view) {
+            return;
+          }
           // Check there is an activeText Editor
           const fileName = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document.fileName: null;
           // Message sent to the webview to bold the active file
@@ -146,10 +153,15 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   // Called when Generate Tree command triggered by status button or explorer context menu
   public statusButtonClicked = (uri: vscode.Uri | undefined) => {
     let fileName;
+
     // If status menu button clicked, no uri, get active file uri
     if (!uri) {
+      // If no active text editor, do nothing
+      if (!vscode.window.activeTextEditor) {
+        return;
+      }
       fileName  = vscode.window.activeTextEditor.document.fileName;
-    } else {
+    } else  {
       fileName = uri.path;
     }
 
@@ -168,6 +180,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
   // Helper method to send updated tree data to view, and saves current tree to workspace
   private updateView() {
+    // If parser or webview do not exist, do nothing
+    if (!this.parser || !this._view) {
+      return;
+    }
     // Save current state of tree to workspace state:
     const tree = this.parser.getTree();
     this.context.workspaceState.update('sapling', tree);
