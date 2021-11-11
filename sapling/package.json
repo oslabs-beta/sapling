@@ -54,7 +54,7 @@
         "title": "Generate Tree"
       }
     ],
-    "menus" : {
+    "menus": {
       "commandPalette": [
         {
           "command": "sapling.generateTree",
@@ -118,6 +118,7 @@
     "chai": "^4.3.4",
     "css-loader": "^6.2.0",
     "eslint": "^7.27.0",
+    "filing-cabinet": "^3.0.1",
     "glob": "^7.1.7",
     "global-jsdom": "^8.2.0",
     "jsdom": "^17.0.0",

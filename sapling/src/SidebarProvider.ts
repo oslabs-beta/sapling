@@ -70,6 +70,38 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage(async (data) => {
       // Switch cases based on the type sent as a message
       switch (data.type) {
+        // Case when user selects a config file
+        case "config": {
+          if (!data.value) {
+            return;
+          }
+
+          if (!this.parser) {
+            this.parser = new SaplingParser('');
+          }
+
+          switch (data.value[0]) {
+            case "application-root":
+              this.parser.setRoot(data.value[1]);
+              break;
+
+            case "webpack-config":
+              this.parser.setWpConfig(data.value[1]);
+              break;
+
+            case "tsConfig":
+              this.parser.setTsConfig(data.value[1]);
+              break;
+          }
+
+          if (this.parser.entryFile && this.parser.root && (this.parser.wpConfig || this.parser.tsConfig)) {
+            this.parser.parse();
+            this.updateView();
+          }
+
+          break;
+        }
+
         // Case when the user selects a file to begin a tree
         case "onFile": {
           // Edge case if the user sends in nothing

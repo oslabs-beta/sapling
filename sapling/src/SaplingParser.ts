@@ -1,6 +1,7 @@
 import * as babelParser from '@babel/parser';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as cabinet from 'filing-cabinet';
 import { getNonce } from "./getNonce";
 import { Tree } from './types/Tree';
 import { ImportObj } from './types/ImportObj';
@@ -9,9 +10,13 @@ import { File } from '@babel/types';
 
 export class SaplingParser {
   entryFile: string;
+  useAlias: boolean;
+  root: string;
+  wpConfig: string;
+  tsConfig: string;
   tree: Tree | undefined;
 
-  constructor(filePath: string) {
+  constructor(filePath: string, useAlias: boolean = false, root: string = '', wpConfig: string = '', tsConfig: string = '') {
     // Fix when selecting files in wsl file system
     this.entryFile = filePath;
     if (process.platform === 'linux' && this.entryFile.includes('wsl$')) {
@@ -23,8 +28,24 @@ export class SaplingParser {
       this.entryFile = path.join(root, filePath.split(path.win32.sep).slice(1).join(path.posix.sep));
     }
 
+    this.useAlias = useAlias;
+    this.root = root;
+    this.wpConfig = wpConfig;
+    this.tsConfig = tsConfig;
     this.tree = undefined;
     // Break down and reasemble given filePath safely for any OS using path?
+  }
+
+  public setRoot(root: string) : void {
+    this.root = root;
+  }
+
+  public setWpConfig(wpConfig: string) : void {
+    this.wpConfig = wpConfig;
+  }
+
+  public setTsConfig(tsConfig: string) : void {
+    this.tsConfig = tsConfig;
   }
 
   // Public method to generate component tree based on current entryFile
@@ -171,6 +192,7 @@ export class SaplingParser {
           'typescript',
         ]
       });
+      
       // If no ast or ast tokens, error when parsing file
       if (!ast || !ast.tokens) {
         throw new Error();
@@ -199,6 +221,36 @@ export class SaplingParser {
   private getFileName(componentTree: Tree) : string | null {
     const ext = path.extname(componentTree.filePath);
 
+    // use this if the user indicates aliasing
+    if (this.useAlias) {
+      // use filing cabinet to resolve aliases
+        try {
+          const options : {[key: string]: string} = {
+            partial: componentTree.filePath,
+          };
+
+          // if the user has provided a root, check if they have also provided config files
+          if (this.root) {
+            options.root = this.root;
+            if (this.wpConfig) {options.webpackConfig = this.wpConfig;}
+            if (this.tsConfig) {options.tsConfig = this.tsConfig;}
+          }
+
+          // options.root = options.root || path.dirname
+          
+          const result = cabinet(options);
+          if (!result || path.basename(result) === `index.${path.extname(result)}`){
+            throw new Error ('index pattern');
+          }
+
+          return result;
+
+        } catch (err) {
+          return '';
+        }
+    } 
+
+    // Otherwise find correct JS/JSX/TS/TSX file if it exists
     if (!ext) {
       // Try and find file extension that exists in directory:
       const fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
