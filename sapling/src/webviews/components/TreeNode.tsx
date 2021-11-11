@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, Fragment } from 'react';
-import * as ReactDOM from 'react-dom';
+import { Tree as TreeType } from '../../types/Tree';
 
 // import tree for recursive calls
 import Tree from './Tree';
@@ -13,7 +13,7 @@ import { faInfoCircle, faArrowCircleRight, faStore } from '@fortawesome/free-sol
 import Tippy from '@tippy.js/react';
 import 'tippy.js/dist/tippy.css';
 
-const TreeNode = ({ node }: any) => {
+const TreeNode = ({ node }: { node: TreeType }) => {
   // state variables for the users current active file and the expanded value (boolean) of the node
   const [currFile, setCurrFile] = useState(false);
   const [expanded, setExpanded] = useState(node.expanded);
