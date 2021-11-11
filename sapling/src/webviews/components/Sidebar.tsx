@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 import { Tree as TreeType } from '../../types/Tree';
 
 // component imports
+import ExpandableMenu from './ExpandableMenu';
 import Navbar from './Navbar';
+import Settings from './Settings';
 import Tree from './Tree';
 
 const Sidebar = () => {
@@ -90,15 +92,27 @@ const Sidebar = () => {
   // Render section
   return (
     <div className="sidebar">
-      <Navbar rootFile={rootFile}/>
       <hr className="line_break"/>
-      <div className="tree_view">
-        <ul className="tree_beginning">
-          {viewData && settings ?
-            <Tree data={viewData} first={true} />
-          : null}
-        </ul>
-      </div>
+
+      <ExpandableMenu controlName="FILE SELECTOR" initState={true}>
+          <Navbar rootFile={rootFile}/>
+      </ ExpandableMenu>
+
+      <ExpandableMenu controlName="SETTINGS" initState={true}>
+          <Settings />
+      </ ExpandableMenu>
+
+      <ExpandableMenu controlName="TREE VIEW" initState={true}>
+        <div className="tree_view">
+          <ul className="tree_beginning">
+            {viewData && settings ?
+              <Tree data={viewData} first={true} />
+            : null}
+          </ul>
+        </div>
+      </ ExpandableMenu>
+
+
     </div>
   );
 };
