@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noImplicitAny": true,
+    "allowJs": false,
+    "target": "es5",
+    "module": "commonjs",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "paths": {
+      // Allow `@/` to map to `src/client/`
+      "@/*": ["./src/client/*"],
+      "@resources/*": ["./src/resources/*"]
+    }
+  },
+  "include": ["./src/**/*", "./tests/unit/**/*"],
+  "exclude": ["./dist", "node_modules", "./config"]
+}

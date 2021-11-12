@@ -11,7 +11,6 @@ import * as path from 'path';
 
 suite('Parser Test Suite', () => {
   let parser : SaplingParser, tree : Tree, file : string;
-
   // UNPARSED TREE TEST
   describe('It initializes correctly', () => {
     before( () => {
@@ -325,6 +324,39 @@ suite('Parser Test Suite', () => {
       expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
       expect(tree.children[0].children[2]).to.have.own.property('name').that.is.equal('Page3');
       expect(tree.children[0].children[2]).to.have.own.property('thirdParty').that.is.false;
+    });
+  });
+
+  // TEST 14: TSConfig Aliased Imports:
+  describe('It should parse files with tsconfig aliases when provided config file', () => {
+    before(() => {
+      file = path.join(__dirname, '../../../src/test/test_apps/test_14/src/client/index.tsx');
+
+      const options = {
+        useAlias: true,
+        appRoot: path.join(__dirname, '../../../src/test/test_apps/test_14'),
+        webpackConfig: '',
+        tsConfig: '../../../src/test/test_apps/test_14/tsconfig.json',
+      };
+
+      parser = new SaplingParser(file, options);
+      tree = parser.parse();
+      // console.log('Tree is: ', tree);
+    });
+
+    test('Root should be named index, it should have one child named App', () => {
+      expect(tree).to.have.own.property('name').that.is.equal('index');
+      expect(tree.children).to.have.lengthOf(1);
+      expect(tree.children[0]).to.have.own.property('name').that.is.equal('App');
+    });
+
+    test('App should not be registered as a third-party component', () => {
+      expect(tree).to.have.own.property('thirdParty').that.is.false;
+    });
+
+    test('App should have one child, Component 1, that is not third-party ', () => {
+      expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('Component1');
+      expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
     });
   });
 });
