@@ -2,50 +2,54 @@ import * as babelParser from '@babel/parser';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as cabinet from 'filing-cabinet';
-import { getNonce } from "./getNonce";
+import { File } from '@babel/types';
+
+import { filePathFixer } from './helpers/filePathFixer';
+import { getNonce } from './helpers/getNonce';
 import { Tree } from './types/Tree';
 import { ImportObj } from './types/ImportObj';
-import { File } from '@babel/types';
+
+const defaultOptions = {
+  useAlias: false,
+  appRoot: '',
+  webpackConfig: '',
+  tsConfig: '',
+};
 
 
 export class SaplingParser {
   entryFile: string;
   useAlias: boolean;
-  root: string;
-  wpConfig: string;
+  appRoot: string;
+  webpackConfig: string;
   tsConfig: string;
   tree: Tree | undefined;
 
-  constructor(filePath: string, useAlias: boolean = false, root: string = '', wpConfig: string = '', tsConfig: string = '') {
-    // Fix when selecting files in wsl file system
-    this.entryFile = filePath;
-    if (process.platform === 'linux' && this.entryFile.includes('wsl$')) {
-      this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
-      this.entryFile = '/' + this.entryFile.split('/').slice(3).join('/');
-    // Fix for when running wsl but selecting files held on windows file system
-    } else if (process.platform === 'linux' && (/[a-zA-Z]/).test(this.entryFile[0])) {
-      const root = `/mnt/${this.entryFile[0].toLowerCase()}`;
-      this.entryFile = path.join(root, filePath.split(path.win32.sep).slice(1).join(path.posix.sep));
-    }
+  constructor(filePath: string, options = {...defaultOptions}) {
+    // Ensure correct file path for root file when selected in webview:
+    this.entryFile = filePathFixer(filePath);
 
-    this.useAlias = useAlias;
-    this.root = root;
-    this.wpConfig = wpConfig;
-    this.tsConfig = tsConfig;
+    this.useAlias = options.useAlias;
+    this.appRoot = options.appRoot;
+    this.webpackConfig = options.webpackConfig;
+    this.tsConfig = options.tsConfig;
     this.tree = undefined;
-    // Break down and reasemble given filePath safely for any OS using path?
   }
 
-  public setRoot(root: string) : void {
-    this.root = root;
+  public setUseAlias(useAlias: boolean) : void {
+    this.useAlias = useAlias;
   }
 
-  public setWpConfig(wpConfig: string) : void {
-    this.wpConfig = wpConfig;
+  public setAppRoot(appRoot: string) : void {
+    this.appRoot = filePathFixer(appRoot);
+  }
+
+  public setWpConfig(webpackConfig: string) : void {
+    this.webpackConfig = filePathFixer(webpackConfig);
   }
 
   public setTsConfig(tsConfig: string) : void {
-    this.tsConfig = tsConfig;
+    this.tsConfig = filePathFixer(tsConfig);
   }
 
   // Public method to generate component tree based on current entryFile
@@ -192,7 +196,7 @@ export class SaplingParser {
           'typescript',
         ]
       });
-      
+
       // If no ast or ast tokens, error when parsing file
       if (!ast || !ast.tokens) {
         throw new Error();
@@ -221,23 +225,17 @@ export class SaplingParser {
   private getFileName(componentTree: Tree) : string | null {
     const ext = path.extname(componentTree.filePath);
 
-    // use this if the user indicates aliasing
+    // If import aliasing is in use, correctly resolve file path with filing cabinet:
     if (this.useAlias) {
-      // use filing cabinet to resolve aliases
         try {
-          const options : {[key: string]: string} = {
-            partial: componentTree.filePath,
+          const options : {partial: string, directory: string, filename: string,[key: string]: string} = {
+            partial: componentTree.importPath,
+            directory: this.appRoot,
+            filename: componentTree.parentList[0],
+            tsConfig: this.tsConfig,
+            webpackConfig: this.webpackConfig
           };
 
-          // if the user has provided a root, check if they have also provided config files
-          if (this.root) {
-            options.root = this.root;
-            if (this.wpConfig) {options.webpackConfig = this.wpConfig;}
-            if (this.tsConfig) {options.tsConfig = this.tsConfig;}
-          }
-
-          // options.root = options.root || path.dirname
-          
           const result = cabinet(options);
           if (!result || path.basename(result) === `index.${path.extname(result)}`){
             throw new Error ('index pattern');
@@ -248,7 +246,7 @@ export class SaplingParser {
         } catch (err) {
           return '';
         }
-    } 
+    }
 
     // Otherwise find correct JS/JSX/TS/TSX file if it exists
     if (!ext) {

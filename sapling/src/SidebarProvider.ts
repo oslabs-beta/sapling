@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { getNonce } from "./getNonce";
+import { getNonce } from "./helpers/getNonce";
 import { SaplingParser } from './SaplingParser';
 import { Tree } from "./types/Tree";
 
@@ -82,7 +82,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
           switch (data.value[0]) {
             case "application-root":
-              this.parser.setRoot(data.value[1]);
+              this.parser.setAppRoot(data.value[1]);
               break;
 
             case "webpack-config":
@@ -94,7 +94,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
               break;
           }
 
-          if (this.parser.entryFile && this.parser.root && (this.parser.wpConfig || this.parser.tsConfig)) {
+          if (this.parser.entryFile && this.parser.appRoot && (this.parser.webpackConfig || this.parser.tsConfig)) {
             this.parser.parse();
             this.updateView();
           }
