@@ -15,15 +15,14 @@ const Navbar = ({ rootFile }: any) => {
 
   // Render section
   return (
-    <div className="navbar">
-      <button id="file" className="inputFile" onClick={() => fileMessage()}>
-        <label htmlFor="file">
+    <div id="navbar">
+      <div id="settings-control">
+        <label htmlFor="file"> Select React App. Root File:</label>
+        <button id="file" className="inputfile" onClick={() => fileMessage()}>
           <FontAwesomeIcon icon={faDownload} />
-          <strong id="strong_file">
-            {rootFile ? ` ${rootFile}` : ' Choose a file...'}
-          </strong>
-        </label>
-      </button>
+          <strong>{rootFile ? ` ${rootFile}` : ' Choose a file...'}</strong>
+        </button>
+      </div>
     </div>
   );
 };

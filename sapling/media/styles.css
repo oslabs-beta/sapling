@@ -17,11 +17,6 @@
   height: 100%;
 }
 
-.navbar {
-  flex-grow: 0;
-  padding: 10px 0px;
-}
-
 .tree_view {
   overflow-x: scroll;
   flex-grow: 1;
@@ -29,36 +24,6 @@
 
 .node_error {
   color: var(--vscode-editorError-foreground);
-}
-
-.inputfile {
-  width: 0.1px;
-  height: 0.1px;
-  opacity: 0;
-  overflow: hidden;
-  position: absolute;
-  z-index: -1;
-}
-
-.inputfile + label {
-  padding: .4em;
-  font-size: 1em;
-  font-weight: 700;
-  color: var(--vscode-button-foreground);
-  background: var(--vscode-button-background);
-  display: inline-block;
-  margin-left: .8em;
-  margin-top: .2em;
-  border-radius: 5px;
-  transition: .2s;
-}
-
-.inputfile + label:hover {
-  background: var(--vscode-button-hoverBackground);
-}
-
-.inputfile + label {
-  cursor: pointer;
 }
 
 .node_icons {
@@ -81,16 +46,22 @@
 /* ————————————————————–
   Tree core styles
 */
-.tree_beginning { margin: 1em 1em 1em 2em; }
+.tree_beginning {
+  margin: 1em 1em 1em 2em;
+}
 
 .tree_beginning input {
   position: absolute;
   clip: rect(0, 0, 0, 0);
-  }
+}
 
-.tree_beginning input ~ ul { display: none; }
+.tree_beginning input ~ ul {
+  display: none;
+}
 
-.tree_beginning input:checked ~ ul { display: block; }
+.tree_beginning input:checked ~ ul {
+  display: block;
+}
 
 /* ————————————————————–
   Tree rows
@@ -104,11 +75,15 @@
   line-height: 1.2;
   position: relative;
   padding: 0 0 1em 1em;
-  }
+}
 
-.tree_beginning ul li { padding: 1em 0 0 1em; }
+.tree_beginning ul li {
+  padding: 1em 0 0 1em;
+}
 
-.tree_beginning > li:last-child { padding-bottom: 0; }
+.tree_beginning > li:last-child {
+  padding-bottom: 0;
+}
 
 /* ————————————————————–
   Tree labels
@@ -116,11 +91,15 @@
 .tree_label {
   position: relative;
   display: inline-block;
-  }
+}
 
-label.tree_label { cursor: pointer; }
+label.tree_label {
+  cursor: pointer;
+}
 
-label.tree_label:hover { color: #666; }
+label.tree_label:hover {
+  color: #666;
+}
 
 /* ————————————————————–
   Tree expanded icon
@@ -138,10 +117,12 @@ label.tree_label:before {
   border-radius: 1em;
   content: '+';
   text-align: center;
-  line-height: .9em;
-  }
+  line-height: 0.9em;
+}
 
-:checked ~ label.tree_label:before { content: '–'; }
+:checked ~ label.tree_label:before {
+  content: '–';
+}
 
 /* ————————————————————–
   Tree branches
@@ -150,12 +131,12 @@ label.tree_label:before {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -.55em;
+  left: -0.55em;
   display: block;
   width: 0;
   border-left: 1px solid #777;
-  content: "";
-  }
+  content: '';
+}
 
 .tree_label:after {
   position: absolute;
@@ -166,14 +147,16 @@ label.tree_label:before {
   width: 1em;
   border-bottom: 1px solid #777;
   border-left: 1px solid #777;
-  border-radius: 0 0 0 .3em;
+  border-radius: 0 0 0 0.3em;
   content: '';
-  }
+}
 
-label.tree_label:after { border-bottom: 0; }
+label.tree_label:after {
+  border-bottom: 0;
+}
 
 :checked ~ label.tree_label:after {
-  border-radius: 0 .3em 0 0;
+  border-radius: 0 0.3em 0 0;
   border-top: 1px solid #777;
   border-right: 1px solid #777;
   border-bottom: 0;
@@ -182,14 +165,16 @@ label.tree_label:after { border-bottom: 0; }
   bottom: 0;
   top: 0.5em;
   height: auto;
-  }
+}
 
 .tree_beginning li:last-child:before {
   height: 1em;
   bottom: auto;
-  }
+}
 
-.tree_beginning > li:last-child:before { display: none; }
+.tree_beginning > li:last-child:before {
+  display: none;
+}
 
 .tree_custom {
   display: block;
@@ -215,4 +200,29 @@ li {
 .expand-control {
   cursor: pointer;
   font-weight: 500;
+}
+
+/* ————————————————————–
+  NavBar / Settings Component Styles
+*/
+
+#settings,
+#navbar {
+  margin: 10px 10px;
+}
+
+.settings-control {
+  margin-top: 10px;
+}
+
+.settings-control label {
+  display: block;
+}
+
+button.inputfile {
+  max-width: 250px;
+}
+
+button.inputfile[disabled] {
+  background-color: var(--vscode-foreground);
 }
