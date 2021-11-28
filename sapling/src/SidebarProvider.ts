@@ -1,7 +1,7 @@
-import * as vscode from "vscode";
-import { getNonce } from "./helpers/getNonce";
+import * as vscode from 'vscode';
+import { getNonce } from './helpers/getNonce';
 import { SaplingParser } from './SaplingParser';
-import { Tree } from "./types/Tree";
+import { Tree } from './types/Tree';
 
 // Sidebar class that creates a new instance of the sidebar + adds functionality with the parser
 export class SidebarProvider implements vscode.WebviewViewProvider {
@@ -38,8 +38,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       const settings = vscode.workspace.getConfiguration('sapling');
       // Send a message back to the webview with the data on settings
       webviewView.webview.postMessage({
-        type: "settings-data",
-        value: settings.view
+        type: 'settings-data',
+        value: settings.view,
       });
     });
 
@@ -47,8 +47,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     vscode.window.onDidChangeActiveTextEditor((e) => {
       // Post a message to the webview with the file path of the user's current active window
       webviewView.webview.postMessage({
-        type: "current-tab",
-        value: e ? e.document.fileName : undefined
+        type: 'current-tab',
+        value: e ? e.document.fileName : undefined,
       });
     });
 
@@ -71,7 +71,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       // Switch cases based on the type sent as a message
       switch (data.type) {
         // Case when user selects a config file
-        case "config": {
+        case 'config': {
           if (!data.value) {
             return;
           }
@@ -81,20 +81,24 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           }
 
           switch (data.value[0]) {
-            case "application-root":
+            case 'application-root':
               this.parser.setAppRoot(data.value[1]);
               break;
 
-            case "webpack-config":
+            case 'webpack-config':
               this.parser.setWpConfig(data.value[1]);
               break;
 
-            case "tsConfig":
+            case 'tsConfig':
               this.parser.setTsConfig(data.value[1]);
               break;
           }
 
-          if (this.parser.entryFile && this.parser.appRoot && (this.parser.webpackConfig || this.parser.tsConfig)) {
+          if (
+            this.parser.entryFile &&
+            this.parser.appRoot &&
+            (this.parser.webpackConfig || this.parser.tsConfig)
+          ) {
             this.parser.parse();
             this.updateView();
           }
@@ -103,31 +107,43 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         }
 
         // Case when the user selects a file to begin a tree
-        case "onFile": {
-          // Edge case if the user sends in nothing
-          if (!data.value) {
-            return;
-          }
-          // Run an instance of the parser
-          this.parser = new SaplingParser(data.value);
-          this.parser.parse();
-          this.updateView();
+        case 'onFile': {
+          // Open vscode file-selector dialog
+          vscode.window
+            .showOpenDialog({ canSelectMany: false, canSelectFolders: false })
+            .then((uri) => {
+              // Edge case if selector doesn't work / no file picked
+              if (!(uri && uri[0])) {
+                return;
+              }
+
+              // convert uri to path string
+              const filePath = uri[0].fsPath;
+
+              // Run an instance of the parser
+              this.parser = new SaplingParser(filePath);
+              this.parser.parse();
+              this.updateView();
+            });
           break;
         }
 
         // Case when clicking on tree to open file
-        case "onViewFile": {
+        case 'onViewFile': {
           if (!data.value) {
             return;
           }
           // Open and the show the user the file they want to see
           const doc = await vscode.workspace.openTextDocument(data.value);
-          const editor = await vscode.window.showTextDocument(doc, {preserveFocus: false, preview: false});
+          const editor = await vscode.window.showTextDocument(doc, {
+            preserveFocus: false,
+            preview: false,
+          });
           break;
         }
 
         // Case when sapling becomes visible in sidebar
-        case "onSaplingVisible": {
+        case 'onSaplingVisible': {
           if (!this.parser) {
             return;
           }
@@ -137,19 +153,19 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         }
 
         // Case to retrieve the user's settings
-        case "onSettingsAcquire": {
+        case 'onSettingsAcquire': {
           // use getConfiguration to check what the current settings are for the user
           const settings = await vscode.workspace.getConfiguration('sapling');
           // send a message back to the webview with the data on settings
           webviewView.webview.postMessage({
-            type: "settings-data",
-            value: settings.view
+            type: 'settings-data',
+            value: settings.view,
           });
           break;
         }
 
         // Case that changes the parser's recorded node expanded/collapsed structure
-        case "onNodeToggle": {
+        case 'onNodeToggle': {
           if (!this.parser) {
             return;
           }
@@ -162,18 +178,20 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         }
 
         // Message sent to the webview to bold the active file
-        case "onBoldCheck": {
+        case 'onBoldCheck': {
           // If no view then return:
           if (!this._view) {
             return;
           }
           // Check there is an activeText Editor
-          const fileName = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document.fileName: null;
+          const fileName = vscode.window.activeTextEditor
+            ? vscode.window.activeTextEditor.document.fileName
+            : null;
           // Message sent to the webview to bold the active file
           if (fileName) {
             this._view.webview.postMessage({
-              type: "current-tab",
-              value: fileName
+              type: 'current-tab',
+              value: fileName,
             });
           }
           break;
@@ -192,8 +210,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       if (!vscode.window.activeTextEditor) {
         return;
       }
-      fileName  = vscode.window.activeTextEditor.document.fileName;
-    } else  {
+      fileName = vscode.window.activeTextEditor.document.fileName;
+    } else {
       fileName = uri.path;
     }
 
@@ -221,25 +239,25 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     this.context.workspaceState.update('sapling', tree);
     // Send updated tree to webview
     this._view.webview.postMessage({
-      type: "parsed-data",
-      value: tree
+      type: 'parsed-data',
+      value: tree,
     });
   }
 
   // paths and return statement that connects the webview to React project files
   private _getHtmlForWebview(webview: vscode.Webview) {
     const styleResetUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "media", "reset.css")
+      vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css')
     );
     const styleVSCodeUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "media", "vscode.css")
+      vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css')
     );
     const styleMainUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "media", "styles.css")
+      vscode.Uri.joinPath(this._extensionUri, 'media', 'styles.css')
     );
 
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "dist", "sidebar.js")
+      vscode.Uri.joinPath(this._extensionUri, 'dist', 'sidebar.js')
     );
 
     // Use a nonce to only allow a specific script to be run.
