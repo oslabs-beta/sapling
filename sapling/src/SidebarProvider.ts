@@ -70,8 +70,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage(async (data) => {
       // Switch cases based on the type sent as a message
       switch (data.type) {
-        // Case when user selects a config file
-        case 'config': {
+        // Case when user alters parser settings in webview
+        case 'settings': {
           if (!data.value) {
             return;
           }
@@ -80,25 +80,44 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             this.parser = new SaplingParser('');
           }
 
+          console.log(
+            'Trying to set parser settings via webview',
+            data.type,
+            data.value
+          );
           switch (data.value[0]) {
+            case 'alias-checkbox':
+              this.parser.updateSettings('useAlias', data.value[1]);
+              break;
+
             case 'application-root':
-              this.parser.setAppRoot(data.value[1]);
+              const rootPath = await this.selectFile(false, true);
+              if (!rootPath) {
+                return;
+              }
+              this.parser.updateSettings('appRoot', rootPath);
               break;
 
             case 'webpack-config':
-              this.parser.setWpConfig(data.value[1]);
+              const wpPath = await this.selectFile();
+              if (!wpPath) {
+                return;
+              }
+              this.parser.updateSettings('webpackConfig', wpPath);
               break;
 
-            case 'tsConfig':
-              this.parser.setTsConfig(data.value[1]);
+            case 'tsconfig':
+              const tsPath = await this.selectFile();
+              if (!tsPath) {
+                return;
+              }
+              this.parser.updateSettings('tsConfig', tsPath);
               break;
           }
 
-          if (
-            this.parser.entryFile &&
-            this.parser.appRoot &&
-            (this.parser.webpackConfig || this.parser.tsConfig)
-          ) {
+          console.log('Parser settings are now: ', this.parser.settings);
+
+          if (this.parser.validSettings()) {
             this.parser.parse();
             this.updateView();
           }
@@ -108,23 +127,18 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
         // Case when the user selects a file to begin a tree
         case 'onFile': {
-          // Open vscode file-selector dialog
-          vscode.window
-            .showOpenDialog({ canSelectMany: false, canSelectFolders: false })
-            .then((uri) => {
-              // Edge case if selector doesn't work / no file picked
-              if (!(uri && uri[0])) {
-                return;
-              }
-
-              // convert uri to path string
-              const filePath = uri[0].fsPath;
-
-              // Run an instance of the parser
-              this.parser = new SaplingParser(filePath);
-              this.parser.parse();
-              this.updateView();
-            });
+          console.log('onFile message received!');
+          // Get filePath via vscode file selector
+          const filePath = await this.selectFile();
+          console.log('Extension file path is: ', filePath);
+          // If no file picked or selection fails, do nothing
+          if (!filePath) {
+            return;
+          }
+          // Run an instance of the parser
+          this.parser = new SaplingParser(filePath);
+          this.parser.parse();
+          this.updateView();
           break;
         }
 
@@ -242,6 +256,29 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       type: 'parsed-data',
       value: tree,
     });
+  }
+
+  // Helper method to open VSCode file picking dialog
+  private async selectFile(
+    selectMany: boolean = false,
+    selectFolders: boolean = false
+  ): Promise<string | null> {
+    console.log('Trying to select a file...');
+    // Open vscode file-selector dialog
+    const uri = await vscode.window.showOpenDialog({
+      canSelectMany: selectMany,
+      canSelectFolders: selectFolders,
+    });
+
+    console.log('File selected: ', uri);
+    // Edge case if selector doesn't work / no file picked
+    if (!uri) {
+      return Promise.resolve(null);
+    }
+
+    console.log('File path selected: ', uri[0].fsPath);
+    // Convert uri to path string and return
+    return Promise.resolve(uri[0].fsPath);
   }
 
   // paths and return statement that connects the webview to React project files
