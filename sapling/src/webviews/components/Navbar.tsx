@@ -16,7 +16,7 @@ const Navbar = ({ rootFile }: any) => {
   // Render section
   return (
     <div id="navbar">
-      <div id="settings-control">
+      <div className="settings-control">
         <label htmlFor="file"> Select React App. Root File:</label>
         <button id="file" className="inputfile" onClick={() => fileMessage()}>
           <FontAwesomeIcon icon={faDownload} />
