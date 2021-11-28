@@ -2,23 +2,41 @@ import * as vscode from 'vscode';
 import { getNonce } from './helpers/getNonce';
 import { SaplingParser } from './SaplingParser';
 import { Tree } from './types/Tree';
+import { SaplingSettings } from './types/SaplingSettings';
 
 // Sidebar class that creates a new instance of the sidebar + adds functionality with the parser
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
-  parser: SaplingParser | undefined;
+  parser: SaplingParser;
   private readonly _extensionUri: vscode.Uri;
   private readonly context: vscode.ExtensionContext;
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
     this._extensionUri = context.extensionUri;
-    // Check for sapling state in workspace and set tree with previous state
-    const state: Tree | undefined = context.workspaceState.get('sapling');
-    if (state) {
-      this.parser = new SaplingParser(state.filePath);
-      this.parser.setTree(state);
+
+    // Check for sapling state in workspace if available
+    const treeState: Tree | undefined = context.workspaceState.get('sapling');
+
+    // Check for sapling settings state in workspace if available
+    const settingsState: SaplingSettings | undefined =
+      context.workspaceState.get('saplingSettings');
+    const settings = settingsState
+      ? settingsState
+      : {
+          useAlias: false,
+          appRoot: '',
+          webpackConfig: '',
+          tsConfig: '',
+        };
+
+    // Initialise parser
+    if (treeState) {
+      this.parser = new SaplingParser(treeState.filePath, settings);
+      this.parser.setTree(treeState);
+    } else {
+      this.parser = new SaplingParser('', settings);
     }
   }
 
@@ -55,7 +73,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     // Event listener that triggers whenever the user saves a document
     vscode.workspace.onDidSaveTextDocument((document) => {
       // Edge case that avoids sending messages to the webview when there is no tree currently populated
-      if (!this.parser) {
+      if (!this.parser.entryFile) {
         return;
       }
       // Post a message to the webview with the newly parsed tree
@@ -76,21 +94,17 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             return;
           }
 
-          if (!this.parser) {
-            this.parser = new SaplingParser('');
-          }
-
           console.log(
             'Trying to set parser settings via webview',
             data.type,
             data.value
           );
           switch (data.value[0]) {
-            case 'alias-checkbox':
+            case 'useAlias':
               this.parser.updateSettings('useAlias', data.value[1]);
               break;
 
-            case 'application-root':
+            case 'appRoot':
               const rootPath = await this.selectFile(false, true);
               if (!rootPath) {
                 return;
@@ -98,20 +112,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
               this.parser.updateSettings('appRoot', rootPath);
               break;
 
-            case 'webpack-config':
-              const wpPath = await this.selectFile();
-              if (!wpPath) {
+            case 'webpackConfig':
+            case 'tsConfig':
+              const filePath = await this.selectFile();
+              if (!filePath) {
                 return;
               }
-              this.parser.updateSettings('webpackConfig', wpPath);
-              break;
-
-            case 'tsconfig':
-              const tsPath = await this.selectFile();
-              if (!tsPath) {
-                return;
-              }
-              this.parser.updateSettings('tsConfig', tsPath);
+              this.parser.updateSettings(data.value[0], filePath);
               break;
           }
 
@@ -135,8 +142,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           if (!filePath) {
             return;
           }
-          // Run an instance of the parser
-          this.parser = new SaplingParser(filePath);
+          // Update parser entry file and re-run
+          this.parser.setEntryFile(filePath);
           this.parser.parse();
           this.updateView();
           break;
@@ -158,7 +165,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
         // Case when sapling becomes visible in sidebar
         case 'onSaplingVisible': {
-          if (!this.parser) {
+          if (!this.parser.entryFile) {
             return;
           }
           // Get and send the saved tree to the webview
@@ -180,7 +187,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
         // Case that changes the parser's recorded node expanded/collapsed structure
         case 'onNodeToggle': {
-          if (!this.parser) {
+          if (!this.parser.entryFile) {
             return;
           }
           // let the parser know that the specific node clicked changed it's expanded value, save in state
@@ -229,9 +236,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       fileName = uri.path;
     }
 
-    // Parse new tree with file as root
+    // Parse new tree with active file as root
     if (fileName) {
-      this.parser = new SaplingParser(fileName);
+      this.parser.setEntryFile(fileName);
       this.parser.parse();
       this.updateView();
     }
@@ -245,7 +252,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   // Helper method to send updated tree data to view, and saves current tree to workspace
   private updateView() {
     // If parser or webview do not exist, do nothing
-    if (!this.parser || !this._view) {
+    if (!this.parser.entryFile || !this._view) {
       return;
     }
     // Save current state of tree to workspace state:

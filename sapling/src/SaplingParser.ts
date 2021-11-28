@@ -35,6 +35,11 @@ export class SaplingParser {
     this.tree = undefined;
   }
 
+  // Set a new entryFile for the parser (root of component hierarchy)
+  public setEntryFile(filePath: string) {
+    this.entryFile = filePathFixer(filePath);
+  }
+
   // Update parser settings when changed in webview
   public updateSettings(setting: string, value: boolean | string): void {
     this.settings = { ...this.settings, [setting]: value };
