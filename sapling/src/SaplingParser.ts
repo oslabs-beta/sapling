@@ -225,8 +225,8 @@ export class SaplingParser {
   private getFileName(componentTree: Tree) : string | null {
     const ext = path.extname(componentTree.filePath);
 
-    // If import aliasing is in use, correctly resolve file path with filing cabinet:
-    if (this.useAlias) {
+    // If import aliasing is in use, correctly resolve file path with filing cabinet for non-root node files:
+    if (this.useAlias && componentTree.parentList.length) {
         try {
           const options : {partial: string, directory: string, filename: string,[key: string]: string} = {
             partial: componentTree.importPath,
