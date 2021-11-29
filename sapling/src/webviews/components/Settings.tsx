@@ -5,15 +5,11 @@ import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { SaplingSettings } from '../../types/SaplingSettings';
 
 // Control settings for e.g. webpack / tsconfig aliasing in React application
-const Settings = () => {
-  const [saplingSettings, setSaplingSettings]: [SaplingSettings, Function] =
-    useState({
-      useAlias: false,
-      appRoot: '',
-      webpackConfig: '',
-      tsConfig: '',
-    });
-
+const Settings = ({
+  saplingSettings,
+}: {
+  saplingSettings: SaplingSettings;
+}) => {
   const settingsMessage = (settingName: string, value: string | boolean) => {
     if (settingName) {
       tsvscode.postMessage({
@@ -29,13 +25,7 @@ const Settings = () => {
       <input
         type="checkbox"
         id="alias-checkbox"
-        onChange={() => {
-          settingsMessage('useAlias', !saplingSettings.useAlias);
-          setSaplingSettings({
-            ...saplingSettings,
-            useAlias: !saplingSettings.useAlias,
-          });
-        }}
+        onChange={() => settingsMessage('useAlias', !saplingSettings.useAlias)}
         checked={saplingSettings.useAlias}
       />
 
@@ -68,8 +58,8 @@ const Settings = () => {
         >
           <FontAwesomeIcon icon={faDownload} />
           <strong>
-            {saplingSettings.appRoot
-              ? ` ${saplingSettings.appRoot}`
+            {saplingSettings.webpackConfig
+              ? ` ${saplingSettings.webpackConfig}`
               : ' Choose webpack config file...'}
           </strong>
         </button>
@@ -85,8 +75,8 @@ const Settings = () => {
         >
           <FontAwesomeIcon icon={faDownload} />
           <strong>
-            {saplingSettings.appRoot
-              ? ` ${saplingSettings.appRoot}`
+            {saplingSettings.tsConfig
+              ? ` ${saplingSettings.tsConfig}`
               : ' Choose tsconfig file...'}
           </strong>
         </button>
