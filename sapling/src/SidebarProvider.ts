@@ -98,7 +98,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           if (!data.value) {
             return;
           }
-
+          console.log('Received settings update message: ', data.value);
           switch (data.value[0]) {
             case 'useAlias':
               this.parser.updateSettings('useAlias', data.value[1]);

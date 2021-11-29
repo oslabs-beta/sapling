@@ -53,7 +53,7 @@ const Settings = ({
         <button
           id="webpack-config"
           className="inputfile"
-          onClick={() => settingsMessage('webPackConfig', 'setFile')}
+          onClick={() => settingsMessage('webpackConfig', 'setFile')}
           disabled={!saplingSettings.useAlias}
         >
           <FontAwesomeIcon icon={faDownload} />
@@ -70,7 +70,7 @@ const Settings = ({
         <button
           id="tsconfig"
           className="inputfile"
-          onClick={() => settingsMessage('tsconfig', 'setFile')}
+          onClick={() => settingsMessage('tsConfig', 'setFile')}
           disabled={!saplingSettings.useAlias}
         >
           <FontAwesomeIcon icon={faDownload} />

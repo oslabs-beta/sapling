@@ -21,6 +21,7 @@ export class SaplingParser {
   entryFile: string;
   settings: SaplingSettings;
   tree: Tree | undefined;
+  aliases: string[];
 
   constructor(
     filePath: string,
@@ -35,6 +36,7 @@ export class SaplingParser {
 
     // Set parser settings on new instance of parser
     this.settings = settings;
+    this.aliases = this.updateAliases();
 
     this.tree = undefined;
   }
@@ -47,6 +49,7 @@ export class SaplingParser {
   // Update parser settings when changed in webview
   public updateSettings(setting: string, value: boolean | string): void {
     this.settings = { ...this.settings, [setting]: value };
+    this.aliases = this.updateAliases();
   }
 
   // Returns true if current settings are valid for parsing otherwise false
@@ -135,18 +138,18 @@ export class SaplingParser {
     const callback = (node: Tree): void => {
       if (node.filePath === filePath) {
         node.children.forEach((child) => {
-          this.#traverseTree(getChildNodes, child);
+          this.traverseTree(getChildNodes, child);
         });
 
         const newNode = this.parser(node);
 
-        this.#traverseTree(matchExpand, newNode);
+        this.traverseTree(matchExpand, newNode);
 
         children = [];
       }
     };
 
-    this.#traverseTree(callback, this.tree);
+    this.traverseTree(callback, this.tree);
 
     return this.tree;
   }
@@ -159,13 +162,62 @@ export class SaplingParser {
       }
     };
 
-    this.#traverseTree(callback, this.tree);
+    this.traverseTree(callback, this.tree);
 
     return this.tree;
   }
 
+  // Method that extracts all aliases from tsconfig and webpack config files for parsing
+  private updateAliases(): string[] {
+    const aliases = [];
+    console.log('Trying to parse tsconfig file: ', this.settings.tsConfig);
+    if (this.settings.tsConfig) {
+      // Try to open tsConfig file, if error then alert user in webview:
+      let tsConfig;
+      try {
+        tsConfig = fs.readFileSync(
+          path.resolve(this.settings.tsConfig),
+          'utf-8'
+        );
+        // Strip any comments from the JSON before parsing:
+        // THIS IS REALLY SLOW - USE DECOMMENT INSTEAD?
+        console.log('Replacing comment in tsconfig!');
+        tsConfig = tsConfig.replace(
+          /\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
+          (m, g) => (g ? '' : m)
+        );
+        console.log('tsConfig is: ', tsConfig);
+        tsConfig = JSON.parse(tsConfig);
+      } catch (err) {
+        console.log('Error parsing tsConfig file: ', err);
+        this.settings.tsConfig = 'Error - could not open tsConfig!';
+      }
+
+      // If tsConfig contains path aliases, add aliases to parser aliases
+      if (
+        typeof tsConfig === 'object' &&
+        tsConfig.compilerOptions &&
+        tsConfig.compilerOptions.paths
+      ) {
+        for (let key of Object.keys(tsConfig.compilerOptions.paths)) {
+          // Remove asterix from end of alias if present
+          key =
+            key[key.length - 1] === '*' ? key.slice(0, key.length - 1) : key;
+          if (key) {
+            aliases.push(key);
+          }
+        }
+      }
+    }
+    console.log('aliases are: ', aliases);
+    return aliases;
+  }
+
   // Traverses all nodes of current component tree and applies callback to each node
-  #traverseTree(callback: Function, node: Tree | undefined = this.tree): void {
+  private traverseTree(
+    callback: Function,
+    node: Tree | undefined = this.tree
+  ): void {
     if (!node) {
       return;
     }
@@ -173,7 +225,7 @@ export class SaplingParser {
     callback(node);
 
     node.children.forEach((childNode) => {
-      this.#traverseTree(callback, childNode);
+      this.traverseTree(callback, childNode);
     });
   }
 
@@ -181,14 +233,26 @@ export class SaplingParser {
   private parser(componentTree: Tree): Tree {
     // If import is a node module, do not parse any deeper
     if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
-      componentTree.thirdParty = true;
-      if (
-        componentTree.fileName === 'react-router-dom' ||
-        componentTree.fileName === 'react-router'
-      ) {
-        componentTree.reactRouter = true;
+      // Check that import path is not an aliased import
+      let thirdParty = true;
+
+      for (let alias of this.aliases) {
+        if (componentTree.importPath.indexOf(alias) === 0) {
+          thirdParty = false;
+          break;
+        }
       }
-      return componentTree;
+
+      if (thirdParty) {
+        componentTree.thirdParty = true;
+        if (
+          componentTree.fileName === 'react-router-dom' ||
+          componentTree.fileName === 'react-router'
+        ) {
+          componentTree.reactRouter = true;
+        }
+        return componentTree;
+      }
     }
 
     // Check that file has valid fileName/Path, if not found, add error to node and halt
@@ -271,6 +335,7 @@ export class SaplingParser {
           throw new Error('index pattern');
         }
 
+        componentTree.filePath = result;
         return result;
       } catch (err) {
         return '';
