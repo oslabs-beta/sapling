@@ -26,8 +26,12 @@ export class SaplingParser {
     filePath: string,
     settings: SaplingSettings = { ...defaultSettings }
   ) {
-    // Ensure correct file path for root file when selected in webview:
-    this.entryFile = filePathFixer(filePath);
+    if (filePath) {
+      // Ensure correct file path for root file when selected in webview:
+      this.entryFile = filePathFixer(filePath);
+    } else {
+      this.entryFile = '';
+    }
 
     // Set parser settings on new instance of parser
     this.settings = settings;
