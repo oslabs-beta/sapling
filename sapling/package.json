@@ -52,6 +52,11 @@
         "command": "sapling.generateTree",
         "category": "Sapling",
         "title": "Generate Tree"
+      },
+      {
+        "command": "sapling.clearWorkSpaceSettings",
+        "category": "Sapling",
+        "title": "Clear Workspace Settings"
       }
     ],
     "menus": {

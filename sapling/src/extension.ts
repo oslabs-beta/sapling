@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { SaplingParser } from './SaplingParser';
 import { SidebarProvider } from './SidebarProvider';
 
 // Sapling extension is activated after vscode startup
@@ -18,16 +19,28 @@ export function activate(context: vscode.ExtensionContext) {
   // Register Sapling Sidebar Webview View
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
-      "sapling-sidebar",
+      'sapling-sidebar',
       sidebarProvider
     )
   );
 
   // Register command to generate tree from current file on status button click or from explorer context
   context.subscriptions.push(
-    vscode.commands.registerCommand("sapling.generateTree", async (uri: vscode.Uri | undefined) => {
-      await vscode.commands.executeCommand('workbench.view.extension.sapling-sidebar-view');
-      sidebarProvider.statusButtonClicked(uri);
+    vscode.commands.registerCommand(
+      'sapling.generateTree',
+      async (uri: vscode.Uri | undefined) => {
+        await vscode.commands.executeCommand(
+          'workbench.view.extension.sapling-sidebar-view'
+        );
+        sidebarProvider.statusButtonClicked(uri);
+      }
+    )
+  );
+
+  // Register command to clear local sapling settings from workspace
+  context.subscriptions.push(
+    vscode.commands.registerCommand('sapling.clearWorkSpaceSettings', () => {
+      sidebarProvider.clearWorkSpaceState();
     })
   );
 

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Tree as TreeType } from '../../types/Tree';
+import { SaplingSettings } from '../../types/SaplingSettings';
 
 // component imports
 import ExpandableMenu from './ExpandableMenu';
@@ -9,10 +10,17 @@ import Settings from './Settings';
 import Tree from './Tree';
 
 const Sidebar = () => {
-  // state variables for the incomimg treeData, parsed viewData, user's settings, and the root file name
+  // state variables for the incomimg treeData, parsed viewData, user's global VSCode preferences, local webview settings, and the root file name
   const [treeData, setTreeData]: [TreeType[], Function] = useState();
   const [viewData, setViewData]: [TreeType[], Function] = useState();
-  const [settings, setSettings]: [{[key : string]: boolean}, Function] = useState();
+  const [preferences, setPreferences]: [{ [key: string]: boolean }, Function] =
+    useState();
+  const [settings, setSettings]: [SaplingSettings, Function] = useState({
+    useAlias: false,
+    appRoot: '',
+    webpackConfig: '',
+    tsConfig: '',
+  });
   const [rootFile, setRootFile]: [string, Function] = useState();
 
   // useEffect whenever the Sidebar is rendered
@@ -22,13 +30,26 @@ const Sidebar = () => {
       const message = event.data;
       switch (message.type) {
         // Listener to receive the tree data, update navbar and tree view
-        case("parsed-data"): {
-          setRootFile(message.value.fileName);
-          setTreeData([message.value]);
+        case 'parsed-data': {
+          // If no message value (e.g. resetting workspace data), set default vals:
+          if (!message.value) {
+            setRootFile();
+            setTreeData();
+            setViewData();
+          } else {
+            setRootFile(message.value.fileName);
+            setTreeData([message.value]);
+          }
+
           break;
         }
-        // Listener to receive the user's settings
-        case("settings-data"): {
+        // Listener to receive the user's VS Code Preferences
+        case 'preferences-data': {
+          setPreferences(message.value);
+          break;
+        }
+        // Listerner to receive the user's local parser settings
+        case 'settings-data': {
           setSettings(message.value);
           break;
         }
@@ -37,41 +58,48 @@ const Sidebar = () => {
 
     // Post message to the extension whenever sapling is opened
     tsvscode.postMessage({
-      type: "onSaplingVisible",
-      value: null
+      type: 'onSaplingVisible',
+      value: null,
     });
 
     // Post message to the extension for the user's settings whenever sapling is opened
     tsvscode.postMessage({
-      type: "onSettingsAcquire",
-      value: null
+      type: 'onPreferencesAcquire',
+      value: null,
     });
   }, []);
 
   // Separate useEffect that gets triggered when the treeData and settings state variables get updated
   useEffect(() => {
-    if (treeData && settings) {
+    if (treeData && preferences) {
       // Invoke parser to parse based on user's settings
       parseViewTree();
     }
-  }, [treeData, settings]);
+  }, [treeData, preferences]);
 
   // Edits and returns component tree based on users settings
-  const parseViewTree = () : void => {
+  const parseViewTree = (): void => {
     // Deep copy of the treeData passed in
     const treeParsed = JSON.parse(JSON.stringify(treeData[0]));
 
     // Helper function for the recursive parsing
-    const traverse = (node: any) : void => {
+    const traverse = (node: any): void => {
       let validChildren = [];
 
       // Logic to parse the nodes based on the users settings
       for (let i = 0; i < node.children.length; i++) {
-        if (node.children[i].thirdParty && settings.thirdParty && !node.children[i].reactRouter) {
+        if (
+          node.children[i].thirdParty &&
+          preferences.thirdParty &&
+          !node.children[i].reactRouter
+        ) {
           validChildren.push(node.children[i]);
-        } else if (node.children[i].reactRouter && settings.reactRouter) {
+        } else if (node.children[i].reactRouter && preferences.reactRouter) {
           validChildren.push(node.children[i]);
-        } else if (!node.children[i].thirdParty && !node.children[i].reactRouter) {
+        } else if (
+          !node.children[i].thirdParty &&
+          !node.children[i].reactRouter
+        ) {
           validChildren.push(node.children[i]);
         }
       }
@@ -89,30 +117,29 @@ const Sidebar = () => {
     setViewData([treeParsed]);
   };
 
-  // Render section
   return (
     <div className="sidebar">
-      <hr className="line_break"/>
+      <hr className="line_break" />
 
       <ExpandableMenu controlName="FILE SELECTOR" initState={true}>
-          <Navbar rootFile={rootFile}/>
-      </ ExpandableMenu>
+        <Navbar rootFile={rootFile} />
+      </ExpandableMenu>
 
       <ExpandableMenu controlName="SETTINGS" initState={true}>
-          <Settings />
-      </ ExpandableMenu>
+        <Settings saplingSettings={settings} />
+      </ExpandableMenu>
 
       <ExpandableMenu controlName="TREE VIEW" initState={true}>
         <div className="tree_view">
           <ul className="tree_beginning">
-            {viewData && settings ?
+            {viewData && preferences ? (
               <Tree data={viewData} first={true} />
-            : null}
+            ) : (
+              'Please Select a React file to view component tree'
+            )}
           </ul>
         </div>
-      </ ExpandableMenu>
-
-
+      </ExpandableMenu>
     </div>
   );
 };
