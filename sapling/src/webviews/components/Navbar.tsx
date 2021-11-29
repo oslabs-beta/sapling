@@ -17,7 +17,7 @@ const Navbar = ({ rootFile }: any) => {
   return (
     <div id="navbar">
       <div className="settings-control">
-        <label htmlFor="file"> Select React App. Root File:</label>
+        <label htmlFor="file"> Select React File for Tree Root:</label>
         <button id="file" className="inputfile" onClick={() => fileMessage()}>
           <FontAwesomeIcon icon={faDownload} />
           <strong>{rootFile ? ` ${rootFile}` : ' Choose a file...'}</strong>
