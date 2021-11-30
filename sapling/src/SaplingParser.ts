@@ -179,18 +179,42 @@ export class SaplingParser {
     return componentTree;
   }
 
-  // Finds files where import string does not include a file extension
-  private getFileName(componentTree: Tree) : string | undefined {
-    const ext = path.extname(componentTree.filePath);
-    let fileName = componentTree.fileName;
-
-    if (!ext) {
-      // Try and find file extension that exists in directory:
-      const fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
-      const regEx = new RegExp(`${componentTree.fileName}.(j|t)sx?$`);
-      fileName = fileArray.find(fileStr => fileStr.match(regEx));
-      fileName ? componentTree.filePath += path.extname(fileName) : null;
+  private validateFilePath(filePath: string, importName: string): string {
+    const fileArray = [];
+    let parsedFileName = '';
+    // Handles Next.js component imports
+    try {
+      fileArray.push(...fs.readdirSync(path.dirname(filePath)));
+    } catch {
+      return filePath;
     }
+    // Checks that file exists and appends file extension to path if not given in import declaration
+    parsedFileName =
+      fileArray.find((str) => new RegExp(`${path.basename(filePath)}\\.(j|t)sx?$`).test(str)) || '';
+    if (parsedFileName.length) return (filePath += path.extname(parsedFileName));
+    /**
+     * Handles Export Batch Declarations / 'Barrel' Files (index.(j|t)s)
+     * Issues #85, #99
+     * e.g. export * from './dir'
+     * e.g. export { default as alias } from './dir'
+     */
+    if (
+      !path.extname(filePath) &&
+      fs
+        .readdirSync(path.dirname(filePath)) // will list elements of module's parent dir
+        .find((str) => str.match(new RegExp(`${path.basename(filePath)}`))) && // there exists a subdir with module's name
+      fs
+        .readdirSync(path.dirname(filePath) + '/' + path.basename(filePath))
+        .find((str) => /index\\.((j|t)sx?|node)$/.test(str)) // module folder contains a barrel file
+    ) {
+      parsedFileName =
+        fs
+          .readdirSync(path.dirname(filePath) + '/' + path.basename(filePath))
+          .find((str) => new RegExp(`${path.basename(importName)}\\.(j|t)sx?$`).test(str)) || '';
+      if (parsedFileName.length) return (filePath += path.extname(parsedFileName));
+    }
+    return filePath;
+  }
 
     return fileName;
   }
