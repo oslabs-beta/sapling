@@ -1,8 +1,10 @@
-import * as assert from 'assert';
-import { SaplingParser } from '../../SaplingParser';
-import { describe, suite , test, before} from 'mocha';
-import { expect } from 'chai';
 import * as path from 'path';
+import { describe, suite, test, before } from 'mocha';
+import { expect } from 'chai';
+import * as assert from 'assert';
+
+import { SaplingParser } from '../../controllers/SaplingParser';
+import { Tree } from '../../types';
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
@@ -10,11 +12,11 @@ import * as path from 'path';
 // import * as myExtension from '../../extension';
 
 suite('Parser Test Suite', () => {
-  let parser : SaplingParser, tree : Tree, file : string;
+  let parser: SaplingParser, tree: Tree, file: string;
 
   // UNPARSED TREE TEST
   describe('It initializes correctly', () => {
-    before( () => {
+    before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_0/index.js');
       parser = new SaplingParser(file);
     });
@@ -31,7 +33,7 @@ suite('Parser Test Suite', () => {
 
   // TEST 0: ONE CHILD
   describe('It works for simple apps', () => {
-    before( () => {
+    before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_0/index.js');
       parser = new SaplingParser(file);
       tree = parser.parse();
@@ -88,7 +90,6 @@ suite('Parser Test Suite', () => {
       expect(tree.children[0]).to.have.own.property('name').that.is.oneOf(['Switch', 'Route']);
       expect(tree.children[1]).to.have.own.property('name').that.is.oneOf(['Switch', 'Route']);
       expect(tree.children[2]).to.have.own.property('name').that.is.equal('Tippy');
-
     });
 
     test('reactRouter should be designated as third party and reactRouter', () => {
@@ -142,22 +143,22 @@ suite('Parser Test Suite', () => {
 
   // TEST 5: MISSING EXTENSIONS AND UNUSED IMPORTS
   describe('It works for extension-less imports', () => {
-    let names: string[], paths: string [], expectedNames : string[], expectedPaths : string[];
+    let names: string[], paths: string[], expectedNames: string[], expectedPaths: string[];
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_5/index.js');
       parser = new SaplingParser(file);
       tree = parser.parse();
 
-      names = tree.children.map(child => child.name);
-      paths = tree.children.map(child => child.filePath);
+      names = tree.children.map((child) => child.name);
+      paths = tree.children.map((child) => child.filePath);
 
       expectedNames = ['JS', 'JSX', 'TS', 'TSX'];
       expectedPaths = [
         '../../../src/test/test_apps/test_5/components/JS.js',
         '../../../src/test/test_apps/test_5/components/JSX.jsx',
         '../../../src/test/test_apps/test_5/components/TS.ts',
-        '../../../src/test/test_apps/test_5/components/TSX.tsx'
-      ].map( el => path.resolve(__dirname, el));
+        '../../../src/test/test_apps/test_5/components/TSX.tsx',
+      ].map((el) => path.resolve(__dirname, el));
     });
 
     test('Check children match expected children', () => {
@@ -254,8 +255,12 @@ suite('Parser Test Suite', () => {
       expect(tree.children[0]).to.have.own.property('name').that.is.equal('BrowserRouter');
       expect(tree.children[1]).to.have.own.property('name').that.is.equal('App');
 
-      expect(tree.children[1].children[3]).to.have.own.property('name').that.is.equal('DrillCreator');
-      expect(tree.children[1].children[4]).to.have.own.property('name').that.is.equal('HistoryDisplay');
+      expect(tree.children[1].children[3])
+        .to.have.own.property('name')
+        .that.is.equal('DrillCreator');
+      expect(tree.children[1].children[4])
+        .to.have.own.property('name')
+        .that.is.equal('HistoryDisplay');
     });
   });
 
@@ -278,7 +283,9 @@ suite('Parser Test Suite', () => {
       expect(tree.children[0].children).to.have.lengthOf(1);
       expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('App2');
       expect(tree.children[0].children[0].children).to.have.lengthOf(1);
-      expect(tree.children[0].children[0].children[0]).to.have.own.property('name').that.is.equal('App1');
+      expect(tree.children[0].children[0].children[0])
+        .to.have.own.property('name')
+        .that.is.equal('App1');
       expect(tree.children[0].children[0].children[0].children).to.have.lengthOf(0);
     });
   });
@@ -325,6 +332,83 @@ suite('Parser Test Suite', () => {
       expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
       expect(tree.children[0].children[2]).to.have.own.property('name').that.is.equal('Page3');
       expect(tree.children[0].children[2]).to.have.own.property('thirdParty').that.is.false;
+    });
+  });
+
+  // TEST 14: BARREL FILES / BATCH EXPORTS / FOLDERS AS MODULES
+  describe('It should parse folders that are imported as modules', () => {
+    before(() => {
+      file = path.join(__dirname, '../../../src/test/test_apps/test_14/index.js');
+      parser = new SaplingParser(file);
+      tree = parser.parse();
+    });
+
+    test('Root should be named index, it should have one child named App', () => {
+      expect(tree).to.have.own.property('name').that.is.equal('index');
+      expect(tree.children).to.have.lengthOf(1);
+      expect(tree.children[0]).to.have.own.property('name').that.is.equal('App');
+    });
+
+    test('App should have three children, Page1, Page2 and Page3, all found successfully', () => {
+      expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('Page1');
+      expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('Page2');
+      expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[2]).to.have.own.property('name').that.is.equal('Page3');
+      expect(tree.children[0].children[2]).to.have.own.property('thirdParty').that.is.false;
+    });
+  });
+
+  // TODO: TEST 15: MORE DESTRUCTURING, ALIASING, NAMESPACE CASES
+  describe('It should parse VariableDeclaration imports with Array Destructuring and Object Destructuring with Aliasing; also Glob imports with Namespace Specifiers', () => {
+    before(() => {
+      file = path.join(__dirname, '../../../src/test/test_apps/test_15/index.js');
+      parser = new SaplingParser(file);
+      tree = parser.parse();
+    });
+
+    test('Root should be named index, it should have one child named App', () => {
+      expect(tree).to.have.own.property('name').that.is.equal('index');
+      expect(tree.children).to.have.lengthOf(1);
+      expect(tree.children[0]).to.have.own.property('name').that.is.equal('App');
+    });
+
+    test('Object destructuring aliased child Page1 found successfully with its filename, not as Alias', () => {
+      expect(tree.children[0].children[0]).to.have.own.property('name').that.is.not.equal('Alias');
+      expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('Page1');
+      expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
+    });
+    test('Array destructured variable declaration imports Page1of2, Page2f2 all found successfully', () => {
+      expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('Page1of2');
+      expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[2]).to.have.own.property('name').that.is.equal('Page2of2');
+      expect(tree.children[0].children[2]).to.have.own.property('thirdParty').that.is.false;
+    });
+
+    test('App should also have four more children namespace.Page3_1, namespace.Page3_2, LastPage.Page4_1, LastPage.Page4_2, all found successfully', () => {
+      expect(tree.children[0].children[3])
+        .to.have.own.property('name')
+        .that.is.equal('namespace.Page3_1');
+      expect(tree.children[0].children[3]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[4])
+        .to.have.own.property('name')
+        .that.is.equal('namespace.Page3_2');
+      expect(tree.children[0].children[4]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[5])
+        .to.have.own.property('name')
+        .that.is.equal('LastPage.Page4_1');
+      expect(tree.children[0].children[5]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[6])
+        .to.have.own.property('name')
+        .that.is.equal('LastPage.Page4_2');
+      expect(tree.children[0].children[6]).to.have.own.property('thirdParty').that.is.false;
+    });
+
+    test('DefaultExport', () => {
+      expect(tree.children[0].children[6])
+        .to.have.own.property('name')
+        .that.is.equal('DefaultExport');
+      expect(tree.children[0].children[6]).to.have.own.property('thirdParty').that.is.false;
     });
   });
 });
