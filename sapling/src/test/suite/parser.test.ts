@@ -3,7 +3,7 @@ import { describe, suite, test, before } from 'mocha';
 import { expect } from 'chai';
 import * as assert from 'assert';
 
-import { SaplingParser } from '../../controllers/SaplingParser';
+import { SaplingParser } from '../../SaplingParser';
 import { Tree } from '../../types';
 
 // You can import and use all API from the 'vscode' module
