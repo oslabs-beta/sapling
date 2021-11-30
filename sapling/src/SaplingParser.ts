@@ -237,9 +237,27 @@ export class SaplingParser {
     parsedFileName =
       fileArray.find((str) => new RegExp(`${path.basename(filePath)}\\.(j|t)sx?$`).test(str)) || '';
     if (parsedFileName.length) return (filePath += path.extname(parsedFileName));
-  // Finds files where import string does not include a file extension
-  private getFileName(componentTree: Tree) : string | null {
-    const ext = path.extname(componentTree.filePath);
+    /**
+     * Handles Export Batch Declarations / 'Barrel' Files (index.(j|t)s)
+     * Issues #85, #99
+     * e.g. export * from './dir'
+     * e.g. export { default as alias } from './dir'
+     */
+    if (
+      !path.extname(filePath) &&
+      fs
+        .readdirSync(path.dirname(filePath)) // will list elements of module's parent dir
+        .find((str) => str.match(new RegExp(`${path.basename(filePath)}`))) && // there exists a subdir with module's name
+      fs
+        .readdirSync(path.dirname(filePath) + '/' + path.basename(filePath))
+        .find((str) => /index\\.((j|t)sx?|node)$/.test(str)) // module folder contains a barrel file
+    ) {
+      parsedFileName =
+        fs
+          .readdirSync(path.dirname(filePath) + '/' + path.basename(filePath))
+          .find((str) => new RegExp(`${path.basename(importName)}\\.(j|t)sx?$`).test(str)) || '';
+      if (parsedFileName.length) return (filePath += path.extname(parsedFileName));
+    }
     return filePath;
   }
 
