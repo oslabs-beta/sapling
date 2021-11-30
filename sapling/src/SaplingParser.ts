@@ -1,10 +1,27 @@
-import * as babelParser from '@babel/parser';
 import * as path from 'path';
 import * as fs from 'fs';
-import { getNonce } from "./getNonce";
-import { Tree } from './types/Tree';
-import { ImportObj } from './types/ImportObj';
-import { File } from '@babel/types';
+
+import { parse as babelParse } from '@babel/parser';
+import {
+  Node as ASTNode,
+  isIdentifier,
+  isStringLiteral,
+  isImportDeclaration,
+  isVariableDeclaration,
+  isImportSpecifier,
+  isImportDefaultSpecifier,
+  isImportNamespaceSpecifier,
+  isCallExpression,
+  isImport,
+  isArrayPattern,
+  isObjectPattern,
+  isObjectProperty,
+  ImportDeclaration,
+  VariableDeclaration,
+} from '@babel/types';
+import { Tree, Token, ImportData } from './types';
+
+import { getNonce } from './helpers';
 
 export class SaplingParser {
   entryFile: string;
@@ -16,10 +33,13 @@ export class SaplingParser {
     if (process.platform === 'linux' && this.entryFile.includes('wsl$')) {
       this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
       this.entryFile = '/' + this.entryFile.split('/').slice(3).join('/');
-    // Fix for when running wsl but selecting files held on windows file system
-    } else if (process.platform === 'linux' && (/[a-zA-Z]/).test(this.entryFile[0])) {
+      // Fix for when running wsl but selecting files held on windows file system
+    } else if (process.platform === 'linux' && /[a-zA-Z]/.test(this.entryFile[0])) {
       const root = `/mnt/${this.entryFile[0].toLowerCase()}`;
-      this.entryFile = path.join(root, filePath.split(path.win32.sep).slice(1).join(path.posix.sep));
+      this.entryFile = path.join(
+        root,
+        filePath.split(path.win32.sep).slice(1).join(path.posix.sep)
+      );
     }
 
     this.tree = undefined;
@@ -27,13 +47,13 @@ export class SaplingParser {
   }
 
   // Public method to generate component tree based on current entryFile
-  public parse() : Tree {
+  public parse(): Tree {
     // Create root Tree node
     const root = {
       id: getNonce(),
       name: path.basename(this.entryFile).replace(/\.(t|j)sx?$/, ''),
       fileName: path.basename(this.entryFile),
-      filePath : this.entryFile,
+      filePath: this.entryFile,
       importPath: '/', // this.entryFile here breaks windows file path on root e.g. C:\\ is detected as third party
       expanded: false,
       depth: 0,
@@ -44,7 +64,7 @@ export class SaplingParser {
       children: [],
       parentList: [],
       props: {},
-      error: ''
+      error: '',
     };
 
     this.tree = root;
@@ -52,55 +72,70 @@ export class SaplingParser {
     return this.tree;
   }
 
-  public getTree() : Tree {
+  public getTree(): Tree | undefined {
     return this.tree;
   }
 
   // Set Sapling Parser with a specific Data Tree (from workspace state)
-  public setTree(tree : Tree) : void {
+  public setTree(tree: Tree): void {
     this.entryFile = tree.filePath;
     this.tree = tree;
   }
 
-  public updateTree(filePath : string) : Tree {
-      let children = [];
-
-      const getChildNodes = (node: Tree) : void => {
-        const { depth, filePath, expanded } = node;
-        children.push({ depth, filePath, expanded });
-      };
-
-      const matchExpand = (node: Tree) : void => {
-        for (let i = 0 ; i < children.length ; i += 1) {
-          const oldNode = children[i];
-            if (oldNode.depth === node.depth && oldNode.filePath === node.filePath && oldNode.expanded) {
-              node.expanded = true;
-            }
-        }
-      };
-
-      const callback = (node: Tree) : void => {
-        if (node.filePath === filePath) {
-          node.children.forEach(child => {
-            this.#traverseTree(getChildNodes, child);
-          });
-
-          const newNode = this.parser(node);
-
-          this.#traverseTree(matchExpand, newNode);
-
-          children = [];
-        }
-      };
-
-      this.#traverseTree(callback, this.tree);
-
+  // Updates the tree when a file is saved in VS Code
+  public updateTree(filePath: string): Tree | undefined {
+    if (this.tree === undefined) {
       return this.tree;
     }
 
+    type ChildInfo = {
+      depth: number;
+      filePath: string;
+      expanded: boolean;
+    };
+
+    let children: Array<ChildInfo> = [];
+
+    const getChildNodes = (node: Tree): void => {
+      const { depth, filePath, expanded } = node;
+      children.push({ depth, filePath, expanded });
+    };
+
+    const matchExpand = (node: Tree): void => {
+      for (let i = 0; i < children.length; i += 1) {
+        const oldNode = children[i];
+        if (
+          oldNode.depth === node.depth &&
+          oldNode.filePath === node.filePath &&
+          oldNode.expanded
+        ) {
+          node.expanded = true;
+        }
+      }
+    };
+
+    const callback = (node: Tree): void => {
+      if (node.filePath === filePath) {
+        node.children.forEach((child) => {
+          this.#traverseTree(getChildNodes, child);
+        });
+
+        const newNode = this.parser(node);
+
+        this.#traverseTree(matchExpand, newNode);
+
+        children = [];
+      }
+    };
+
+    this.#traverseTree(callback, this.tree);
+
+    return this.tree;
+  }
+
   // Traverses the tree and changes expanded property of node whose id matches provided id
-  public toggleNode(id : string, expanded : boolean) : Tree {
-    const callback = (node) => {
+  public toggleNode(id: string, expanded: boolean): Tree | undefined {
+    const callback = (node: Tree) => {
       if (node.id === id) {
         node.expanded = expanded;
       }
@@ -112,69 +147,79 @@ export class SaplingParser {
   }
 
   // Traverses all nodes of current component tree and applies callback to each node
-  #traverseTree(callback : Function, node : Tree = this.tree) : void {
+  #traverseTree(callback: (node: Tree) => void, node: Tree | undefined = this.tree): void {
     if (!node) {
       return;
     }
 
     callback(node);
 
-    node.children.forEach( (childNode) => {
+    node.children.forEach((childNode) => {
       this.#traverseTree(callback, childNode);
     });
   }
 
   // Recursively builds the React component tree structure starting from root node
-  private parser(componentTree: Tree) : Tree {
-
+  private parser(componentTree: Tree): Tree {
     // If import is a node module, do not parse any deeper
     if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
       componentTree.thirdParty = true;
-      if (componentTree.fileName === 'react-router-dom' || componentTree.fileName === 'react-router') {
+      if (
+        componentTree.fileName === 'react-router-dom' ||
+        componentTree.fileName === 'react-router'
+      ) {
         componentTree.reactRouter = true;
       }
-      return;
+      return componentTree;
     }
 
     // Check that file has valid fileName/Path, if not found, add error to node and halt
-    const fileName = this.getFileName(componentTree);
-    if (!fileName) {
+    if (!componentTree.importPath) {
       componentTree.error = 'File not found.';
-      return;
+      return componentTree;
     }
 
     // If current node recursively calls itself, do not parse any deeper:
     if (componentTree.parentList.includes(componentTree.filePath)) {
-      return;
+      return componentTree;
     }
 
     // Create abstract syntax tree of current component tree file
-    let ast: babelParser.ParseResult<File>;
+    let ast: ASTNode | Record<string, Array<Token>>;
     try {
-      ast = babelParser.parse(fs.readFileSync(path.resolve(componentTree.filePath), 'utf-8'), {
+      // See: https://babeljs.io/docs/en/babel-parser#options
+      ast = babelParse(fs.readFileSync(path.resolve(componentTree.filePath), 'utf-8'), {
         sourceType: 'module',
-        tokens: true,
-        plugins: [
-          'jsx',
-          'typescript',
-        ]
+        tokens: true, // default: false, tokens deprecated from babel v7
+        plugins: ['jsx', 'typescript'],
+        // TODO: additional plugins to look into supporting for future releases
+        // 'importMeta': https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import.meta
+        // 'importAssertions': parses ImportAttributes type
+        // https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#ImportAssertions
+        allowImportExportEverywhere: true, // enables parsing dynamic imports
+        attachComment: false, // performance benefits
       });
+      // If no ast or ast tokens, error when parsing file
+      if (!ast || !ast.tokens) {
+        throw new Error();
+      }
     } catch (err) {
       componentTree.error = 'Error while processing this file/node';
       return componentTree;
     }
+    const { tokens } = ast;
 
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);
 
     // Get any JSX Children of current file:
-    componentTree.children = this.getJSXChildren(ast.tokens, imports, componentTree);
+    componentTree.children = this.getJSXChildren(tokens, imports, componentTree);
 
     // Check if current node is connected to the Redux store
-    componentTree.reduxConnect = this.checkForRedux(ast.tokens, imports);
+    componentTree.reduxConnect = this.checkForRedux(tokens, imports);
 
     // Recursively parse all child components
-    componentTree.children.forEach(child => this.parser(child));
+    componentTree.children.forEach((child) => this.parser(child));
 
     return componentTree;
   }
@@ -216,123 +261,249 @@ export class SaplingParser {
     return filePath;
   }
 
-    return fileName;
+  /* Extracts Imports from current file
+   * https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md
+   * https://github.com/babel/babel/blob/main/packages/babel-types/src/ast-types/generated/index.ts
+   */
+  private getImports(body: Array<ASTNode>): Record<string, ImportData> {
+    return body
+      .filter((astNode) => isImportDeclaration(astNode) || isVariableDeclaration(astNode))
+      .reduce((accum: Record<string, ImportData>, declaration) => {
+        return isImportDeclaration(declaration)
+          ? Object.assign(accum, this.parseImportDeclaration(declaration))
+          : isVariableDeclaration(declaration)
+          ? Object.assign(accum, this.parseVariableDeclaration(declaration))
+          : accum;
+      }, {});
   }
 
-  // Extracts Imports from current file
-  // const Page1 = lazy(() => import('./page1')); -> is parsed as 'ImportDeclaration'
-  // import Page2 from './page2'; -> is parsed as 'VariableDeclaration'
-  private getImports(body : {[key : string]: any}[]) : ImportObj {
-    const bodyImports = body.filter(item => item.type === 'ImportDeclaration' || 'VariableDeclaration');
-    // console.log('bodyImports are: ', bodyImports);
-    return bodyImports.reduce((accum, curr) => {
-      // Import Declarations:
-      if (curr.type === 'ImportDeclaration') {
-        curr.specifiers.forEach( i => {
-          accum[i.local.name] = {
-            importPath: curr.source.value,
-            importName: (i.imported)? i.imported.name : i.local.name
-          };
-        });
+  /* Import Declarations: 
+   * e.g. import foo from "mod"
+   '.source': name/path of imported module
+   https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#Imports
+   */
+  private parseImportDeclaration(declaration: ImportDeclaration): Record<string, ImportData> {
+    const output: Record<string, ImportData> = {};
+    let importName = '';
+    let importAlias: string | undefined;
+
+    const importPath = declaration.source.value;
+    declaration.specifiers.forEach((specifier) => {
+      /*
+       * e.g. {foo} in import {foo} from "mod"
+       * e.g. {foo as bar} in import {foo as bar} from "mod"
+       '.imported': binding (foo), '.local': module (bar)
+       */
+      if (isImportSpecifier(specifier)) {
+        if (isIdentifier(specifier.imported)) {
+          if (specifier.imported.name === specifier.local.name) {
+            importName = specifier.imported.name;
+          } else {
+            importName = specifier.imported.name;
+            importAlias = specifier.local.name;
+          }
+          /* Import entire module for side effects only (no values imported)
+           * e.g. import '/modules/my-module.js';
+           specifier.imported is StringLiteral
+          */
+        } else if (isStringLiteral(specifier.imported)) {
+          importName = path.basename(specifier.imported.value);
+        }
+        /*
+         * default -  e.g. 'foo' in import foo from "mod.js"
+         * namespace - e.g. '* as foo' in import * as foo from "mod.js"
+         */
+      } else if (isImportDefaultSpecifier(specifier) || isImportNamespaceSpecifier(specifier)) {
+        importName = specifier.local.name;
       }
-      // Imports Inside Variable Declarations: // Not easy to deal with nested objects
-      if (curr.type === 'VariableDeclaration') {
-        const importPath = this.findVarDecImports(curr.declarations[0]);
-        if (importPath) {
-          const importName = curr.declarations[0].id.name;
-          accum[curr.declarations[0].id.name] = {
-            importPath,
-            importName
-          };
+
+      // if alias is used, that will be the identifier to show up in the body for node instances,
+      // which means ast token values will be parsed with alias before name.
+      output[importAlias || importName] = {
+        importPath,
+        importName,
+        importAlias,
+      };
+    });
+    return output;
+  }
+
+  /* Imports Inside Variable Declarations: 
+   * e.g. const promise = import("module");
+   * e.g. const [foo, bar] = import("module");
+   * e.g. const { foo: bar } = import("module");
+   * e.g. const foo = React.lazy(() => import('./module'));
+   https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#VariableDeclaration
+   */
+  private parseVariableDeclaration(declaration: VariableDeclaration): Record<string, ImportData> {
+    const output: Record<string, ImportData> = {};
+    let importName = '';
+    let importAlias: string | undefined;
+    /* 
+    * VariableDeclarator:
+    Left: Pattern <: Identifier or (ObjectPattern | ArrayPattern) -> destructuring 
+    Right: CallExpression - When the callee property is of type 'Import', arguments must have only one 'Expression' type element
+    https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#VariableDeclarator
+    https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#Patterns
+    https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#CallExpression
+    */
+    declaration.declarations.forEach((declarator) => {
+      const { id: LHS, init: RHS } = declarator;
+      let importPath = '';
+
+      // e.g. const variable = import('module')
+      if (isCallExpression(RHS) && isImport(RHS.callee)) {
+        // get importPath
+        const importArg = RHS.arguments[0];
+        importPath = isStringLiteral(importArg)
+          ? importArg.value
+          : isIdentifier(importArg) // almost certainly going to be StringLiteral, but guarding against edge cases
+          ? importArg.name
+          : '';
+
+        // e.g. const foo = import('module')
+        if (isIdentifier(LHS)) {
+          importName = LHS.name;
+          // e.g. const [foo, bar] = import('module');
+        } else if (isArrayPattern(LHS)) {
+          LHS.elements.forEach((element) => {
+            if (element && isIdentifier(element)) {
+              importName = element.name;
+            }
+          });
+
+          // e.g. const { foo } = import('module');
+          // e.g. Aliasing: const { foo: bar } = import('module');
+        } else if (isObjectPattern(LHS)) {
+          LHS.properties.forEach((objectProperty) => {
+            // assume rest parameters won't be used
+            if (isObjectProperty(objectProperty)) {
+              const { key: name, value: alias } = objectProperty;
+              importName = isIdentifier(name) ? name.name : isStringLiteral(name) ? name.value : '';
+              importAlias = isIdentifier(alias)
+                ? alias.name
+                : isStringLiteral(alias)
+                ? alias.value
+                : '';
+              if (importName === importAlias) {
+                importAlias = undefined;
+              }
+            }
+          });
+        }
+        /* React lazy loading import
+         * e.g. const foo = React.lazy(() => import('./module'));
+         */
+      } else if (this.parseLazyLoading(declarator).length && isIdentifier(declarator.id)) {
+        importPath = this.parseLazyLoading(declarator);
+        importName = declarator.id.name;
+      }
+
+      output[importAlias || importName] = {
+        importPath,
+        importName,
+        importAlias,
+      };
+    });
+    return output;
+  }
+
+  // TODO: Explicit parsing of nested Import CallExpression in ArrowFunctionExpression body
+  private parseLazyLoading(ast: ASTNode): string {
+    const recurse = (node: ASTNode): string | void => {
+      if (isCallExpression(node) && isImport(node.callee) && isStringLiteral(node.arguments[0])) {
+        return node.arguments[0].value;
+      }
+      // eslint-disable-next-line no-restricted-syntax
+      for (const key in node) {
+        if (node[key] && typeof node[key] === 'object') {
+          const importPath = recurse(node[key]);
+          if (importPath) return importPath;
         }
       }
-      return accum;
-    }, {});
+    };
+    return recurse(ast) || '';
   }
 
-  // Recursive helper method to find import path in Variable Declaration
-  private findVarDecImports(ast: {[key: string]: any}) {
-    // Base Case, find import path in variable declaration and return it,
-    if (ast.hasOwnProperty('callee') && ast.callee.type === 'Import') {
-      return ast.arguments[0].value;
-    }
-
-    // Otherwise look for imports in any other non null/undefined objects in the tree:
-    for (let key in ast) {
-      if (ast.hasOwnProperty(key) && typeof ast[key] === 'object' && ast[key]) {
-        const importPath = this.findVarDecImports(ast[key]);
-        if (importPath) {
-          return importPath;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  // Finds JSX React Components in current file
-  private getJSXChildren(astTokens: any[], importsObj : ImportObj, parentNode: Tree) : Tree[] {
-    let childNodes: {[key : string]: Tree} = {};
-    let props : {[key : string]: boolean} = {};
-    let token : {[key: string]: any};
-
-    for (let i = 0; i < astTokens.length; i++) {
-      // Case for finding JSX tags eg <App .../>
-      if (astTokens[i].type.label === 'jsxTagStart'
-      && astTokens[i + 1].type.label === 'jsxName'
-      && importsObj[astTokens[i + 1].value]) {
-        token = astTokens[i + 1];
-        props = this.getJSXProps(astTokens, i + 2);
-        childNodes = this.getChildNodes(importsObj, token, props, parentNode, childNodes);
-
-        // Case for finding components passed in as props e.g. <Route component={App} />
-      } else if (astTokens[i].type.label === 'jsxName'
-      && (astTokens[i].value === 'component' || astTokens[i].value === 'children')
-      && importsObj[astTokens[i + 3].value]) {
-        token = astTokens[i + 3];
-        childNodes = this.getChildNodes(importsObj, token, props, parentNode, childNodes);
-      }
-    }
-
-    return Object.values(childNodes);
-  }
-
-  private getChildNodes(imports : ImportObj,
-    astToken : {[key: string]: any}, props : {[key : string]: boolean},
-    parent : Tree, children : {[key : string] : Tree}) : {[key : string] : Tree} {
-
+  private getChildNodes(
+    imports: Record<string, ImportData>,
+    astToken: Token,
+    props: Record<string, boolean>,
+    parent: Tree,
+    children: Record<string, Tree>
+  ): Record<string, Tree> {
     if (children[astToken.value]) {
       children[astToken.value].count += 1;
-      children[astToken.value].props = {...children[astToken.value].props, ...props};
+      children[astToken.value].props = { ...children[astToken.value].props, ...props };
     } else {
+      const moduleIdentifier = imports[astToken.value].importPath;
+      const name = imports[astToken.value].importName;
+      const filePath = this.validateFilePath(
+        path.resolve(path.dirname(parent.filePath), moduleIdentifier),
+        name
+      );
       // Add tree node to childNodes if one does not exist
       children[astToken.value] = {
         id: getNonce(),
-        name: imports[astToken.value]['importName'],
-        fileName: path.basename(imports[astToken.value]['importPath']),
-        filePath: path.resolve(path.dirname(parent.filePath), imports[astToken.value]['importPath']),
-        importPath: imports[astToken.value]['importPath'],
+        name,
+        fileName: path.basename(filePath),
+        filePath,
+        importPath: moduleIdentifier,
         expanded: false,
         depth: parent.depth + 1,
         thirdParty: false,
         reactRouter: false,
         reduxConnect: false,
         count: 1,
-        props: props,
+        props,
         children: [],
         parentList: [parent.filePath].concat(parent.parentList),
         error: '',
       };
     }
-
     return children;
   }
 
+  // Finds JSX React Components in current file
+  private getJSXChildren(
+    astTokens: Array<Token>,
+    imports: Record<string, ImportData>,
+    parentNode: Tree
+  ): Tree[] {
+    let childNodes: Record<string, Tree> = {};
+    let props: Record<string, boolean> = {};
+    let token: Token;
+
+    for (let i = 0; i < astTokens.length; i++) {
+      // Case for finding JSX tags eg <App .../>
+      if (
+        astTokens[i].type.label === 'jsxTagStart' &&
+        astTokens[i + 1].type.label === 'jsxName' &&
+        imports[astTokens[i + 1].value]
+      ) {
+        token = astTokens[i + 1];
+        props = this.getJSXProps(astTokens, i + 2);
+        childNodes = this.getChildNodes(imports, token, props, parentNode, childNodes);
+
+        // Case for finding components passed in as props e.g. <Route component={App} />
+      } else if (
+        astTokens[i].type.label === 'jsxName' &&
+        (astTokens[i].value === 'component' || astTokens[i].value === 'children') &&
+        imports[astTokens[i + 3].value]
+      ) {
+        token = astTokens[i + 3];
+        childNodes = this.getChildNodes(imports, token, props, parentNode, childNodes);
+      }
+    }
+
+    return Object.values(childNodes);
+  }
+
   // Extracts prop names from a JSX element
-  private getJSXProps(astTokens: {[key: string]: any}[], j : number) : {[key : string]: boolean} {
-    const props = {};
-    while (astTokens[j].type.label !== "jsxTagEnd") {
-      if (astTokens[j].type.label === "jsxName" && astTokens[j + 1].value === "=") {
+  private getJSXProps(astTokens: Array<Token>, j: number): Record<string, boolean> {
+    const props: Record<string, boolean> = {};
+    while (astTokens[j].type.label !== 'jsxTagEnd') {
+      if (astTokens[j].type.label === 'jsxName' && astTokens[j + 1].value === '=') {
         props[astTokens[j].value] = true;
       }
       j += 1;
@@ -341,12 +512,12 @@ export class SaplingParser {
   }
 
   // Checks if current Node is connected to React-Redux Store
-  private checkForRedux(astTokens: any[], importsObj : ImportObj) : boolean {
+  private checkForRedux(astTokens: Array<Token>, imports: Record<string, ImportData>): boolean {
     // Check that react-redux is imported in this file (and we have a connect method or otherwise)
     let reduxImported = false;
     let connectAlias;
-    Object.keys(importsObj).forEach( key => {
-      if (importsObj[key].importPath === 'react-redux' && importsObj[key].importName === 'connect') {
+    Object.keys(imports).forEach((key) => {
+      if (imports[key].importPath === 'react-redux' && imports[key].importName === 'connect') {
         reduxImported = true;
         connectAlias = key;
       }
@@ -358,7 +529,11 @@ export class SaplingParser {
 
     // Check that connect method is invoked and exported in the file
     for (let i = 0; i < astTokens.length; i += 1) {
-      if (astTokens[i].type.label === 'export' && astTokens[i + 1].type.label === 'default' && astTokens[i + 2].value === connectAlias) {
+      if (
+        astTokens[i].type.label === 'export' &&
+        astTokens[i + 1].type.label === 'default' &&
+        astTokens[i + 2].value === connectAlias
+      ) {
         return true;
       }
     }
