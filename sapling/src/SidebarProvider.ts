@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getNonce } from './utils';
+import { getNonce } from './helpers';
 import { SaplingParser } from './SaplingParser';
 import { Tree } from './types';
 

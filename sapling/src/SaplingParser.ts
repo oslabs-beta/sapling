@@ -21,7 +21,7 @@ import {
 } from '@babel/types';
 import { Tree, Token, ImportData } from './types';
 
-import { getNonce } from './utils/getNonce';
+import { getNonce } from './helpers';
 
 export class SaplingParser {
   entryFile: string;
