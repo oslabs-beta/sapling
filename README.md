@@ -34,7 +34,7 @@
     <!-- BUILD STATUS -->
     <a href="https://github.com/oslabs-beta/sapling/actions/workflows/master.yml"><img alt="master CI/CD workflow status" src="https://github.com/oslabs-beta/sapling/actions/workflows/master.yml/badge.svg"></a>
     <a href="https://github.com/oslabs-beta/sapling/actions/workflows/dev.yml"><img alt="dev CI workflow status" src="https://github.com/oslabs-beta/sapling/actions/workflows/dev.yml/badge.svg"></a>
-    <img alt="Vercel Web deployments" src="https://img.shields.io/github/deployments/oslabs-beta/sapling/production?label=build&logo=vercel">
+    <a href="https://github.com/PLCoster/sapling-website"><img alt="Vercel Website deployments" src="https://img.shields.io/github/deployments/PLCoster/sapling-website/production?label=build&logo=Vercel"></a>
     <!-- LICENSE -->
     <!-- <a href="https://github.com/oslabs-beta/sapling/blob/master/LICENSE"><img alt="GitHub" src="https://img.shields.io/github/license/oslabs-beta/sapling"></a> -->
     <!-- CONTRIBUTIONS -->
@@ -217,13 +217,14 @@ This extension contributes the following settings:
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**. All contributions should be made by branching from the `dev` branch, and subsequently making a pull request back onto `dev` as follows:
 
 1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. **IMPORTANT**: Check out the `dev` branch (`git checkout dev`)
+3. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+4. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+5. Push to your Remote Branch (`git push origin feature/AmazingFeature`)
+6. Open a Pull Request onto the `dev` branch of this repo
 
 
 ## License

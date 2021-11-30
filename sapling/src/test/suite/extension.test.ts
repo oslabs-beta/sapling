@@ -7,10 +7,10 @@ import * as vscode from 'vscode';
 // import * as myExtension from '../../extension';
 
 suite('Extension Test Suite', () => {
-	vscode.window.showInformationMessage('Start all tests.');
+  vscode.window.showInformationMessage('Start all tests.');
 
-	describe('Sapling loads correctly', () => {
-    let saplingExtension;
+  describe('Sapling loads correctly', () => {
+    let saplingExtension : vscode.Extension<any> | undefined;
     before (() => {
       saplingExtension = vscode.extensions.getExtension('team-sapling.sapling');
     });
@@ -20,22 +20,30 @@ suite('Extension Test Suite', () => {
     });
 
     test('Sapling extension is activated after VSCode startup', () => {
-      expect(saplingExtension.isActive).to.be.true;
+      if (saplingExtension) {
+        expect(saplingExtension.isActive).to.be.true;
+      } else {
+        expect(saplingExtension).to.not.be.undefined;
+      }
     });
 
     test('Sapling extension package.json exists', () => {
-      expect(saplingExtension.packageJSON).to.not.be.undefined;
+      if (saplingExtension) {
+        expect(saplingExtension.packageJSON).to.not.be.undefined;
+      } else {
+        expect(saplingExtension).to.not.be.undefined;
+      }
     });
   });
 
   // describe('It registers saplings commands successfully', () => {
   //   let commandList;
   //   before( (done) => {
-	// 		vscode.commands.getCommands().then(commands => {
+  //     vscode.commands.getCommands().then(commands => {
   //       commandList = commands;
   //       done();
   //     });
-	// 	});
+  //   });
 
   //   test('It registers the sapling.generateTree command', () => {
   //     expect(commandList).to.be.an('array').that.does.include('sapling.generateTree');

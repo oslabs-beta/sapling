@@ -12,8 +12,8 @@ export type Tree = {
   thirdParty: boolean;
   reactRouter: boolean;
   reduxConnect: boolean;
-  children: Tree[];
+  children: Array<Tree>;
   parentList: string[];
-  props: { [key: string]: boolean; };
+  props: Record<string, boolean>;
   error: string;
 };
