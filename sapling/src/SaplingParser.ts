@@ -209,7 +209,7 @@ export class SaplingParser {
       return componentTree;
     }
     const { tokens } = ast;
-    let tokenList: Array<Token>;
+    let tokenList: Array<Token> = [];
     if (tokens) tokenList = tokens as Array<Token>;
 
     // Find imports in the current file, then find child components in the current file
@@ -225,43 +225,6 @@ export class SaplingParser {
     componentTree.children.forEach((child) => this.parser(child));
 
     return componentTree;
-  }
-
-  private validateFilePath(filePath: string, importName: string): string {
-    const fileArray: string[] = [];
-    let parsedFileName = '';
-    // Handles Next.js component imports
-    try {
-      fileArray.push(...fs.readdirSync(path.dirname(filePath)));
-    } catch {
-      return filePath;
-    }
-    // Checks that file exists and appends file extension to path if not given in import declaration
-    parsedFileName =
-      fileArray.find((str) => new RegExp(`${path.basename(filePath)}\\.(j|t)sx?$`).test(str)) || '';
-    if (parsedFileName.length) return filePath + path.extname(parsedFileName);
-    /**
-     * Handles Export Batch Declarations / 'Barrel' Files (index.(j|t)s)
-     * Issues #85, #99
-     * e.g. export * from './dir'
-     * e.g. export { default as alias } from './dir'
-     */
-    if (
-      !path.extname(filePath) &&
-      fs
-        .readdirSync(path.dirname(filePath)) // will list elements of module's parent dir
-        .find((str) => str.match(new RegExp(`${path.basename(filePath)}`))) && // there exists a subdir with module's name
-      fs
-        .readdirSync(path.dirname(filePath) + '/' + path.basename(filePath))
-        .find((str) => /index\\.((j|t)sx?|node)$/.test(str)) // module folder contains a barrel file
-    ) {
-      parsedFileName =
-        fs
-          .readdirSync(path.dirname(filePath) + '/' + path.basename(filePath))
-          .find((str) => new RegExp(`${path.basename(importName)}\\.(j|t)sx?$`).test(str)) || '';
-      if (parsedFileName.length) return (filePath += path.extname(parsedFileName));
-    }
-    return filePath;
   }
 
   /* Extracts Imports from current file
@@ -312,7 +275,7 @@ export class SaplingParser {
         } else if (isStringLiteral(specifier.imported)) {
           importName = path.basename(specifier.imported.value);
         }
-        /*
+        /* TODO: Add individual imported components to tree, not just module name
          * default -  e.g. 'foo' in import foo from "mod.js"
          * namespace - e.g. '* as foo' in import * as foo from "mod.js"
          */
@@ -363,6 +326,7 @@ export class SaplingParser {
           : isIdentifier(importArg) // almost certainly going to be StringLiteral, but guarding against edge cases
           ? importArg.name
           : '';
+        if (!importPath.length) return;
 
         // e.g. const foo = import('module')
         if (isIdentifier(LHS)) {
@@ -374,7 +338,7 @@ export class SaplingParser {
               importName = element.name;
             }
             output[importName] = {
-              importPath: importPath + '.' + importName,
+              importPath,
               importName,
             };
           });
@@ -392,25 +356,30 @@ export class SaplingParser {
                 : isStringLiteral(alias)
                 ? alias.value
                 : '';
-              if (importName === importAlias) {
+              if (!importAlias.length || importName === importAlias) {
                 importAlias = undefined;
               }
+              output[importAlias || importName] = {
+                importPath,
+                importName,
+                importAlias,
+              };
             }
           });
         }
-        /* React lazy loading import
-         * e.g. const foo = React.lazy(() => import('./module'));
-         */
-      } else if (this.parseLazyLoading(declarator).length && isIdentifier(declarator.id)) {
-        importPath = this.parseLazyLoading(declarator);
-        importName = declarator.id.name;
       }
-
-      output[importAlias || importName] = {
-        importPath,
-        importName,
-        importAlias,
-      };
+      /* React lazy loading import
+       * e.g. const foo = React.lazy(() => import('./module'));
+       */
+      importPath = this.parseLazyLoading(declarator);
+      if (importPath.length && isIdentifier(declarator.id)) {
+        importName = declarator.id.name;
+        output[importAlias || importName] = {
+          importPath,
+          importName,
+          importAlias,
+        };
+      }
     });
     return output;
   }
@@ -420,7 +389,7 @@ export class SaplingParser {
     const recurse = (node: ASTNode): string | void => {
       if (isCallExpression(node) && isImport(node.callee) && isStringLiteral(node.arguments[0])) {
         return node.arguments[0].value;
-      }
+      } 
       // eslint-disable-next-line no-restricted-syntax
       for (const key in node) {
         if (node[key] && typeof node[key] === 'object') {
@@ -431,6 +400,28 @@ export class SaplingParser {
       }
     };
     return recurse(ast) || '';
+  }
+
+  private validateFilePath(filePath: string, importName: string): string {
+    const fileArray: string[] = [];
+    let parsedFileName = '';
+    // Handles Next.js component imports
+    try {
+      fileArray.push(...fs.readdirSync(path.dirname(filePath)));
+    } catch {
+      return filePath;
+    }
+    // Checks that file exists and appends file extension to path if not given in import declaration
+    parsedFileName =
+      fileArray.find((str) => new RegExp(`${path.basename(filePath)}\\.(j|t)sx?$`).test(str)) || '';
+    if (parsedFileName.length) return filePath + path.extname(parsedFileName);
+    /**
+     * WIP: Handles Export Batch Declarations / 'Barrel' Files (index.(j|t)s)
+     * Issues #85, #99
+     * e.g. export * from './dir'
+     * e.g. export { default as alias } from './dir'
+     */
+    return filePath;
   }
 
   private getChildNodes(

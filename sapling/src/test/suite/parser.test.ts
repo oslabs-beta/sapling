@@ -335,29 +335,38 @@ suite('Parser Test Suite', () => {
     });
   });
 
-  // TEST 14: BARREL FILES / BATCH EXPORTS / FOLDERS AS MODULES
-  describe('It should parse folders that are imported as modules', () => {
-    before(() => {
-      file = path.join(__dirname, '../../../src/test/test_apps/test_14/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
-    });
+  // // TEST 14: BARREL FILES / BATCH EXPORTS / FOLDERS AS MODULES
+  // describe('It should parse folders that are imported as modules', () => {
+  //   before(() => {
+  //     file = path.join(__dirname, '../../../src/test/test_apps/test_14/index.js');
+  //     parser = new SaplingParser(file);
+  //     tree = parser.parse();
+  //   });
 
-    test('Root should be named index, it should have one child named App', () => {
-      expect(tree).to.have.own.property('name').that.is.equal('index');
-      expect(tree.children).to.have.lengthOf(1);
-      expect(tree.children[0]).to.have.own.property('name').that.is.equal('App');
-    });
+  //   test('Root should be named index, it should have one child named App', () => {
+  //     expect(tree).to.have.own.property('name').that.is.equal('index');
+  //     expect(tree.children).to.have.lengthOf(1);
+  //     expect(tree.children[0]).to.have.own.property('name').that.is.equal('App');
+  //   });
 
-    test('App should have three children, Page1, Page2 and Page3, all found successfully', () => {
-      expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('Page1');
-      expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
-      expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('Page2');
-      expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
-      expect(tree.children[0].children[2]).to.have.own.property('name').that.is.equal('Page3');
-      expect(tree.children[0].children[2]).to.have.own.property('thirdParty').that.is.false;
-    });
-  });
+  //   test('App should have three children, Page1, Page2 and Page3, all found successfully', () => {
+  //     expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('Page1');
+  //     expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
+  //     expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('Page2');
+  //     expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
+  //     expect(tree.children[0].children[2]).to.have.own.property('name').that.is.equal('Page3');
+  //   });
+
+  // test('Page1 should have one child named Child1', () => {
+  //   expect(tree).to.have.own.property('name').that.is.equal('index');
+  //   expect(tree.children[0].children[0]).to.have.lengthOf(1);
+  //   expect(tree.children[0].children[0].children[0])
+  //     .to.have.own.property('name')
+  //     .that.is.equal('Child1');
+  // });
+  // expect(tree.children[0].children[0].children[0]).to.have.own.property('thirdParty').that.is
+  //   .false;
+  // });
 
   // TODO: TEST 15: MORE DESTRUCTURING, ALIASING, NAMESPACE CASES
   describe('It should parse VariableDeclaration imports with Array Destructuring and Object Destructuring with Aliasing; also Glob imports with Namespace Specifiers', () => {
@@ -377,6 +386,9 @@ suite('Parser Test Suite', () => {
       expect(tree.children[0].children[0]).to.have.own.property('name').that.is.not.equal('Alias');
       expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('Page1');
       expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[6]).to.have.own.property('name').that.is.not.equal('Alias1');
+      expect(tree.children[0].children[6]).to.have.own.property('name').that.is.equal('Page11');
+      expect(tree.children[0].children[6]).to.have.own.property('thirdParty').that.is.false;
     });
     test('Array destructured variable declaration imports Page1of2, Page2f2 all found successfully', () => {
       expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('Page1of2');
