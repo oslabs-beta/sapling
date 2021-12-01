@@ -290,7 +290,7 @@ export class SaplingParser {
     let importName = '';
     let importAlias: string | undefined;
 
-    const importPath = declaration.source.value;
+    let importPath = declaration.source.value;
     declaration.specifiers.forEach((specifier) => {
       /*
        * e.g. {foo} in import {foo} from "mod"
@@ -373,6 +373,10 @@ export class SaplingParser {
             if (element && isIdentifier(element)) {
               importName = element.name;
             }
+            output[importName] = {
+              importPath: importPath + '.' + importName,
+              importName,
+            };
           });
 
           // e.g. const { foo } = import('module');
