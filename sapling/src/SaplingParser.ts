@@ -97,6 +97,7 @@ export class SaplingParser {
     let children: Array<ChildInfo> = [];
 
     const getChildNodes = (node: Tree): void => {
+      // eslint-disable-next-line @typescript-eslint/no-shadow
       const { depth, filePath, expanded } = node;
       children.push({ depth, filePath, expanded });
     };
@@ -208,15 +209,17 @@ export class SaplingParser {
       return componentTree;
     }
     const { tokens } = ast;
+    let tokenList: Array<Token>;
+    if (tokens) tokenList = tokens as Array<Token>;
 
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);
 
     // Get any JSX Children of current file:
-    componentTree.children = this.getJSXChildren(tokens, imports, componentTree);
+    componentTree.children = this.getJSXChildren(tokenList, imports, componentTree);
 
     // Check if current node is connected to the Redux store
-    componentTree.reduxConnect = this.checkForRedux(tokens, imports);
+    componentTree.reduxConnect = this.checkForRedux(tokenList, imports);
 
     // Recursively parse all child components
     componentTree.children.forEach((child) => this.parser(child));
@@ -225,7 +228,7 @@ export class SaplingParser {
   }
 
   private validateFilePath(filePath: string, importName: string): string {
-    const fileArray = [];
+    const fileArray: string[] = [];
     let parsedFileName = '';
     // Handles Next.js component imports
     try {
@@ -236,7 +239,7 @@ export class SaplingParser {
     // Checks that file exists and appends file extension to path if not given in import declaration
     parsedFileName =
       fileArray.find((str) => new RegExp(`${path.basename(filePath)}\\.(j|t)sx?$`).test(str)) || '';
-    if (parsedFileName.length) return (filePath += path.extname(parsedFileName));
+    if (parsedFileName.length) return filePath + path.extname(parsedFileName);
     /**
      * Handles Export Batch Declarations / 'Barrel' Files (index.(j|t)s)
      * Issues #85, #99
@@ -417,6 +420,7 @@ export class SaplingParser {
       // eslint-disable-next-line no-restricted-syntax
       for (const key in node) {
         if (node[key] && typeof node[key] === 'object') {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           const importPath = recurse(node[key]);
           if (importPath) return importPath;
         }

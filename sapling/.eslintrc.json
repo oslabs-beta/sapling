@@ -20,7 +20,7 @@
     "plugin:import/typescript",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
-    "prettier"
+    "plugin:prettier/recommended"
   ],
   "rules": {
     "strict": "error",
@@ -49,8 +49,8 @@
     /* Uncomment to globally disable individual linter rules */
 
     "arrow-body-style": "off", // conflicts with prettier
-    // "class-methods-use-this": "off",
-    "consistent-return": "off",
+    "class-methods-use-this": "warn",
+    "consistent-return": "warn",
     // "comma-dangle": "off",
     "default-case": "off",
     // "dot-notation": "off",
@@ -75,7 +75,7 @@
     // "no-useless-constructor": "off",
     "no-underscore-dangle": "off",
     // "no-unused-expressions": "off",
-    "no-return-assign": "off",
+    "no-return-assign": "warn",
     "prefer-arrow-callback": "off", // conflicts with prettier
     // "prefer-destructuring": "off",
     "prefer-template": "off",
