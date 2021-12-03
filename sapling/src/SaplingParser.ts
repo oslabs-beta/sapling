@@ -2,10 +2,12 @@ import * as babelParser from '@babel/parser';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as cabinet from 'filing-cabinet';
-import { File } from '@babel/types';
+import { create as ResolverCreator } from 'enhanced-resolve';
 
 import { filePathFixer } from './helpers/filePathFixer';
 import { getNonce } from './helpers/getNonce';
+
+import { File } from '@babel/types';
 import { Tree } from './types/Tree';
 import { ImportObj } from './types/ImportObj';
 import { SaplingSettings } from './types/SaplingSettings';
@@ -22,6 +24,7 @@ export class SaplingParser {
   settings: SaplingSettings;
   tree: Tree | undefined;
   aliases: string[];
+  wpResolver: Function | undefined;
 
   constructor(
     filePath: string,
@@ -36,7 +39,14 @@ export class SaplingParser {
 
     // Set parser settings on new instance of parser
     this.settings = settings;
-    this.aliases = this.updateAliases();
+
+    // If settings include webpack Config, try to create resolver
+    if (this.settings.webpackConfig) {
+      this.createWpResolver();
+    }
+
+    this.aliases = [];
+    this.updateAliases();
 
     this.tree = undefined;
   }
@@ -49,7 +59,10 @@ export class SaplingParser {
   // Update parser settings when changed in webview
   public updateSettings(setting: string, value: boolean | string): void {
     this.settings = { ...this.settings, [setting]: value };
-    this.aliases = this.updateAliases();
+    if (setting === 'webpackConfig') {
+      this.createWpResolver();
+    }
+    this.updateAliases();
   }
 
   // Returns true if current settings are valid for parsing otherwise false
@@ -90,6 +103,7 @@ export class SaplingParser {
 
     this.tree = root;
     this.parser(root);
+    console.log('Parsed Tree is: ', this.tree);
     return this.tree;
   }
 
@@ -167,10 +181,28 @@ export class SaplingParser {
     return this.tree;
   }
 
+  // Method to create enhanced-resolve resolver for webpack aliases
+  private createWpResolver(): void {
+    // Try to open provided webpack config file:
+    let webpackObj;
+    try {
+      webpackObj = require(path.resolve(this.settings.webpackConfig));
+      console.log('Webpack file is: ', webpackObj);
+
+      // Create new resolver to handle webpack aliased imports:
+      this.wpResolver = ResolverCreator.sync({
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        ...webpackObj.resolve,
+      });
+    } catch (err) {
+      console.log('Error while trying to load webpack config: ', err);
+      this.wpResolver = undefined;
+    }
+  }
+
   // Method that extracts all aliases from tsconfig and webpack config files for parsing
-  private updateAliases(): string[] {
+  private updateAliases(): void {
     const aliases = [];
-    console.log('Trying to parse tsconfig file: ', this.settings.tsConfig);
     if (this.settings.tsConfig) {
       // Try to open tsConfig file, if error then alert user in webview:
       let tsConfig;
@@ -180,16 +212,12 @@ export class SaplingParser {
           'utf-8'
         );
         // Strip any comments from the JSON before parsing:
-        // THIS IS REALLY SLOW - USE DECOMMENT INSTEAD?
-        console.log('Replacing comment in tsconfig!');
         tsConfig = tsConfig.replace(
           /\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
           (m, g) => (g ? '' : m)
         );
-        console.log('tsConfig is: ', tsConfig);
         tsConfig = JSON.parse(tsConfig);
       } catch (err) {
-        console.log('Error parsing tsConfig file: ', err);
         this.settings.tsConfig = 'Error - could not open tsConfig!';
       }
 
@@ -209,8 +237,29 @@ export class SaplingParser {
         }
       }
     }
+
+    // Extract any webpack aliases for parsing
+    if (this.settings.webpackConfig && this.wpResolver) {
+      console.log('TRYING TO GET webpack aliases!!');
+      let wpObj;
+      try {
+        wpObj = require(this.settings.webpackConfig);
+      } catch (err) {
+        this.settings.webpackConfig = 'Error - could not import webpackConfig!';
+      }
+      if (typeof wpObj === 'object' && wpObj.resolve && wpObj.resolve.alias) {
+        for (let key of Object.keys(wpObj.resolve.alias)) {
+          key =
+            key[key.length - 1] === '$' ? key.slice(0, key.length - 1) : key;
+          if (key) {
+            aliases.push(key);
+          }
+        }
+      }
+    }
+
     console.log('aliases are: ', aliases);
-    return aliases;
+    this.aliases = aliases;
   }
 
   // Traverses all nodes of current component tree and applies callback to each node
@@ -257,6 +306,7 @@ export class SaplingParser {
 
     // Check that file has valid fileName/Path, if not found, add error to node and halt
     const fileName = this.getFileName(componentTree);
+    console.log('File path is: ', fileName);
     if (!fileName) {
       componentTree.error = 'File not found.';
       return componentTree;
@@ -309,48 +359,63 @@ export class SaplingParser {
 
   // Finds files where import string does not include a file extension
   private getFileName(componentTree: Tree): string | null {
-    const ext = path.extname(componentTree.filePath);
+    console.log('trying to get filename: ', componentTree);
 
-    // If import aliasing is in use, correctly resolve file path with filing cabinet for non-root node files:
+    // If import aliasing is in use, correctly resolve file path with filing cabinet / enhanced resolve for non-root node files:
     if (this.settings.useAlias && componentTree.parentList.length) {
-      try {
-        const options: {
-          partial: string;
-          directory: string;
-          filename: string;
-          [key: string]: string;
-        } = {
-          partial: componentTree.importPath,
-          directory: this.settings.appRoot,
-          filename: componentTree.parentList[0],
-          tsConfig: this.settings.tsConfig,
-          webpackConfig: this.settings.webpackConfig,
-        };
+      let result;
+      if (this.settings.tsConfig) {
+        console.log('Using filing cabinet to resolve alias!');
+        try {
+          const options = {
+            partial: componentTree.importPath,
+            directory: this.settings.appRoot,
+            filename: componentTree.parentList[0],
+            tsConfig: this.settings.tsConfig,
+          };
 
-        const result = cabinet(options);
-        if (
-          !result ||
-          path.basename(result) === `index.${path.extname(result)}`
-        ) {
-          throw new Error('index pattern');
+          result = cabinet(options);
+          console.log('Cabinet result is: ', result);
+        } catch (err) {
+          return '';
         }
-
-        componentTree.filePath = result;
-        return result;
-      } catch (err) {
-        return '';
       }
+
+      // Otherwise try webpack aliases if present:
+      if (!result && this.settings.webpackConfig && this.wpResolver) {
+        result = this.wpResolver(
+          this.settings.appRoot,
+          componentTree.importPath
+        );
+      }
+
+      console.log('result is: ', result);
+      if (
+        !result ||
+        path.basename(result) === `index.${path.extname(result)}`
+      ) {
+        throw new Error('index pattern');
+      }
+
+      componentTree.filePath = result;
+      return result;
     }
 
-    // Otherwise find correct JS/JSX/TS/TSX file if it exists
+    // Otherwise find correct JS/JSX/TS/TSX file with no aliasing if it exists
+    const ext = path.extname(componentTree.filePath);
     if (!ext) {
       // Try and find file extension that exists in directory:
-      const fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
-      const regEx = new RegExp(`${componentTree.fileName}.(j|t)sx?$`);
-      let fileName = fileArray.find((fileStr) => fileStr.match(regEx));
-      return fileName
-        ? (componentTree.filePath += path.extname(fileName))
-        : null;
+      try {
+        const fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
+        const regEx = new RegExp(`${componentTree.fileName}.(j|t)sx?$`);
+        let fileName = fileArray.find((fileStr) => fileStr.match(regEx));
+        return fileName
+          ? (componentTree.filePath += path.extname(fileName))
+          : null;
+      } catch (err) {
+        console.log('Error trying to find specified file: ', err);
+        return null;
+      }
     } else {
       return componentTree.fileName;
     }
