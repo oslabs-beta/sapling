@@ -20,4 +20,4 @@ class Page2of2 extends Component {
   }
 }
 
-export default [ Page1of2, Page2of2 ];
+module.exports = [ Page1of2, Page2of2 ];

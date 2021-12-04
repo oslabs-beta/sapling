@@ -1,23 +1,15 @@
 import React, { Component } from 'react';
+import Child1 from './Child1';
 
 class Page1 extends Component {
   render() {
     return (
       <section>
         <div>This is Page 1</div>
+        <Child1 />
       </section>
     );
   }
 }
 
-class Page11 extends Component {
-  render() {
-    return (
-      <section>
-        <div>This is Page 11</div>
-      </section>
-    );
-  }
-}
-
-export default { Page1, Page11 };
+export default Page1;

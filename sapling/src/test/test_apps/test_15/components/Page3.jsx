@@ -1,21 +1,9 @@
 import React, { Component } from 'react';
-
-class Page3_1 extends Component {
-  render () {
-    return (
-      <section>
-        <div>I am Page3_1.</div>
-      </section>
-    )
-  }
+function Page3() {
+  return (
+    <section>
+      <div>I am Page3.</div>
+    </section>
+  );
 }
-
-class Page3_2 extends Component {
-  render () {
-    return (
-      <section>
-        <div>I am Page3_2.</div>
-      </section>
-    )
-  }
-}
+module.exports = { Page3 };

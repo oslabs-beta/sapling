@@ -1,21 +1,20 @@
 import React from 'react';
 import { render } from 'react-dom';
 
-import App from './components/App.jsx'
+import App from './components/App.jsx';
 
-// TEST 14 - Tests following:
-// 1. Variable Declaration
-  // 1) Array Destructuring
-  // const [foo, bar] = import('module');
-  // 2) Object Destructuring + Aliasing
-  // const { foo: bar } = import('module');
-// 2. Import Declaration: Namespace Specifier
-  // import * as foo from "mod.js";
-  // 1) export * from 'module'; (where module is a file)
-  // 2) multiple exports statements within module
-  // 3) single export default statement
+// TEST 15 - Tests following:
+// require statements
+// 1) Variable Assignment
+// const foo = require('module');
+// 2) Array Destructuring
+// const [foo, bar] = require('module');
+// 3) Object Destructuring + Aliasing
+// const { foo: bar } = require('module');
 
 render(
   <div>
     <App />
-  </div>, document.getElementById('root'));
+  </div>,
+  document.getElementById('root')
+);
