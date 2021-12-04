@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 // eslint-disable-next-line import/no-unresolved
 import * as vscode from 'vscode';
-import { getNonce } from './helpers';
+import { getNonce } from './helpers/getNonce';
 import { SaplingParser } from './SaplingParser';
 import { Tree } from './types';
 

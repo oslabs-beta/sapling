@@ -22,7 +22,7 @@ import {
 } from '@babel/types';
 import { Tree, Token, ImportData } from './types';
 
-import { getNonce } from './helpers';
+import { getNonce } from './helpers/getNonce';
 
 export class SaplingParser {
   entryFile: string;
