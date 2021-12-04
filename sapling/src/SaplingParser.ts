@@ -11,6 +11,7 @@ import {
   isImportSpecifier,
   isImportDefaultSpecifier,
   isImportNamespaceSpecifier,
+  isExpression,
   isCallExpression,
   isImport,
   isArrayPattern,
@@ -318,7 +319,10 @@ export class SaplingParser {
       let importPath = '';
 
       // e.g. const variable = import('module')
-      if (isCallExpression(RHS) && isImport(RHS.callee)) {
+      if (
+        isCallExpression(RHS) &&
+        (isImport(RHS.callee) || (isIdentifier(RHS.callee) && RHS.callee.name === 'require'))
+      ) {
         // get importPath
         const importArg = RHS.arguments[0];
         importPath = isStringLiteral(importArg)
@@ -389,7 +393,7 @@ export class SaplingParser {
     const recurse = (node: ASTNode): string | void => {
       if (isCallExpression(node) && isImport(node.callee) && isStringLiteral(node.arguments[0])) {
         return node.arguments[0].value;
-      } 
+      }
       // eslint-disable-next-line no-restricted-syntax
       for (const key in node) {
         if (node[key] && typeof node[key] === 'object') {
