@@ -330,8 +330,6 @@ suite('Parser Test Suite', () => {
       expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
       expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('Page2');
       expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
-      expect(tree.children[0].children[2]).to.have.own.property('name').that.is.equal('Page3');
-      expect(tree.children[0].children[2]).to.have.own.property('thirdParty').that.is.false;
     });
   });
 
