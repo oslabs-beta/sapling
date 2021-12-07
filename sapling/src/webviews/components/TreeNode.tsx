@@ -15,13 +15,14 @@ import 'tippy.js/dist/tippy.css';
 import Tree from './Tree';
 import { Tree as TreeType } from '../../types/Tree';
 
+const TreeNode = ({ node }: { node: TreeType }): JSX.Element => {
   // state variables for the users current active file and the expanded value (boolean) of the node
   const [currFile, setCurrFile] = useState(false);
   const [expanded, setExpanded] = useState(node.expanded);
 
   // useEffect that will add an event listener for 'message' to each node, in order to show which file the user is currently working in
   useEffect(() => {
-    window.addEventListener('message', (event) => {
+    window.addEventListener('message', (event: { data: { type: string; value: unknown } }) => {
       const message = event.data;
       switch (message.type) {
         case 'current-tab': {

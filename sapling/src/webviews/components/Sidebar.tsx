@@ -1,30 +1,46 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-// import { Tree as TreeType } from '../../parser';
+import { useEffect, useState, Dispatch, SetStateAction } from 'react';
+import { Tree as TreeType } from '../../types/Tree';
 
 // component imports
 import Navbar from './Navbar';
 import Tree from './Tree';
 
-const Sidebar = () => {
+const Sidebar = (): JSX.Element => {
   // state variables for the incomimg treeData, parsed viewData, user's settings, and the root file name
-  const [treeData, setTreeData]: any = useState();
-  const [viewData, setViewData]: any = useState();
-  const [settings, setSettings]: [{[key : string]: boolean} | undefined, Function] = useState();
-  const [rootFile, setRootFile]: [string | undefined, Function] = useState();
+  const [treeData, setTreeData]: [
+    Array<TreeType> | undefined,
+    Dispatch<SetStateAction<Array<TreeType> | undefined>>
+  ] = useState();
+  const [viewData, setViewData]: [
+    Array<TreeType> | undefined,
+    Dispatch<SetStateAction<Array<TreeType> | undefined>>
+  ] = useState();
+  const [settings, setSettings]: [
+    Record<'thirdParty' | 'reactRouter', boolean> | undefined,
+    Dispatch<SetStateAction<Record<string, boolean> | undefined>>
+  ] = useState();
+  const [rootFile, setRootFile]: [
+    string | undefined,
+    Dispatch<SetStateAction<string | undefined>>
+  ] = useState();
 
   // useEffect whenever the Sidebar is rendered
   useEffect(() => {
     // Event Listener for 'message' from the extension
-    window.addEventListener('message', (event) => {
+    window.addEventListener('message', (event: { data: { type: string; value: unknown } }) => {
       const message = event.data;
       switch (message.type) {
         // Listener to receive the tree data, update navbar and tree view
         case 'parsed-data': {
+          const newTree = message.value as TreeType;
+          setRootFile(newTree.fileName);
+          setTreeData([newTree]);
           break;
         }
         // Listener to receive the user's settings
         case 'settings-data': {
+          setSettings(message.value as Record<'thidParty' | 'reactRouter', boolean>);
           break;
         }
       }
@@ -52,11 +68,13 @@ const Sidebar = () => {
   });
 
   // Edits and returns component tree based on users settings
-  const parseViewTree = () : void => {
+  const parseViewTree = (): void => {
+    if (!treeData || !treeData[0]) return;
     // Deep copy of the treeData passed in
-    const treeParsed = JSON.parse(JSON.stringify(treeData[0]));
+    const treeParsed = JSON.parse(JSON.stringify(treeData[0])) as TreeType;
 
     // Helper function for the recursive parsing
+    const traverse = (node: TreeType): void => {
       const validChildren = [];
       // Logic to parse the nodes based on the users settings
       for (let i = 0; i < node.children.length; i++) {
@@ -67,7 +85,7 @@ const Sidebar = () => {
           !node.children[i].reactRouter
         ) {
           validChildren.push(node.children[i]);
-        } else if (node.children[i].reactRouter && settings.reactRouter) {
+        } else if (node.children[i].reactRouter && settings && settings.reactRouter) {
           validChildren.push(node.children[i]);
         } else if (!node.children[i].thirdParty && !node.children[i].reactRouter) {
           validChildren.push(node.children[i]);
@@ -76,7 +94,7 @@ const Sidebar = () => {
 
       // Update children with only valid nodes, and recurse through each node
       node.children = validChildren;
-      node.children.forEach((child: any) => {
+      node.children.forEach((child: TreeType) => {
         traverse(child);
       });
     };
