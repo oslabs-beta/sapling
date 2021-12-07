@@ -13,6 +13,7 @@
 
     // "strict": true /* enable all strict type-checking options (includes noImplicitAny, strictNullChecks) */,
     /* Additional Checks */
+    "strictNullChecks": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
     // "noPropertyAccessFromIndexSignature": true,
