@@ -2,9 +2,9 @@
   "compilerOptions": {
     "outDir": "./dist/",
     "lib": [
-      "dom"
+      "dom",
     ],
-    "noImplicitAny": true,
+    "strict": true,
     "module": "es6",
     "target": "es5",
     "jsx": "react",
