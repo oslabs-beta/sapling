@@ -11,7 +11,6 @@ import {
   isImportSpecifier,
   isImportDefaultSpecifier,
   isImportNamespaceSpecifier,
-  isExpression,
   isCallExpression,
   isImport,
   isArrayPattern,
@@ -406,7 +405,7 @@ export class SaplingParser {
     return recurse(ast) || '';
   }
 
-  private validateFilePath(filePath: string, importName: string): string {
+  private validateFilePath(filePath: string): string {
     const fileArray: string[] = [];
     let parsedFileName = '';
     // Handles Next.js component imports
@@ -442,8 +441,7 @@ export class SaplingParser {
       const moduleIdentifier = imports[astToken.value].importPath;
       const name = imports[astToken.value].importName;
       const filePath = this.validateFilePath(
-        path.resolve(path.dirname(parent.filePath), moduleIdentifier),
-        name
+        path.resolve(path.dirname(parent.filePath), moduleIdentifier)
       );
       // Add tree node to childNodes if one does not exist
       children[astToken.value] = {
