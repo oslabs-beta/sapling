@@ -1,9 +1,6 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import * as React from 'react';
-import { useState, useEffect, Fragment } from 'react';
-import * as ReactDOM from 'react-dom';
-
-// import tree for recursive calls
-import Tree from './Tree';
+import { useState, useEffect } from 'react';
 
 // imports for the icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,7 +10,11 @@ import { faInfoCircle, faArrowCircleRight, faStore } from '@fortawesome/free-sol
 import Tippy from '@tippy.js/react';
 import 'tippy.js/dist/tippy.css';
 
-const TreeNode = ({ node }: any) => {
+// import tree for recursive calls
+// eslint-disable-next-line import/no-cycle
+import Tree from './Tree';
+import { Tree as TreeType } from '../../types/Tree';
+
   // state variables for the users current active file and the expanded value (boolean) of the node
   const [currFile, setCurrFile] = useState(false);
   const [expanded, setExpanded] = useState(node.expanded);
@@ -23,7 +24,7 @@ const TreeNode = ({ node }: any) => {
     window.addEventListener('message', (event) => {
       const message = event.data;
       switch (message.type) {
-        case("current-tab"): {
+        case 'current-tab': {
           // If the current node's filePath is the same as the user's current actie window, change state to true, else, change state to false
           if (message.value === node.filePath) {
             setCurrFile(true);
@@ -35,18 +36,18 @@ const TreeNode = ({ node }: any) => {
     });
     // Send message to the extension for the bolding
     tsvscode.postMessage({
-      type: "onBoldCheck",
-      value: null
+      type: 'onBoldCheck',
+      value: null,
     });
-  }, []);
+  });
 
   // Function that will capture the file path of the current node clicked on + send a message to the extension
   const viewFile = () => {
     // Edge case to verify that there is in fact a file path for the current node
     if (node.filePath) {
       tsvscode.postMessage({
-        type: "onViewFile",
-        value: node.filePath
+        type: 'onViewFile',
+        value: node.filePath,
       });
     }
   };
@@ -58,8 +59,8 @@ const TreeNode = ({ node }: any) => {
       return <p>None</p>;
     }
     // Case when there are props to loop through on the node
-    return Object.keys(node.props).map(prop => {
-      return <p>{prop}</p>;
+    return Object.keys(node.props).map((prop) => {
+      return <p key={node.id}>{prop}</p>;
     });
   };
 
@@ -67,7 +68,7 @@ const TreeNode = ({ node }: any) => {
   const propsList = propsGenerator();
 
   // Variable that holds the logic of whether the current node has children or not
-  const child = node.children.length > 0 ? true: false;
+  const child = node.children.length > 0;
 
   // onClick method for each node that will change the expanded/collapsed structure + send a message to the extension
   const toggleNode = () => {
@@ -76,63 +77,110 @@ const TreeNode = ({ node }: any) => {
     setExpanded(newExpanded);
     // Send a message to the extension on the changed checked value of the current node
     tsvscode.postMessage({
-        type: "onNodeToggle",
-        value: {id: node.id, expanded: newExpanded}
+      type: 'onNodeToggle',
+      value: { id: node.id, expanded: newExpanded },
     });
   };
 
-  const classString = "tree_label" + (node.error ? " node_error" : "");
+  const classString = 'tree_label' + (node.error ? ' node_error' : '');
 
   // Render section
   return (
     <>
-    {/* Conditional to check whether there are children or not on the current node */}
+      {/* Conditional to check whether there are children or not on the current node */}
       {child ? (
         <li>
           <input type="checkbox" checked={expanded} id={node.id} onClick={toggleNode} />
           {/* Checks for the user's current active file */}
-          {currFile ?
-            <label className={classString} htmlFor={node.id}><strong style={{ fontWeight: 800 }}>{node.name}</strong></label>
-          : <label className={classString} htmlFor={node.id}>{node.name}</label>}
+          {currFile ? (
+            <label className={classString} htmlFor={node.id}>
+              <strong style={{ fontWeight: 800 }}>{node.name}</strong>
+            </label>
+          ) : (
+            <label className={classString} htmlFor={node.id}>
+              {node.name}
+            </label>
+          )}
           {/* Checks to make sure there are no thirdParty or reactRouter node_icons */}
           {!node.thirdParty && !node.reactRouter ? (
-            <Fragment>
-              {node.reduxConnect ?
-              <Tippy content={<p><strong>Connected to Redux Store</strong></p>}>
-                <a className="redux_connect" href=""><FontAwesomeIcon icon={faStore} /></a>
+            <>
+              {node.reduxConnect ? (
+                <Tippy
+                  content={
+                    <p>
+                      <strong>Connected to Redux Store</strong>
+                    </p>
+                  }
+                >
+                  <a className="redux_connect" href="">
+                    <FontAwesomeIcon icon={faStore} />
+                  </a>
+                </Tippy>
+              ) : null}
+              <Tippy
+                content={
+                  <p>
+                    <strong>Props available:</strong>
+                    {propsList}
+                  </p>
+                }
+              >
+                <a className="node_icons" href="">
+                  <FontAwesomeIcon icon={faInfoCircle} />
+                </a>
               </Tippy>
-              : null}
-              <Tippy content={<p><strong>Props available:</strong>{propsList}</p>}>
-                <a className="node_icons" href=""><FontAwesomeIcon icon={faInfoCircle} /></a>
-              </Tippy>
-              <a className="node_icons" href="" onClick={viewFile}><FontAwesomeIcon icon={faArrowCircleRight} /></a>
-            </Fragment>
-          ): null}
+              <a className="node_icons" href="" onClick={viewFile}>
+                <FontAwesomeIcon icon={faArrowCircleRight} />
+              </a>
+            </>
+          ) : null}
           <Tree data={node.children} first={false} />
         </li>
-      ):
+      ) : (
         <li>
           {/* Checks for the user's current active file */}
-          {currFile ?
-            <span className={classString}><strong style={{ fontWeight: 800 }}>{node.name}</strong></span>
-          : <span className={classString}>{node.name}</span>
-          }
+          {currFile ? (
+            <span className={classString}>
+              <strong style={{ fontWeight: 800 }}>{node.name}</strong>
+            </span>
+          ) : (
+            <span className={classString}>{node.name}</span>
+          )}
           {/* Checks to make sure there are no thirdParty or reactRouter node_icons */}
           {!node.thirdParty && !node.reactRouter ? (
-            <Fragment>
-              {node.reduxConnect ?
-              <Tippy content={<p><strong>Connected to Redux Store</strong></p>}>
-                <a className="redux_connect" href=""><FontAwesomeIcon icon={faStore} /></a>
+            <>
+              {node.reduxConnect ? (
+                <Tippy
+                  content={
+                    <p>
+                      <strong>Connected to Redux Store</strong>
+                    </p>
+                  }
+                >
+                  <a className="redux_connect" href="">
+                    <FontAwesomeIcon icon={faStore} />
+                  </a>
+                </Tippy>
+              ) : null}
+              <Tippy
+                content={
+                  <p>
+                    <strong>Props available:</strong>
+                    {propsList}
+                  </p>
+                }
+              >
+                <a className="node_icons" href="">
+                  <FontAwesomeIcon icon={faInfoCircle} />
+                </a>
               </Tippy>
-              : null}
-              <Tippy content={<p><strong>Props available:</strong>{propsList}</p>}>
-                <a className="node_icons" href=""><FontAwesomeIcon icon={faInfoCircle} /></a>
-              </Tippy>
-              <a className="node_icons" href="" onClick={viewFile}><FontAwesomeIcon icon={faArrowCircleRight} /></a>
-            </Fragment>
-          ): null}
+              <a className="node_icons" href="" onClick={viewFile}>
+                <FontAwesomeIcon icon={faArrowCircleRight} />
+              </a>
+            </>
+          ) : null}
         </li>
-      }
+      )}
     </>
   );
 };

@@ -14,8 +14,8 @@ const Navbar = ({ rootFile }: any) => {
     e.target.value = null;
     if (filePath) {
       tsvscode.postMessage({
-        type: "onFile",
-        value: filePath
+        type: 'onFile',
+        value: filePath,
       });
     }
   };
@@ -23,9 +23,17 @@ const Navbar = ({ rootFile }: any) => {
   // Render section
   return (
     <div className="navbar">
-      <input type="file" name="file" id="file" className="inputfile" onChange={(e) => {fileMessage(e);}}/>
+      <input
+        type="file"
+        name="file"
+        id="file"
+        className="inputfile"
+        onChange={(e) => {
+          fileMessage(e);
+        }}
+      />
       <label htmlFor="file">
-        <FontAwesomeIcon icon={faDownload}/>
+        <FontAwesomeIcon icon={faDownload} />
         <strong id="strong_file">{rootFile ? ` ${rootFile}` : ' Choose a file...'}</strong>
       </label>
     </div>

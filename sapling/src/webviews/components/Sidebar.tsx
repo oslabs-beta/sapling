@@ -20,14 +20,11 @@ const Sidebar = () => {
       const message = event.data;
       switch (message.type) {
         // Listener to receive the tree data, update navbar and tree view
-        case("parsed-data"): {
-          setRootFile(message.value.fileName);
-          setTreeData([message.value]);
+        case 'parsed-data': {
           break;
         }
         // Listener to receive the user's settings
-        case("settings-data"): {
-          setSettings(message.value);
+        case 'settings-data': {
           break;
         }
       }
@@ -35,14 +32,14 @@ const Sidebar = () => {
 
     // Post message to the extension whenever sapling is opened
     tsvscode.postMessage({
-      type: "onSaplingVisible",
-      value: null
+      type: 'onSaplingVisible',
+      value: null,
     });
 
     // Post message to the extension for the user's settings whenever sapling is opened
     tsvscode.postMessage({
-      type: "onSettingsAcquire",
-      value: null
+      type: 'onSettingsAcquire',
+      value: null,
     });
   }, []);
 
@@ -52,7 +49,7 @@ const Sidebar = () => {
       // Invoke parser to parse based on user's settings
       parseViewTree();
     }
-  }, [treeData, settings]);
+  });
 
   // Edits and returns component tree based on users settings
   const parseViewTree = () : void => {
@@ -60,12 +57,15 @@ const Sidebar = () => {
     const treeParsed = JSON.parse(JSON.stringify(treeData[0]));
 
     // Helper function for the recursive parsing
-    const traverse = (node: any) : void => {
-      let validChildren = [];
-
+      const validChildren = [];
       // Logic to parse the nodes based on the users settings
       for (let i = 0; i < node.children.length; i++) {
-        if (node.children[i].thirdParty && settings.thirdParty && !node.children[i].reactRouter) {
+        if (
+          node.children[i].thirdParty &&
+          settings &&
+          settings.thirdParty &&
+          !node.children[i].reactRouter
+        ) {
           validChildren.push(node.children[i]);
         } else if (node.children[i].reactRouter && settings.reactRouter) {
           validChildren.push(node.children[i]);
@@ -90,13 +90,11 @@ const Sidebar = () => {
   // Render section
   return (
     <div className="sidebar">
-      <Navbar rootFile={rootFile}/>
-      <hr className="line_break"/>
+      <Navbar rootFile={rootFile} />
+      <hr className="line_break" />
       <div className="tree_view">
         <ul className="tree_beginning">
-          {viewData && settings ?
-            <Tree data={viewData} first={true} />
-          : null}
+          {viewData && settings ? <Tree data={viewData} first={true} /> : null}
         </ul>
       </div>
     </div>
