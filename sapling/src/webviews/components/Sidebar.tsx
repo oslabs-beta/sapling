@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState, Dispatch, SetStateAction } from 'react';
+import { useEffect, useState } from 'react';
 import { Tree as TreeType } from '../../types/Tree';
 
 // component imports
@@ -8,22 +8,10 @@ import Tree from './Tree';
 
 const Sidebar = (): JSX.Element => {
   // state variables for the incomimg treeData, parsed viewData, user's settings, and the root file name
-  const [treeData, setTreeData]: [
-    Array<TreeType> | undefined,
-    Dispatch<SetStateAction<Array<TreeType> | undefined>>
-  ] = useState();
-  const [viewData, setViewData]: [
-    Array<TreeType> | undefined,
-    Dispatch<SetStateAction<Array<TreeType> | undefined>>
-  ] = useState();
-  const [settings, setSettings]: [
-    Record<'thirdParty' | 'reactRouter', boolean> | undefined,
-    Dispatch<SetStateAction<Record<string, boolean> | undefined>>
-  ] = useState();
-  const [rootFile, setRootFile]: [
-    string | undefined,
-    Dispatch<SetStateAction<string | undefined>>
-  ] = useState();
+  const [treeData, setTreeData] = useState<Array<TreeType> | undefined>();
+  const [viewData, setViewData] = useState<Array<TreeType> | undefined>();
+  const [settings, setSettings] = useState<Record<'thirdParty' | 'reactRouter', boolean>>();
+  const [rootFile, setRootFile] = useState<string | undefined>();
 
   // useEffect whenever the Sidebar is rendered
   useEffect(() => {
@@ -40,7 +28,7 @@ const Sidebar = (): JSX.Element => {
         }
         // Listener to receive the user's settings
         case 'settings-data': {
-          setSettings(message.value as Record<'thidParty' | 'reactRouter', boolean>);
+          setSettings(message.value as Record<'thirdParty' | 'reactRouter', boolean>);
           break;
         }
       }
