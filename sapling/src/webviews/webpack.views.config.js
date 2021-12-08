@@ -10,7 +10,7 @@ module.exports = {
         use: {
           loader: 'ts-loader',
           options: {
-            configFile: 'tsconfig.views.json'
+            configFile: 'tsconfig.views.json',
           },
         },
         exclude: /node_modules/,
@@ -19,17 +19,18 @@ module.exports = {
         test: /\.css$/,
         use: [
           {
-            loader: "style-loader"
+            loader: 'style-loader',
           },
           {
-            loader: "css-loader"
-          }
-        ]
-      }
+            loader: 'css-loader',
+          },
+        ],
+      },
     ],
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+    fallback: { path: require.resolve('path-browserify') },
   },
   output: {
     filename: 'sidebar.js',

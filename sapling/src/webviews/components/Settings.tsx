@@ -1,7 +1,8 @@
+import * as path from 'path';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
+
 import { SaplingSettings } from '../../types/SaplingSettings';
 
 // Control settings for e.g. webpack / tsconfig aliasing in React application
@@ -42,8 +43,8 @@ const Settings = ({
           <FontAwesomeIcon icon={faDownload} />
           <strong>
             {saplingSettings.appRoot
-              ? ` ${saplingSettings.appRoot}`
-              : ' Choose folder...'}
+              ? ` ${path.basename(saplingSettings.appRoot)}`
+              : ' Choose root App folder...'}
           </strong>
         </button>
       </div>
@@ -59,7 +60,7 @@ const Settings = ({
           <FontAwesomeIcon icon={faDownload} />
           <strong>
             {saplingSettings.webpackConfig
-              ? ` ${saplingSettings.webpackConfig}`
+              ? ` ${path.basename(saplingSettings.webpackConfig)}`
               : ' Choose webpack config file...'}
           </strong>
         </button>
@@ -76,7 +77,7 @@ const Settings = ({
           <FontAwesomeIcon icon={faDownload} />
           <strong>
             {saplingSettings.tsConfig
-              ? ` ${saplingSettings.tsConfig}`
+              ? ` ${path.basename(saplingSettings.tsConfig)}`
               : ' Choose tsconfig file...'}
           </strong>
         </button>
