@@ -19,7 +19,7 @@ const Navbar = ({ rootFile }: any) => {
   // Render section
   return (
     <div className="navbar">
-      <button id="file" className="infputFile" onClick={() => fileMessage()}>
+      <button id="file" className="inputFile" onClick={() => fileMessage()}>
       <label htmlFor="file">
         <FontAwesomeIcon icon={faDownload}/>
         <strong id="strong_file">{rootFile ? ` ${rootFile}` : ' Choose a file...'}</strong>
