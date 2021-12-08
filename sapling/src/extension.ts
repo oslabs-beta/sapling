@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { SaplingParser } from './SaplingParser';
 import { SidebarProvider } from './SidebarProvider';
 
 // Sapling extension is activated after vscode startup

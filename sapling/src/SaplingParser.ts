@@ -103,7 +103,6 @@ export class SaplingParser {
 
     this.tree = root;
     this.parser(root);
-    console.log('Parsed Tree is: ', this.tree);
     return this.tree;
   }
 
@@ -186,8 +185,9 @@ export class SaplingParser {
     // Try to open provided webpack config file:
     let webpackObj;
     try {
-      webpackObj = require(path.resolve(this.settings.webpackConfig));
-      console.log('Webpack file is: ', webpackObj);
+      webpackObj = JSON.parse(
+        fs.readFileSync(path.resolve(this.settings.webpackConfig), 'utf-8')
+      );
 
       // Create new resolver to handle webpack aliased imports:
       this.wpResolver = ResolverCreator.sync({
@@ -196,6 +196,7 @@ export class SaplingParser {
       });
     } catch (err) {
       console.log('Error while trying to load webpack config: ', err);
+      this.settings.webpackConfig = '';
       this.wpResolver = undefined;
     }
   }
@@ -218,7 +219,7 @@ export class SaplingParser {
         );
         tsConfig = JSON.parse(tsConfig);
       } catch (err) {
-        this.settings.tsConfig = 'Error - could not open tsConfig!';
+        this.settings.tsConfig = '';
       }
 
       // If tsConfig contains path aliases, add aliases to parser aliases
@@ -240,12 +241,13 @@ export class SaplingParser {
 
     // Extract any webpack aliases for parsing
     if (this.settings.webpackConfig && this.wpResolver) {
-      console.log('TRYING TO GET webpack aliases!!');
       let wpObj;
       try {
-        wpObj = require(this.settings.webpackConfig);
+        wpObj = JSON.parse(
+          fs.readFileSync(this.settings.webpackConfig, 'utf-8')
+        );
       } catch (err) {
-        this.settings.webpackConfig = 'Error - could not import webpackConfig!';
+        this.settings.webpackConfig = '';
       }
       if (typeof wpObj === 'object' && wpObj.resolve && wpObj.resolve.alias) {
         for (let key of Object.keys(wpObj.resolve.alias)) {
@@ -258,7 +260,6 @@ export class SaplingParser {
       }
     }
 
-    console.log('aliases are: ', aliases);
     this.aliases = aliases;
   }
 
@@ -306,7 +307,6 @@ export class SaplingParser {
 
     // Check that file has valid fileName/Path, if not found, add error to node and halt
     const fileName = this.getFileName(componentTree);
-    console.log('File path is: ', fileName);
     if (!fileName) {
       componentTree.error = 'File not found.';
       return componentTree;
@@ -359,13 +359,10 @@ export class SaplingParser {
 
   // Finds files where import string does not include a file extension
   private getFileName(componentTree: Tree): string | null {
-    console.log('trying to get filename: ', componentTree);
-
     // If import aliasing is in use, correctly resolve file path with filing cabinet / enhanced resolve for non-root node files:
     if (this.settings.useAlias && componentTree.parentList.length) {
       let result;
       if (this.settings.tsConfig) {
-        console.log('Using filing cabinet to resolve alias!');
         try {
           const options = {
             partial: componentTree.importPath,
@@ -375,7 +372,6 @@ export class SaplingParser {
           };
 
           result = cabinet(options);
-          console.log('Cabinet result is: ', result);
         } catch (err) {
           return '';
         }
@@ -383,18 +379,26 @@ export class SaplingParser {
 
       // Otherwise try webpack aliases if present:
       if (!result && this.settings.webpackConfig && this.wpResolver) {
-        result = this.wpResolver(
-          this.settings.appRoot,
-          componentTree.importPath
-        );
+        try {
+          result = this.wpResolver(
+            this.settings.appRoot,
+            componentTree.importPath
+          );
+        } catch (err) {
+          console.log(
+            'Error when trying to resolve file using webpack config: ',
+            err
+          );
+        }
       }
 
-      console.log('result is: ', result);
       if (
         !result ||
         path.basename(result) === `index.${path.extname(result)}`
       ) {
-        throw new Error('index pattern');
+        console.log('INDEX PATTERN DETECTED');
+        componentTree.error =
+          'Error when trying to find filepath for this component';
       }
 
       componentTree.filePath = result;
@@ -428,7 +432,7 @@ export class SaplingParser {
     const bodyImports = body.filter(
       (item) => item.type === 'ImportDeclaration' || 'VariableDeclaration'
     );
-    // console.log('bodyImports are: ', bodyImports);
+
     return bodyImports.reduce((accum, curr) => {
       // Import Declarations:
       if (curr.type === 'ImportDeclaration') {
@@ -439,7 +443,7 @@ export class SaplingParser {
           };
         });
       }
-      // Imports Inside Variable Declarations: // Not easy to deal with nested objects
+      // Imports Inside Variable Declarations:
       if (curr.type === 'VariableDeclaration') {
         const importPath = this.findVarDecImports(curr.declarations[0]);
         if (importPath) {

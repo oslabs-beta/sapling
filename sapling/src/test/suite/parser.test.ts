@@ -508,7 +508,7 @@ suite('Parser Test Suite', () => {
         appRoot: path.join(__dirname, '../../../src/test/test_apps/test_14'),
         webpackConfig: path.join(
           __dirname,
-          '../../../src/test/test_apps/test_14/webpack.config.js'
+          '../../../src/test/test_apps/test_14/webpack.config.json'
         ),
         tsConfig: '',
       };

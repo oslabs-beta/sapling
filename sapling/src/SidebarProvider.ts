@@ -98,7 +98,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           if (!data.value) {
             return;
           }
-          console.log('Received settings update message: ', data.value);
           switch (data.value[0]) {
             case 'useAlias':
               this.parser.updateSettings('useAlias', data.value[1]);
@@ -249,8 +248,21 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   // Clears Sapling workspace state and refreshes webview
   public clearWorkSpaceState = (): void => {
     this.context.workspaceState.update('sapling', undefined);
-    this.context.workspaceState.update('saplingSettings', undefined);
+    // Reset to default settings:
+    const workspace = vscode.workspace.workspaceFolders;
+    let workspaceRoot = '';
+    if (workspace) {
+      workspaceRoot = workspace[0].uri.fsPath;
+    }
+    const settings = {
+      useAlias: false,
+      appRoot: workspaceRoot,
+      webpackConfig: '',
+      tsConfig: '',
+    };
+    this.context.workspaceState.update('saplingSettings', settings);
     this.parser = new SaplingParser('');
+    this.parser.settings = settings;
     this.updateView();
   };
 
