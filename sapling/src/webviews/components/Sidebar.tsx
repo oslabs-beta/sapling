@@ -117,6 +117,11 @@ const Sidebar = () => {
     setViewData([treeParsed]);
   };
 
+  // Function to update the webview tree view state when a node is toggled
+  const updateTreeView = () => {
+    setViewData(viewData);
+  };
+
   return (
     <div className="sidebar">
       <hr className="line_break" />
@@ -133,7 +138,11 @@ const Sidebar = () => {
         <div className="tree_view">
           <ul className="tree_beginning">
             {viewData && preferences ? (
-              <Tree data={viewData} first={true} />
+              <Tree
+                data={viewData}
+                updateTreeView={updateTreeView}
+                first={true}
+              />
             ) : (
               'Please Select a React file to view component tree'
             )}
