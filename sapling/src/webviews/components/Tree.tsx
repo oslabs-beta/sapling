@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 // eslint-disable-next-line import/no-cycle
 import TreeNode from './TreeNode';
