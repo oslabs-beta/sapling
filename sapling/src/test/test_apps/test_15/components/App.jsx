@@ -1,15 +1,13 @@
-const { Page1: Alias, Page11 } = require('./Page1');
-const [Page1of2, Page2of2] = require('./Page2');
-const page = require('./Page3');
+const { PageA1: Alias, PageA2 } = import('./PageA');
+const [PageB1, PageB2] = import('./PageB');
 
 export default function Routes() {
   return (
     <div>
       <Alias />
-      <Page11 />
-      <Page1of2 />
-      <Page2of2 />
-      <page.Page3 />
+      <PageA2 />
+      <PageB1 />
+      <PageB2 />
     </div>
   );
 }

@@ -1,23 +1,23 @@
 import React, { Component } from 'react';
 
-class Page4_1 extends Component {
+class PageB1 extends Component {
   render() {
     return (
       <section>
-        <div>This is Page 4_1</div>
+        <div>I am PageB1.</div>
       </section>
     );
   }
 }
 
-class Page4_2 extends Component {
+class PageB2 extends Component {
   render() {
     return (
       <section>
-        <div>This is Page 4_2</div>
+        <div>I am PageB2.</div>
       </section>
     );
   }
 }
 
-export default { Page4_1, Page4_2 };
+module.exports = [PageB1, PageB2];
