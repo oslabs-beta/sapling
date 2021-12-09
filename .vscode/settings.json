@@ -1,0 +1,9 @@
+{
+    // Prettier auto-format
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "eslint.workingDirectories": [
+        "./sapling"
+    ]
+}
