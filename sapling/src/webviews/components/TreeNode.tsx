@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 // imports for the icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -84,6 +84,45 @@ const TreeNode = ({ node }: { node: TreeType }): JSX.Element => {
 
   const classString = 'tree_label' + (node.error ? ' node_error' : '');
 
+  const FileNodeIcons = () =>
+    useMemo((): JSX.Element | null => {
+      return (
+        /* Checks to make sure there are no thirdParty or reactRouter node_icons */
+        !node.thirdParty && !node.reactRouter ? (
+          <>
+            {node.reduxConnect ? (
+              <Tippy
+                content={
+                  <p>
+                    <strong>Connected to Redux Store</strong>
+                  </p>
+                }
+              >
+                <a className="redux_connect" href="">
+                  <FontAwesomeIcon icon={faStore} />
+                </a>
+              </Tippy>
+            ) : null}
+            <Tippy
+              content={
+                <p>
+                  <strong>Props available:</strong>
+                  {propsList}
+                </p>
+              }
+            >
+              <a className="node_icons" href="">
+                <FontAwesomeIcon icon={faInfoCircle} />
+              </a>
+            </Tippy>
+            <a className="node_icons" href="" onClick={viewFile}>
+              <FontAwesomeIcon icon={faArrowCircleRight} />
+            </a>
+          </>
+        ) : null
+      );
+    }, []);
+
   // Render section
   return (
     <>
@@ -101,39 +140,7 @@ const TreeNode = ({ node }: { node: TreeType }): JSX.Element => {
               {node.name}
             </label>
           )}
-          {/* Checks to make sure there are no thirdParty or reactRouter node_icons */}
-          {!node.thirdParty && !node.reactRouter ? (
-            <>
-              {node.reduxConnect ? (
-                <Tippy
-                  content={
-                    <p>
-                      <strong>Connected to Redux Store</strong>
-                    </p>
-                  }
-                >
-                  <a className="redux_connect" href="">
-                    <FontAwesomeIcon icon={faStore} />
-                  </a>
-                </Tippy>
-              ) : null}
-              <Tippy
-                content={
-                  <p>
-                    <strong>Props available:</strong>
-                    {propsList}
-                  </p>
-                }
-              >
-                <a className="node_icons" href="">
-                  <FontAwesomeIcon icon={faInfoCircle} />
-                </a>
-              </Tippy>
-              <a className="node_icons" href="" onClick={viewFile}>
-                <FontAwesomeIcon icon={faArrowCircleRight} />
-              </a>
-            </>
-          ) : null}
+          <FileNodeIcons />
           <Tree data={node.children} first={false} />
         </li>
       ) : (
@@ -146,39 +153,7 @@ const TreeNode = ({ node }: { node: TreeType }): JSX.Element => {
           ) : (
             <span className={classString}>{node.name}</span>
           )}
-          {/* Checks to make sure there are no thirdParty or reactRouter node_icons */}
-          {!node.thirdParty && !node.reactRouter ? (
-            <>
-              {node.reduxConnect ? (
-                <Tippy
-                  content={
-                    <p>
-                      <strong>Connected to Redux Store</strong>
-                    </p>
-                  }
-                >
-                  <a className="redux_connect" href="">
-                    <FontAwesomeIcon icon={faStore} />
-                  </a>
-                </Tippy>
-              ) : null}
-              <Tippy
-                content={
-                  <p>
-                    <strong>Props available:</strong>
-                    {propsList}
-                  </p>
-                }
-              >
-                <a className="node_icons" href="">
-                  <FontAwesomeIcon icon={faInfoCircle} />
-                </a>
-              </Tippy>
-              <a className="node_icons" href="" onClick={viewFile}>
-                <FontAwesomeIcon icon={faArrowCircleRight} />
-              </a>
-            </>
-          ) : null}
+          <FileNodeIcons />
         </li>
       )}
     </>
