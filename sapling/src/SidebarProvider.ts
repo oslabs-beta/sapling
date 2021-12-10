@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+// eslint-disable-next-line import/no-unresolved
+import * as vscode from 'vscode';
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
 import { SaplingParser } from './SaplingParser';
@@ -23,7 +28,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   }
 
   // Instantiate the connection to the webview
-  public resolveWebviewView(webviewView: vscode.WebviewView) {
+  public resolveWebviewView(webviewView: vscode.WebviewView): void {
     this._view = webviewView;
 
     webviewView.webview.options = {
@@ -33,34 +38,34 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     };
 
     // Event listener that triggers any moment that the user changes his/her settings preferences
-    vscode.workspace.onDidChangeConfiguration((e) => {
+    vscode.workspace.onDidChangeConfiguration(async () => {
       // Get the current settings specifications the user selects
       const settings = vscode.workspace.getConfiguration('sapling');
       // Send a message back to the webview with the data on settings
-      webviewView.webview.postMessage({
-        type: "settings-data",
-        value: settings.view
+      await webviewView.webview.postMessage({
+        type: 'settings-data',
+        value: settings.view,
       });
     });
 
     // Event listener that triggers whenever the user changes their current active window
-    vscode.window.onDidChangeActiveTextEditor((e) => {
+    vscode.window.onDidChangeActiveTextEditor(async (e) => {
       // Post a message to the webview with the file path of the user's current active window
-      webviewView.webview.postMessage({
-        type: "current-tab",
-        value: e ? e.document.fileName : undefined
+      await webviewView.webview.postMessage({
+        type: 'current-tab',
+        value: e ? e.document.fileName : undefined,
       });
     });
 
     // Event listener that triggers whenever the user saves a document
-    vscode.workspace.onDidSaveTextDocument((document) => {
+    vscode.workspace.onDidSaveTextDocument(async (document) => {
       // Edge case that avoids sending messages to the webview when there is no tree currently populated
       if (!this.parser) {
         return;
       }
       // Post a message to the webview with the newly parsed tree
       this.parser.updateTree(document.fileName);
-      this.updateView();
+      await this.updateView();
     });
 
     // Reaches out to the project file connector function below
@@ -71,7 +76,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       // Switch cases based on the type sent as a message
       switch (data.type) {
         // Case when the user selects a file to begin a tree
-        case "onFile": {
+        case 'onFile': {
           // Edge case if the user sends in nothing
           if (!data.value) {
             return;
@@ -79,50 +84,53 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           // Run an instance of the parser
           this.parser = new SaplingParser(data.value);
           this.parser.parse();
-          this.updateView();
+          await this.updateView();
           break;
         }
 
         // Case when clicking on tree to open file
-        case "onViewFile": {
+        case 'onViewFile': {
           if (!data.value) {
             return;
           }
           // Open and the show the user the file they want to see
           const doc = await vscode.workspace.openTextDocument(data.value);
-          const editor = await vscode.window.showTextDocument(doc, {preserveFocus: false, preview: false});
+          await vscode.window.showTextDocument(doc, {
+            preserveFocus: false,
+            preview: false,
+          });
           break;
         }
 
         // Case when sapling becomes visible in sidebar
-        case "onSaplingVisible": {
+        case 'onSaplingVisible': {
           if (!this.parser) {
             return;
           }
           // Get and send the saved tree to the webview
-          this.updateView();
+          await this.updateView();
           break;
         }
 
         // Case to retrieve the user's settings
-        case "onSettingsAcquire": {
+        case 'onSettingsAcquire': {
           // use getConfiguration to check what the current settings are for the user
-          const settings = await vscode.workspace.getConfiguration('sapling');
+          const settings = vscode.workspace.getConfiguration('sapling');
           // send a message back to the webview with the data on settings
-          webviewView.webview.postMessage({
-            type: "settings-data",
-            value: settings.view
+          await webviewView.webview.postMessage({
+            type: 'settings-data',
+            value: settings.view,
           });
           break;
         }
 
         // Case that changes the parser's recorded node expanded/collapsed structure
-        case "onNodeToggle": {
+        case 'onNodeToggle': {
           if (!this.parser) {
             return;
           }
           // let the parser know that the specific node clicked changed it's expanded value, save in state
-          this.context.workspaceState.update(
+          await this.context.workspaceState.update(
             'sapling',
             this.parser.toggleNode(data.value.id, data.value.expanded)
           );
@@ -130,18 +138,20 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         }
 
         // Message sent to the webview to bold the active file
-        case "onBoldCheck": {
+        case 'onBoldCheck': {
           // If no view then return:
           if (!this._view) {
             return;
           }
           // Check there is an activeText Editor
-          const fileName = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document.fileName: null;
+          const fileName = vscode.window.activeTextEditor
+            ? vscode.window.activeTextEditor.document.fileName
+            : null;
           // Message sent to the webview to bold the active file
           if (fileName) {
-            this._view.webview.postMessage({
-              type: "current-tab",
-              value: fileName
+            await this._view.webview.postMessage({
+              type: 'current-tab',
+              value: fileName,
             });
           }
           break;
@@ -151,8 +161,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   }
 
   // Called when Generate Tree command triggered by status button or explorer context menu
-  public statusButtonClicked = (uri: vscode.Uri | undefined) => {
-    let fileName;
+  public statusButtonClicked = async (uri: vscode.Uri | undefined): Promise<void> => {
+    let fileName: string;
 
     // If status menu button clicked, no uri, get active file uri
     if (!uri) {
@@ -160,8 +170,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       if (!vscode.window.activeTextEditor) {
         return;
       }
-      fileName  = vscode.window.activeTextEditor.document.fileName;
-    } else  {
+      fileName = vscode.window.activeTextEditor.document.fileName;
+    } else {
       fileName = uri.path;
     }
 
@@ -169,46 +179,46 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     if (fileName) {
       this.parser = new SaplingParser(fileName);
       this.parser.parse();
-      this.updateView();
+      await this.updateView();
     }
   };
 
   // revive statement for the webview panel
-  public revive(panel: vscode.WebviewView) {
+  public revive(panel: vscode.WebviewView): void {
     this._view = panel;
   }
 
   // Helper method to send updated tree data to view, and saves current tree to workspace
-  private updateView() {
+  private async updateView() {
     // If parser or webview do not exist, do nothing
     if (!this.parser || !this._view) {
       return;
     }
     // Save current state of tree to workspace state:
     const tree = this.parser.getTree();
-    this.context.workspaceState.update('sapling', tree);
+    await this.context.workspaceState.update('sapling', tree);
     // Send updated tree to webview
-    this._view.webview.postMessage({
-      type: "parsed-data",
-      value: tree
+    await this._view.webview.postMessage({
+      type: 'parsed-data',
+      value: tree,
     });
   }
 
   // paths and return statement that connects the webview to React project files
   private _getHtmlForWebview(webview: vscode.Webview) {
-    const styleResetUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "media", "reset.css")
-    );
-    const styleVSCodeUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "media", "vscode.css")
-    );
-    const styleMainUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "media", "styles.css")
-    );
+    const styleResetUri = webview
+      .asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css'))
+      .toString();
+    const styleVSCodeUri = webview
+      .asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'))
+      .toString();
+    const styleMainUri = webview
+      .asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'styles.css'))
+      .toString();
 
-    const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "dist", "sidebar.js")
-    );
+    const scriptUri = webview
+      .asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'dist', 'sidebar.js'))
+      .toString();
 
     // Use a nonce to only allow a specific script to be run.
     const nonce = getNonce();
