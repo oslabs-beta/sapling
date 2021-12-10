@@ -12,11 +12,11 @@ import { Tree } from '../../types';
 // import * as myExtension from '../../extension';
 
 suite('Parser Test Suite', () => {
-  let parser : SaplingParser, tree : Tree, file : string;
+  let parser: SaplingParser, tree: Tree, file: string;
 
   // UNPARSED TREE TEST
   describe('It initializes correctly', () => {
-    before( () => {
+    before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_0/index.js');
       parser = new SaplingParser(file);
     });
@@ -33,7 +33,7 @@ suite('Parser Test Suite', () => {
 
   // TEST 0: ONE CHILD
   describe('It works for simple apps', () => {
-    before( () => {
+    before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_0/index.js');
       parser = new SaplingParser(file);
       tree = parser.parse();
@@ -90,7 +90,6 @@ suite('Parser Test Suite', () => {
       expect(tree.children[0]).to.have.own.property('name').that.is.oneOf(['Switch', 'Route']);
       expect(tree.children[1]).to.have.own.property('name').that.is.oneOf(['Switch', 'Route']);
       expect(tree.children[2]).to.have.own.property('name').that.is.equal('Tippy');
-
     });
 
     test('reactRouter should be designated as third party and reactRouter', () => {
@@ -144,22 +143,22 @@ suite('Parser Test Suite', () => {
 
   // TEST 5: MISSING EXTENSIONS AND UNUSED IMPORTS
   describe('It works for extension-less imports', () => {
-    let names: string[], paths: string [], expectedNames : string[], expectedPaths : string[];
+    let names: string[], paths: string[], expectedNames: string[], expectedPaths: string[];
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_5/index.js');
       parser = new SaplingParser(file);
       tree = parser.parse();
 
-      names = tree.children.map(child => child.name);
-      paths = tree.children.map(child => child.filePath);
+      names = tree.children.map((child) => child.name);
+      paths = tree.children.map((child) => child.filePath);
 
       expectedNames = ['JS', 'JSX', 'TS', 'TSX'];
       expectedPaths = [
         '../../../src/test/test_apps/test_5/components/JS.js',
         '../../../src/test/test_apps/test_5/components/JSX.jsx',
         '../../../src/test/test_apps/test_5/components/TS.ts',
-        '../../../src/test/test_apps/test_5/components/TSX.tsx'
-      ].map( el => path.resolve(__dirname, el));
+        '../../../src/test/test_apps/test_5/components/TSX.tsx',
+      ].map((el) => path.resolve(__dirname, el));
     });
 
     test('Check children match expected children', () => {
@@ -256,8 +255,12 @@ suite('Parser Test Suite', () => {
       expect(tree.children[0]).to.have.own.property('name').that.is.equal('BrowserRouter');
       expect(tree.children[1]).to.have.own.property('name').that.is.equal('App');
 
-      expect(tree.children[1].children[3]).to.have.own.property('name').that.is.equal('DrillCreator');
-      expect(tree.children[1].children[4]).to.have.own.property('name').that.is.equal('HistoryDisplay');
+      expect(tree.children[1].children[3])
+        .to.have.own.property('name')
+        .that.is.equal('DrillCreator');
+      expect(tree.children[1].children[4])
+        .to.have.own.property('name')
+        .that.is.equal('HistoryDisplay');
     });
   });
 
@@ -280,7 +283,9 @@ suite('Parser Test Suite', () => {
       expect(tree.children[0].children).to.have.lengthOf(1);
       expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('App2');
       expect(tree.children[0].children[0].children).to.have.lengthOf(1);
-      expect(tree.children[0].children[0].children[0]).to.have.own.property('name').that.is.equal('App1');
+      expect(tree.children[0].children[0].children[0])
+        .to.have.own.property('name')
+        .that.is.equal('App1');
       expect(tree.children[0].children[0].children[0].children).to.have.lengthOf(0);
     });
   });
