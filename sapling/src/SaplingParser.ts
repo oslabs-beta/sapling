@@ -1,18 +1,27 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 import * as path from 'path';
 import * as fs from 'fs';
 
 import { parse as babelParse } from '@babel/parser';
-import { Node as ASTNode } from '@babel/types';
-
+import {
+  Node as ASTNode,
+  isIdentifier,
+  isStringLiteral,
+  isImportDeclaration,
+  isVariableDeclaration,
+  isImportSpecifier,
+  isImportDefaultSpecifier,
+  isImportNamespaceSpecifier,
+  isCallExpression,
+  isImport,
+  isArrayPattern,
+  isObjectPattern,
+  isObjectProperty,
+  ImportDeclaration,
+  VariableDeclaration,
+} from '@babel/types';
 import { Tree, Token, ImportData } from './types';
+
 import { getNonce } from './helpers/getNonce';
 
 export class SaplingParser {
@@ -167,8 +176,7 @@ export class SaplingParser {
     }
 
     // Check that file has valid fileName/Path, if not found, add error to node and halt
-    const fileName = this.getFileName(componentTree);
-    if (!fileName) {
+    if (!componentTree.importPath) {
       componentTree.error = 'File not found.';
       return componentTree;
     }
@@ -181,15 +189,16 @@ export class SaplingParser {
     // Create abstract syntax tree of current component tree file
     let ast: ASTNode | Record<string, Array<Token>>;
     try {
-      // Reference: https://babeljs.io/docs/en/babel-parser#options
+      // See: https://babeljs.io/docs/en/babel-parser#options
       ast = babelParse(fs.readFileSync(path.resolve(componentTree.filePath), 'utf-8'), {
         sourceType: 'module',
         tokens: true, // default: false, tokens deprecated from babel v7
         plugins: ['jsx', 'typescript'],
         // TODO: additional plugins to look into supporting for future releases
         // 'importMeta': https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import.meta
-        // 'importAssertions': parses ImportAttributes type: https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#ImportAssertions
-        allowImportExportEverywhere: true, // enables parsing dynamic imports in body
+        // 'importAssertions': parses ImportAttributes type
+        // https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#ImportAssertions
+        allowImportExportEverywhere: true, // enables parsing dynamic imports
         attachComment: false, // performance benefits
       });
       // If no ast or ast tokens, error when parsing file
@@ -203,6 +212,7 @@ export class SaplingParser {
     const { tokens } = ast;
     let tokenList: Array<Token> = [];
     if (tokens) tokenList = tokens as Array<Token>;
+
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);
 
@@ -218,18 +228,52 @@ export class SaplingParser {
     return componentTree;
   }
 
-  // Finds files where import string does not include a file extension
-  private getFileName(componentTree: Tree): string | null {
-    const ext = path.extname(componentTree.filePath);
+  /* Extracts Imports from current file
+   * https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md
+   * https://github.com/babel/babel/blob/main/packages/babel-types/src/ast-types/generated/index.ts
+   */
+  private getImports(body: Array<ASTNode>): Record<string, ImportData> {
+    return body
+      .filter((astNode) => isImportDeclaration(astNode) || isVariableDeclaration(astNode))
+      .reduce((accum: Record<string, ImportData>, declaration) => {
+        return isImportDeclaration(declaration)
+          ? Object.assign(accum, this.parseImportDeclaration(declaration))
+          : isVariableDeclaration(declaration)
+          ? Object.assign(accum, this.parseVariableDeclaration(declaration))
+          : accum;
+      }, {});
+  }
 
+  /* Import Declarations: 
+   * e.g. import foo from "mod"
+   '.source': name/path of imported module
+   https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#Imports
+   */
+  private parseImportDeclaration(declaration: ImportDeclaration): Record<string, ImportData> {
+    const output: Record<string, ImportData> = {};
+    let importName = '';
+    let importAlias: string | undefined;
+
+    const importPath = declaration.source.value;
+    declaration.specifiers.forEach((specifier) => {
     if (!ext) {
       // Try and find file extension that exists in directory:
       const fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
       const regEx = new RegExp(`${componentTree.fileName}.(j|t)sx?$`);
       const fileName = fileArray.find((fileStr) => fileStr.match(regEx));
       return fileName ? (componentTree.filePath += path.extname(fileName)) : null;
-    }
+          }
     return componentTree.fileName;
+
+      // If alias is used, it will show up as identifier for node instances in body.
+      // Therefore, alias will take precedence over name for parsed ast token values.
+      output[importAlias || importName] = {
+        importPath,
+        importName,
+        importAlias,
+      };
+    });
+    return output;
   }
 
   // Extracts Imports from current file
@@ -248,9 +292,25 @@ export class SaplingParser {
           accum[i.local.name] = {
             importPath: curr.source.value,
             importName: i.imported ? i.imported.name : i.local.name,
-          };
-        });
-      }
+  private parseVariableDeclaration(declaration: VariableDeclaration): Record<string, ImportData> {
+    const output: Record<string, ImportData> = {};
+    let importName = '';
+    let importAlias: string | undefined;
+    /* 
+    * VariableDeclarator:
+    Left: Pattern <: Identifier or (ObjectPattern | ArrayPattern) -> destructuring 
+    Right: CallExpression - When the callee property is of type 'Import', arguments must have only one 'Expression' type element
+    https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#VariableDeclarator
+    https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#Patterns
+    https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#CallExpression
+    */
+    declaration.declarations.forEach((declarator) => {
+      const { id: LHS, init: RHS } = declarator;
+      let importPath = '';
+
+            };
+          });
+              }
       // Imports Inside Variable Declarations: // Not easy to deal with nested objects
       if (curr.type === 'VariableDeclaration') {
         const importPath = this.findVarDecImports(curr.declarations[0]);
@@ -259,35 +319,100 @@ export class SaplingParser {
           const importName = curr.declarations[0].id.name;
           // @ts-ignore
           accum[curr.declarations[0].id.name] = {
-            importPath,
-            importName,
-          };
+                importPath,
+                importName,
+              };
+            }
         }
-      }
       return accum;
     }, {});
+      /* React lazy loading import
+       * e.g. const foo = React.lazy(() => import('./module'));
+       */
+      importPath = this.parseLazyLoading(declarator);
+      if (importPath.length && isIdentifier(declarator.id)) {
+        importName = declarator.id.name;
+        output[importAlias || importName] = {
+          importPath,
+          importName,
+          importAlias,
+        };
+      }
+    });
+    return output;
   }
 
-  // Recursive helper method to find import path in Variable Declaration
-  private findVarDecImports(ast: ASTNode): string | boolean {
-    // Base Case, find import path in variable declaration and return it,
-    // @ts-ignore
-    if (ast.hasOwnProperty('callee') && ast.callee.type === 'Import') {
-      // @ts-ignore
-      return ast.arguments[0].value;
-    }
-
-    // Otherwise look for imports in any other non null/undefined objects in the tree:
-    for (const key in ast) {
-      // @ts-ignore
-      if (ast[key] && typeof ast[key] === 'object') {
-        // @ts-ignore
-        const importPath = this.findVarDecImports(ast[key]);
-        if (importPath) return importPath;
+  // TODO: Explicit parsing of nested Import CallExpression in ArrowFunctionExpression body
+  private parseLazyLoading(ast: ASTNode): string {
+    const recurse = (node: ASTNode): string | void => {
+      if (isCallExpression(node) && isImport(node.callee) && isStringLiteral(node.arguments[0])) {
+        return node.arguments[0].value;
       }
-    }
+      // eslint-disable-next-line no-restricted-syntax
+      for (const key in node) {
+        // @ts-expect-error
+        if (node[key] && typeof node[key] === 'object') {
+          // @ts-expect-error
+          const importPath = recurse(node[key]);
+          if (importPath) return importPath;
+        }
+      }
+    };
+    return recurse(ast) || '';
+  }
 
-    return false;
+  private validateFilePath(filePath: string): string {
+    const fileArray: string[] = [];
+    let parsedFileName = '';
+    // Handles Next.js component and other third-party imports
+    try {
+      fileArray.push(...fs.readdirSync(path.dirname(filePath)));
+    } catch {
+      return filePath;
+    }
+    // Checks that file exists and appends file extension to path if not given in import declaration
+    parsedFileName =
+      fileArray.find((str) => new RegExp(`${path.basename(filePath)}\\.(j|t)sx?$`).test(str)) || '';
+    if (parsedFileName.length) return filePath + path.extname(parsedFileName);
+    return filePath;
+  }
+
+  private getChildNodes(
+    imports: Record<string, ImportData>,
+    astToken: Token,
+    props: Record<string, boolean>,
+    parent: Tree,
+    children: Record<string, Tree>
+  ): Record<string, Tree> {
+    if (children[astToken.value]) {
+      children[astToken.value].count += 1;
+      children[astToken.value].props = { ...children[astToken.value].props, ...props };
+    } else {
+      const moduleIdentifier = imports[astToken.value].importPath;
+      const name = imports[astToken.value].importName;
+      const filePath = this.validateFilePath(
+        path.resolve(path.dirname(parent.filePath), moduleIdentifier)
+      );
+      // Add tree node to childNodes if one does not exist
+      children[astToken.value] = {
+        id: getNonce(),
+        name,
+        fileName: path.basename(filePath),
+        filePath,
+        importPath: moduleIdentifier,
+        expanded: false,
+        depth: parent.depth + 1,
+        thirdParty: false,
+        reactRouter: false,
+        reduxConnect: false,
+        count: 1,
+        props,
+        children: [],
+        parentList: [parent.filePath].concat(parent.parentList),
+        error: '',
+      };
+    }
+    return children;
   }
 
   // Finds JSX React Components in current file
@@ -323,40 +448,6 @@ export class SaplingParser {
     }
 
     return Object.values(childNodes);
-  }
-
-  private getChildNodes(
-    imports: Record<string, ImportData>,
-    astToken: Token,
-    props: Record<string, boolean>,
-    parent: Tree,
-    children: Record<string, Tree>
-  ): Record<string, Tree> {
-    if (children[astToken.value]) {
-      children[astToken.value].count += 1;
-      children[astToken.value].props = { ...children[astToken.value].props, ...props };
-    } else {
-      // Add tree node to childNodes if one does not exist
-      children[astToken.value] = {
-        id: getNonce(),
-        name: imports[astToken.value].importName,
-        fileName: path.basename(imports[astToken.value].importPath),
-        filePath: path.resolve(path.dirname(parent.filePath), imports[astToken.value].importPath),
-        importPath: imports[astToken.value].importPath,
-        expanded: false,
-        depth: parent.depth + 1,
-        thirdParty: false,
-        reactRouter: false,
-        reduxConnect: false,
-        count: 1,
-        props,
-        children: [],
-        parentList: [parent.filePath].concat(parent.parentList),
-        error: '',
-      };
-    }
-
-    return children;
   }
 
   // Extracts prop names from a JSX element
