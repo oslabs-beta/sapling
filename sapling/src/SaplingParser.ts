@@ -256,14 +256,34 @@ export class SaplingParser {
 
     const importPath = declaration.source.value;
     declaration.specifiers.forEach((specifier) => {
-    if (!ext) {
-      // Try and find file extension that exists in directory:
-      const fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
-      const regEx = new RegExp(`${componentTree.fileName}.(j|t)sx?$`);
-      const fileName = fileArray.find((fileStr) => fileStr.match(regEx));
-      return fileName ? (componentTree.filePath += path.extname(fileName)) : null;
+      /*
+       * e.g. {foo} in import {foo} from "mod"
+       * e.g. {foo as bar} in import {foo as bar} from "mod"
+       '.imported': binding (foo), '.local': module (bar)
+       */
+      if (isImportSpecifier(specifier)) {
+        if (isIdentifier(specifier.imported)) {
+          if (specifier.imported.name === specifier.local.name) {
+            importName = specifier.imported.name;
+          } else {
+            importName = specifier.imported.name;
+            importAlias = specifier.local.name;
           }
-    return componentTree.fileName;
+          /* TODO: Testing
+           * Import entire module for side effects only (no values imported)
+           * e.g. import '/modules/my-module.js';
+           specifier.imported is StringLiteral
+          */
+        } else if (isStringLiteral(specifier.imported)) {
+          importName = path.basename(specifier.imported.value);
+        }
+        /* TODO: Add individual imported components to tree, not just namespace or local binding
+         * default -  e.g. 'foo' in import foo from "mod.js"
+         * namespace - e.g. '* as foo' in import * as foo from "mod.js"
+         */
+      } else if (isImportDefaultSpecifier(specifier) || isImportNamespaceSpecifier(specifier)) {
+        importName = specifier.local.name;
+      }
 
       // If alias is used, it will show up as identifier for node instances in body.
       // Therefore, alias will take precedence over name for parsed ast token values.
@@ -276,22 +296,16 @@ export class SaplingParser {
     return output;
   }
 
-  // Extracts Imports from current file
-  // const Page1 = lazy(() => import('./page1')); -> is parsed as 'ImportDeclaration'
-  // import Page2 from './page2'; -> is parsed as 'VariableDeclaration'
-  private getImports(body: Array<ASTNode>): Record<string, ImportData> {
-    const bodyImports = body.filter(
-      (item) => item.type === 'ImportDeclaration' || 'VariableDeclaration'
-    );
-    // console.log('bodyImports are: ', bodyImports);
-    return bodyImports.reduce((accum, curr) => {
-      // Import Declarations:
-      if (curr.type === 'ImportDeclaration') {
-        curr.specifiers.forEach((i: Record<string, any>) => {
-          // @ts-ignore
-          accum[i.local.name] = {
-            importPath: curr.source.value,
-            importName: i.imported ? i.imported.name : i.local.name,
+  /* Imports Inside Variable Declarations: 
+   * e.g. const foo = require("module");
+   * e.g. const [foo, bar] = require("module");
+   * e.g. const { foo: alias, bar } = require("module");
+   * e.g. const promise = import("module");
+   * e.g. const [foo, bar] = await import("module");
+   * e.g. const { foo: bar } = Promise.resolve(import("module"));
+   * e.g. const foo = React.lazy(() => import('./module'));
+   https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#VariableDeclaration
+   */
   private parseVariableDeclaration(declaration: VariableDeclaration): Record<string, ImportData> {
     const output: Record<string, ImportData> = {};
     let importName = '';
@@ -308,24 +322,61 @@ export class SaplingParser {
       const { id: LHS, init: RHS } = declarator;
       let importPath = '';
 
+      // TODO: Support AwaitExpression, Promise.resolve(), then() chains for dynamic imports
+      if (
+        isCallExpression(RHS) &&
+        (isImport(RHS.callee) || (isIdentifier(RHS.callee) && RHS.callee.name === 'require'))
+      ) {
+        // get importPath
+        const importArg = RHS.arguments[0];
+        importPath = isStringLiteral(importArg)
+          ? importArg.value
+          : isIdentifier(importArg) // almost certainly going to be StringLiteral, but guarding against edge cases
+          ? importArg.name
+          : '';
+        if (!importPath.length) return;
+
+        // e.g. const foo = import('module')
+        // e.g. const foo = require('module')
+        if (isIdentifier(LHS)) {
+          importName = LHS.name;
+          // e.g. const [foo, bar] = require('module');
+        } else if (isArrayPattern(LHS)) {
+          LHS.elements.forEach((element) => {
+            if (element && isIdentifier(element)) {
+              importName = element.name;
+            }
+            output[importName] = {
+              importPath,
+              importName,
             };
           });
+
+          // e.g. const { foo } = require('module');
+          // e.g. Aliasing: const { foo: bar } = require('module');
+        } else if (isObjectPattern(LHS)) {
+          LHS.properties.forEach((objectProperty) => {
+            // assume rest parameters won't be used
+            if (isObjectProperty(objectProperty)) {
+              const { key: name, value: alias } = objectProperty;
+              importName = isIdentifier(name) ? name.name : isStringLiteral(name) ? name.value : '';
+              importAlias = isIdentifier(alias)
+                ? alias.name
+                : isStringLiteral(alias)
+                ? alias.value
+                : '';
+              if (!importAlias.length || importName === importAlias) {
+                importAlias = undefined;
               }
-      // Imports Inside Variable Declarations: // Not easy to deal with nested objects
-      if (curr.type === 'VariableDeclaration') {
-        const importPath = this.findVarDecImports(curr.declarations[0]);
-        if (importPath) {
-          // @ts-ignore
-          const importName = curr.declarations[0].id.name;
-          // @ts-ignore
-          accum[curr.declarations[0].id.name] = {
+              output[importAlias || importName] = {
                 importPath,
                 importName,
+                importAlias,
               };
             }
+          });
         }
-      return accum;
-    }, {});
+      }
       /* React lazy loading import
        * e.g. const foo = React.lazy(() => import('./module'));
        */
