@@ -3,10 +3,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 // eslint-disable-next-line import/no-unresolved
 import * as vscode from 'vscode';
-import * as vscode from "vscode";
-import { getNonce } from "./getNonce";
+import { getNonce } from './helpers/getNonce';
 import { SaplingParser } from './SaplingParser';
-import { Tree } from "./types/Tree";
+import { Tree } from './types';
 
 // Sidebar class that creates a new instance of the sidebar + adds functionality with the parser
 export class SidebarProvider implements vscode.WebviewViewProvider {
