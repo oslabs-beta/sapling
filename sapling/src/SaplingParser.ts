@@ -231,8 +231,7 @@ export class SaplingParser {
   // Extracts Imports from current file
   // const Page1 = lazy(() => import('./page1')); -> is parsed as 'ImportDeclaration'
   // import Page2 from './page2'; -> is parsed as 'VariableDeclaration'
-  private getImports(body : {[key : string]: any}[]) : ImportObj {
-    const bodyImports = body.filter(item => item.type === 'ImportDeclaration' || 'VariableDeclaration');
+  private getImports(body: Array<ASTNode>): Record<string, ImportData> {
     const bodyImports = body.filter(
       (item) => item.type === 'ImportDeclaration' || 'VariableDeclaration'
     );
@@ -240,7 +239,7 @@ export class SaplingParser {
     return bodyImports.reduce((accum, curr) => {
       // Import Declarations:
       if (curr.type === 'ImportDeclaration') {
-        curr.specifiers.forEach((i : {[key : string]: any}) => {
+        curr.specifiers.forEach((i: Record<string, any>) => {
           // @ts-ignore
           accum[i.local.name] = {
             importPath: curr.source.value,
@@ -288,10 +287,11 @@ export class SaplingParser {
   }
 
   // Finds JSX React Components in current file
-  private getJSXChildren(astTokens: any[], importsObj : ImportObj, parentNode: Tree) : Tree[] {
-    let childNodes: {[key : string]: Tree} = {};
-    let props : {[key : string]: boolean} = {};
-    let token : {[key: string]: any};
+    astTokens: Array<Token>,
+    imports: Record<string, ImportData>,
+  ): Array<Tree> {
+    let childNodes: Record<string, Tree> = {};
+    let props: Record<string, boolean> = {};
 
     for (let i = 0; i < astTokens.length; i++) {
       // Case for finding JSX tags eg <App .../>
@@ -318,10 +318,10 @@ export class SaplingParser {
     return Object.values(childNodes);
   }
 
-  private getChildNodes(imports : ImportObj,
-    astToken : {[key: string]: any}, props : {[key : string]: boolean},
-    parent : Tree, children : {[key : string] : Tree}) : {[key : string] : Tree} {
-
+    imports: Record<string, ImportData>,
+    props: Record<string, boolean>,
+    children: Record<string, Tree>
+  ): Record<string, Tree> {
     if (children[astToken.value]) {
       children[astToken.value].count += 1;
       children[astToken.value].props = { ...children[astToken.value].props, ...props };
@@ -350,10 +350,8 @@ export class SaplingParser {
   }
 
   // Extracts prop names from a JSX element
-  private getJSXProps(astTokens: {[key: string]: any}[], j : number) : {[key : string]: boolean} {
-    const props : {[key : string]: boolean} = {};
-    while (astTokens[j].type.label !== "jsxTagEnd") {
-      if (astTokens[j].type.label === "jsxName" && astTokens[j + 1].value === "=") {
+  private getJSXProps(astTokens: Array<Token>, j: number): Record<string, boolean> {
+    const props: Record<string, boolean> = {};
     while (astTokens[j].type.label !== 'jsxTagEnd') {
       if (astTokens[j].type.label === 'jsxName' && astTokens[j + 1].value === '=') {
         props[astTokens[j].value] = true;
@@ -364,7 +362,7 @@ export class SaplingParser {
   }
 
   // Checks if current Node is connected to React-Redux Store
-  private checkForRedux(astTokens: any[], importsObj : ImportObj) : boolean {
+  private checkForRedux(astTokens: Array<Token>, imports: Record<string, ImportData>): boolean {
     // Check that react-redux is imported in this file (and we have a connect method or otherwise)
     let reduxImported = false;
     let connectAlias;
