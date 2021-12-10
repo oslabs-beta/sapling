@@ -10,10 +10,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 import { parse as babelParse } from '@babel/parser';
-import { getNonce } from "./getNonce";
-import { Tree } from './types/Tree';
-import { ImportObj } from './types/ImportObj';
-import { File } from '@babel/types';
+import { Node as ASTNode } from '@babel/types';
 
 import { Tree, Token, ImportData } from './types';
 import { getNonce } from './helpers/getNonce';
@@ -143,7 +140,7 @@ export class SaplingParser {
   }
 
   // Traverses all nodes of current component tree and applies callback to each node
-  #traverseTree(callback : Function, node : Tree | undefined = this.tree) : void {
+  #traverseTree(callback: (node: Tree) => void, node: Tree | undefined = this.tree): void {
     if (!node) {
       return;
     }
@@ -182,15 +179,18 @@ export class SaplingParser {
     }
 
     // Create abstract syntax tree of current component tree file
-    let ast: babelParser.ParseResult<File>;
+    let ast: ASTNode | Record<string, Array<Token>>;
     try {
-      ast = babelParser.parse(fs.readFileSync(path.resolve(componentTree.filePath), 'utf-8'), {
+      // Reference: https://babeljs.io/docs/en/babel-parser#options
+      ast = babelParse(fs.readFileSync(path.resolve(componentTree.filePath), 'utf-8'), {
         sourceType: 'module',
-        tokens: true,
-        plugins: [
-          'jsx',
-          'typescript',
-        ]
+        tokens: true, // default: false, tokens deprecated from babel v7
+        plugins: ['jsx', 'typescript'],
+        // TODO: additional plugins to look into supporting for future releases
+        // 'importMeta': https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import.meta
+        // 'importAssertions': parses ImportAttributes type: https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#ImportAssertions
+        allowImportExportEverywhere: true, // enables parsing dynamic imports in body
+        attachComment: false, // performance benefits
       });
       // If no ast or ast tokens, error when parsing file
       if (!ast || !ast.tokens) {
@@ -200,15 +200,17 @@ export class SaplingParser {
       componentTree.error = 'Error while processing this file/node';
       return componentTree;
     }
-
+    const { tokens } = ast;
+    let tokenList: Array<Token> = [];
+    if (tokens) tokenList = tokens as Array<Token>;
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);
 
     // Get any JSX Children of current file:
-    componentTree.children = this.getJSXChildren(ast.tokens, imports, componentTree);
+    componentTree.children = this.getJSXChildren(tokenList, imports, componentTree);
 
     // Check if current node is connected to the Redux store
-    componentTree.reduxConnect = this.checkForRedux(ast.tokens, imports);
+    componentTree.reduxConnect = this.checkForRedux(tokenList, imports);
 
     // Recursively parse all child components
     componentTree.children.forEach((child) => this.parser(child));
@@ -267,7 +269,7 @@ export class SaplingParser {
   }
 
   // Recursive helper method to find import path in Variable Declaration
-  private findVarDecImports(ast: {[key: string]: any}) : string | boolean {
+  private findVarDecImports(ast: ASTNode): string | boolean {
     // Base Case, find import path in variable declaration and return it,
     // @ts-ignore
     if (ast.hasOwnProperty('callee') && ast.callee.type === 'Import') {
@@ -289,11 +291,14 @@ export class SaplingParser {
   }
 
   // Finds JSX React Components in current file
+  private getJSXChildren(
     astTokens: Array<Token>,
     imports: Record<string, ImportData>,
+    parentNode: Tree
   ): Array<Tree> {
     let childNodes: Record<string, Tree> = {};
     let props: Record<string, boolean> = {};
+    let token: Token;
 
     for (let i = 0; i < astTokens.length; i++) {
       // Case for finding JSX tags eg <App .../>
@@ -320,8 +325,11 @@ export class SaplingParser {
     return Object.values(childNodes);
   }
 
+  private getChildNodes(
     imports: Record<string, ImportData>,
+    astToken: Token,
     props: Record<string, boolean>,
+    parent: Tree,
     children: Record<string, Tree>
   ): Record<string, Tree> {
     if (children[astToken.value]) {
