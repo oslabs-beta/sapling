@@ -1,25 +1,133 @@
 {
-    "root": true,
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-        "ecmaVersion": 6,
-        "sourceType": "module"
-    },
-    "plugins": [
-        "@typescript-eslint"
-    ],
-    "rules": {
-        "@typescript-eslint/naming-convention": "warn",
-        "@typescript-eslint/semi": "warn",
-        "curly": "warn",
-        "eqeqeq": "warn",
-        "no-throw-literal": "warn",
-        "semi": "off"
-    },
-    "ignorePatterns": [
-        "out",
-        "dist",
-        "**/*.d.ts",
-        "src/test/test_apps/*"
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "project": [
+      "./tsconfig.json",
+      "./src/webviews/tsconfig.views.json"
     ]
+  },
+  "plugins": ["@typescript-eslint", "prettier"],
+  "extends": [
+    "eslint:recommended",
+    "airbnb",
+    "airbnb-typescript",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "rules": {
+    "strict": "error",
+    "prettier/prettier": "warn",
+
+    "curly": "warn",
+    "eqeqeq": "warn",
+    "no-throw-literal": "warn",
+    "no-param-reassign": "warn",
+
+    "@typescript-eslint/ban-types": "error",
+    "@typescript-eslint/explicit-module-boundary-types": "error",
+    "@typescript-eslint/lines-between-class-members": "off",
+    "@typescript-eslint/naming-convention": "warn",
+    "@typescript-eslint/no-explicit-any": "error", // forbids "any" usage entirely.
+    // "@typescript-eslint/no-floating/promises": "warn",
+    // "@typescript-eslint/no-inferrable-types": "warn", // prevents explicit declaration of simple, inferrable types
+    "@typescript-eslint/no-non-null-assertion": "warn",
+    // "@typescript-eslint/no-unnecessary-condition": "warn", // shouldn"t be enabled if "any" is used in codebase
+    // "@typescript-eslint/no-unnecessary-type-assertion": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-use-before-define": "warn",
+    // "@typescript-eslint/promise-function-async": "warn",
+    // "@typescript-eslint/require-await": "warn",
+    "@typescript-eslint/semi": "warn",
+
+    /* Uncomment to globally disable individual linter rules */
+
+    "arrow-body-style": "off", // conflicts with prettier
+    "class-methods-use-this": "warn",
+    "consistent-return": "warn",
+    // "comma-dangle": "off",
+    "default-case": "off",
+    // "dot-notation": "off",
+    // "func-names": "off",
+    // "guard-for-in": "off",
+    // "import/extensions": "off",
+    // "import/no-extraneous-dependencies": "off",
+    // "import/no-unresolved": "off",
+    "import/prefer-default-export": "off",
+    // "max-len": "off",
+    // "no-alert": "off",
+    "no-console": "off",
+    // "no-confusing-arrow": "off",
+    "no-nested-ternary": "off",
+    "no-plusplus": "off",
+    // "no-restricted-globals": "off",
+    // "no-restricted-syntax": "off",
+    // "no-shadow": "off",
+    // "no-unexpected-multiline": "off",
+    // "no-unused-vars": "off",
+    // "no-useless-constructor": "off",
+    "no-underscore-dangle": "off",
+    // "no-unused-expressions": "off",
+    "no-return-assign": "warn",
+    "prefer-arrow-callback": "off", // conflicts with prettier
+    // "prefer-destructuring": "off",
+    "prefer-template": "off",
+    // "spaced-comment": "off"
+
+    // "react/boolean-prop-naming": "off",
+    // "react/button-has-type": "off",
+    // "react/destructuring-assignment": "off",
+    // "react/display-name": ["off"],
+    "react/function-component-definition": "off",
+    // "react/forbid-prop-types": "off",
+    "react/jsx-boolean-value": "off",
+    "react/jsx-filename-extension": "off",
+    // "react/jsx-no-duplicate-props": "off",
+    // "react/no-access-state-in-setstate": "off",
+    // "react/no-array-index-key": "off",
+    // "react/no-did-update-set-state": "off",
+    "react/no-unused-prop-types": "warn",
+    // "react/no-unused-state": "off",
+    // "react/prefer-stateless-function": "off",
+    // "react/prop-types": "off",
+    // "react/react-in-jsx-scope": "off"
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+
+    /**
+     * This is a compatibility ruleset that:
+     * - disables rules from eslint:recommended which are already handled by TypeScript.
+     * - enables rules that make sense due to TS"s typechecking / transpilation.
+     * See: https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/src/configs/eslint-recommended.ts
+     */
+    "constructor-super": "off", // ts(2335) & ts(2377)
+    "getter-return": "off", // ts(2378)
+    "no-const-assign": "off", // ts(2588)
+    "no-dupe-args": "off", // ts(2300)
+    "no-dupe-class-members": "off", // ts(2393) & ts(2300)
+    "no-dupe-keys": "off", // ts(1117)
+    "no-func-assign": "off", // ts(2539)
+    "no-import-assign": "off", // ts(2539) & ts(2540)
+    "no-new-symbol": "off", // ts(2588)
+    "no-obj-calls": "off", // ts(2349)
+    "no-redeclare": "off", // ts(2451)
+    "no-setter-return": "off", // ts(2408)
+    "no-this-before-super": "off", // ts(2376)
+    "no-undef": "off", // ts(2304)
+    "no-unreachable": "off", // ts(7027)
+    "no-unsafe-negation": "off", // ts(2365) & ts(2360) & ts(2358)
+    "no-use-before-define": "off",
+    "no-var": "error", // ts transpiles let/const to var, so no need for vars any more
+    "prefer-const": "error", // ts provides better types with const
+    "prefer-rest-params": "error", // ts provides better types with rest args over arguments
+    "prefer-spread": "error", // ts transpiles spread to apply, so no need for manual apply
+    "valid-typeof": "off" // ts(2367)
+  }
 }
