@@ -72,14 +72,23 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       switch (data.type) {
         // Case when the user selects a file to begin a tree
         case "onFile": {
-          // Edge case if the user sends in nothing
-          if (!data.value) {
-            return;
-          }
-          // Run an instance of the parser
-          this.parser = new SaplingParser(data.value);
-          this.parser.parse();
-          this.updateView();
+          // open vscode dialog selector
+          vscode.window.showOpenDialog({canSelectMany: false, canSelectFolders: false})
+            .then( uri => {
+            
+            // Edge case if selector doesn't work
+            if (!(uri && uri[0])) {
+              return;
+            }
+
+            // convert uri to path string
+            const filePath = uri[0].fsPath;
+
+            // Run an instance of the parser
+            this.parser = new SaplingParser(filePath);
+            this.parser.parse();
+            this.updateView();
+            });
           break;
         }
 
