@@ -380,7 +380,7 @@ export class SaplingParser {
       /* React lazy loading import
        * e.g. const foo = React.lazy(() => import('./module'));
        */
-      importPath = this.parseLazyLoading(declarator);
+      importPath = this.parseNestedDynamicImports(declarator);
       if (importPath.length && isIdentifier(declarator.id)) {
         importName = declarator.id.name;
         output[importAlias || importName] = {
@@ -394,7 +394,7 @@ export class SaplingParser {
   }
 
   // TODO: Explicit parsing of nested Import CallExpression in ArrowFunctionExpression body
-  private parseLazyLoading(ast: ASTNode): string {
+  private parseNestedDynamicImports(ast: ASTNode): string {
     const recurse = (node: ASTNode): string | void => {
       if (isCallExpression(node) && isImport(node.callee) && isStringLiteral(node.arguments[0])) {
         return node.arguments[0].value;
