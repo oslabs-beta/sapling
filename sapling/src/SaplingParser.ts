@@ -259,7 +259,7 @@ export class SaplingParser {
       /*
        * e.g. {foo} in import {foo} from "mod"
        * e.g. {foo as bar} in import {foo as bar} from "mod"
-       '.imported': binding (foo), '.local': module (bar)
+       '.imported': name of export (foo), '.local': local binding/alias (bar)
        */
       if (isImportSpecifier(specifier)) {
         if (isIdentifier(specifier.imported)) {
@@ -269,15 +269,15 @@ export class SaplingParser {
             importName = specifier.imported.name;
             importAlias = specifier.local.name;
           }
-          /* TODO: Testing
+          /* TODO: Add tests
            * Import entire module for side effects only (no values imported)
            * e.g. import '/modules/my-module.js';
-           specifier.imported is StringLiteral
-          */
+           * e.g. import 'http:example.com\pears.js';
+           */
         } else if (isStringLiteral(specifier.imported)) {
           importName = path.basename(specifier.imported.value);
         }
-        /* TODO: Add individual imported components to tree, not just namespace or local binding
+        /* TODO: Add individual imported components to tree, not just namespace or default specifier
          * default -  e.g. 'foo' in import foo from "mod.js"
          * namespace - e.g. '* as foo' in import * as foo from "mod.js"
          */
@@ -296,14 +296,14 @@ export class SaplingParser {
     return output;
   }
 
-  /* Imports Inside Variable Declarations: 
-   * e.g. const foo = require("module");
-   * e.g. const [foo, bar] = require("module");
-   * e.g. const { foo: alias, bar } = require("module");
-   * e.g. const promise = import("module");
-   * e.g. const [foo, bar] = await import("module");
-   * e.g. const { foo: bar } = Promise.resolve(import("module"));
-   * e.g. const foo = React.lazy(() => import('./module'));
+  /* Imports Inside Variable Declarations (and current support status): 
+   * [x] e.g. const foo = require("module");
+   * [v] e.g. const [foo, bar] = require("module");
+   * [v] e.g. const { foo: alias, bar } = require("module");
+   * [x] e.g. const promise = import("module");
+   * [x] e.g. const [foo, bar] = await import("module");
+   * [x] e.g. const { foo: bar } = Promise.resolve(import("module"));
+   * [v] e.g. const foo = React.lazy(() => import('./module'));
    https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#VariableDeclaration
    */
   private parseVariableDeclaration(declaration: VariableDeclaration): Record<string, ImportData> {
@@ -394,6 +394,7 @@ export class SaplingParser {
   }
 
   // TODO: Explicit parsing of nested Import CallExpression in ArrowFunctionExpression body
+  // TODO: Support AwaitExpression, Promise.resolve(), then() chains for dynamic imports
   private parseNestedDynamicImports(ast: ASTNode): string {
     const recurse = (node: ASTNode): string | void => {
       if (isCallExpression(node) && isImport(node.callee) && isStringLiteral(node.arguments[0])) {
