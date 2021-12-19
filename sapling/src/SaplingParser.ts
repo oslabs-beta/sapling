@@ -209,18 +209,15 @@ export class SaplingParser {
       componentTree.error = 'Error while processing this file/node';
       return componentTree;
     }
-    const { tokens } = ast;
-    let tokenList: Array<Token> = [];
-    if (tokens) tokenList = tokens as Array<Token>;
 
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);
 
     // Get any JSX Children of current file:
-    componentTree.children = this.getJSXChildren(tokenList, imports, componentTree);
+    componentTree.children = this.getJSXChildren(ast.tokens, imports, componentTree);
 
     // Check if current node is connected to the Redux store
-    componentTree.reduxConnect = this.checkForRedux(tokenList, imports);
+    componentTree.reduxConnect = this.checkForRedux(ast.tokens, imports);
 
     // Recursively parse all child components
     componentTree.children.forEach((child) => this.parser(child));
