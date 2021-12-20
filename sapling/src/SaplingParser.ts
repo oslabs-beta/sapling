@@ -52,7 +52,7 @@ export class SaplingParser {
     // Create root Tree node
     const root = {
       id: getNonce(),
-      name: path.basename(this.entryFile).replace(/\.(t|j)sx?$/, ''),
+      name: path.basename(this.entryFile).replace(/\.[jt]sx?$/, ''),
       fileName: path.basename(this.entryFile),
       filePath: this.entryFile,
       importPath: '/', // this.entryFile here breaks windows file path on root e.g. C:\\ is detected as third party
@@ -421,7 +421,7 @@ export class SaplingParser {
     }
     // Checks that file exists and appends file extension to path if not given in import declaration
     parsedFileName =
-      fileArray.find((str) => new RegExp(`${path.basename(filePath)}\\.(j|t)sx?$`).test(str)) || '';
+      fileArray.find((str) => new RegExp(`${path.basename(filePath)}\\.[jt]sx?$`).test(str)) || '';
     if (parsedFileName.length) return filePath + path.extname(parsedFileName);
     return filePath;
   }
