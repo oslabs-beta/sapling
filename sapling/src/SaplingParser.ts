@@ -22,8 +22,6 @@ import {
 } from '@babel/types';
 import { Tree, Token, ImportData } from './types';
 
-import { getNonce } from './helpers/getNonce';
-
 export class SaplingParser {
   entryFile: string;
   tree: Tree | undefined;
@@ -50,23 +48,13 @@ export class SaplingParser {
   // Public method to generate component tree based on current entryFile
   public parse(): Tree {
     // Create root Tree node
-    const root = {
-      id: getNonce(),
+    const root = new Tree({
       name: path.basename(this.entryFile).replace(/\.[jt]sx?$/, ''),
       fileName: path.basename(this.entryFile),
       filePath: this.entryFile,
       importPath: '/', // this.entryFile here breaks windows file path on root e.g. C:\\ is detected as third party
-      expanded: false,
-      depth: 0,
-      count: 1,
-      thirdParty: false,
-      reactRouter: false,
-      reduxConnect: false,
-      children: [],
-      parentList: [],
-      props: {},
-      error: '',
-    };
+      parentId: null,
+    });
 
     this.tree = root;
     ASTParser.parser(root);
@@ -216,7 +204,8 @@ const ASTParser = {
     const imports = ImportParser.parse(ast.program.body);
 
     // Get any JSX Children of current file:
-    componentTree.children = ASTParser.getJSXChildren(ast.tokens, imports, componentTree);
+    componentTree.children.splice(0, componentTree.children.length);
+    componentTree.children.push(...ASTParser.getJSXChildren(ast.tokens, imports, componentTree));
 
     // Check if current node is connected to the Redux store
     componentTree.reduxConnect = ASTParser.checkForRedux(ast.tokens, imports);
@@ -252,7 +241,7 @@ const ASTParser = {
   ): Record<string, Tree> {
     if (children[astToken.value]) {
       children[astToken.value].count += 1;
-      children[astToken.value].props = { ...children[astToken.value].props, ...props };
+      Object.assign(children[astToken.value].props, props);
     } else {
       const moduleIdentifier = imports[astToken.value].importPath;
       const name = imports[astToken.value].importName;
@@ -260,23 +249,16 @@ const ASTParser = {
         path.resolve(path.dirname(parent.filePath), moduleIdentifier)
       );
       // Add tree node to childNodes if one does not exist
-      children[astToken.value] = {
-        id: getNonce(),
+      children[astToken.value] = new Tree({
         name,
         fileName: path.basename(filePath),
         filePath,
         importPath: moduleIdentifier,
-        expanded: false,
         depth: parent.depth + 1,
-        thirdParty: false,
-        reactRouter: false,
-        reduxConnect: false,
-        count: 1,
         props,
-        children: [],
+        parentId: parent.id,
         parentList: [parent.filePath].concat(parent.parentList),
-        error: '',
-      };
+      });
     }
     return children;
   },

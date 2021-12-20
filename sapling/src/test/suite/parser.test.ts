@@ -47,7 +47,7 @@ suite('Parser Test Suite', () => {
     test('Parsed tree has a property called name with value index and one child with name App', () => {
       expect(tree).to.have.own.property('name').that.is.equal('index');
       expect(tree).to.have.own.property('children').that.is.an('array');
-      expect(tree.children[0]).to.have.own.property('name').that.is.equal('App');
+      expect(tree.get(0)).to.have.own.property('name').that.is.equal('App');
     });
   });
 
@@ -61,20 +61,20 @@ suite('Parser Test Suite', () => {
 
     test('Parsed tree has a property called name with value index and one child with name App, which has its own child Main', () => {
       expect(tree).to.have.own.property('name').to.equal('index');
-      expect(tree.children[0].name).to.equal('App');
-      expect(tree.children[0]).to.have.own.property('children').that.is.an('array');
-      expect(tree.children[0].children[0]).to.have.own.property('name').to.equal('Main');
+      expect(tree.get(0)).to.have.own.property('name').to.equal('App');
+      expect(tree.get(0)).to.have.own.property('children').that.is.an('array');
+      expect(tree.get(0, 0)).to.have.own.property('name').to.equal('Main');
     });
 
     test('Parsed tree children should equal the child components', () => {
       expect(tree.children).to.have.lengthOf(1);
-      expect(tree.children[0].children).to.have.lengthOf(1);
+      expect(tree.get(0).children).to.have.lengthOf(1);
     });
 
     test('Parsed tree depth is accurate', () => {
       expect(tree).to.have.own.property('depth').that.is.equal(0);
-      expect(tree.children[0]).to.have.own.property('depth').that.is.equal(1);
-      expect(tree.children[0].children[0]).to.have.own.property('depth').that.is.equal(2);
+      expect(tree.get(0)).to.have.own.property('depth').that.is.equal(1);
+      expect(tree.get(0, 0)).to.have.own.property('depth').that.is.equal(2);
     });
   });
 
@@ -88,22 +88,22 @@ suite('Parser Test Suite', () => {
 
     test('Should parse destructured and third party imports', () => {
       expect(tree.children).to.have.lengthOf(3);
-      expect(tree.children[0]).to.have.own.property('name').that.is.oneOf(['Switch', 'Route']);
-      expect(tree.children[1]).to.have.own.property('name').that.is.oneOf(['Switch', 'Route']);
-      expect(tree.children[2]).to.have.own.property('name').that.is.equal('Tippy');
+      expect(tree.get(0)).to.have.own.property('name').that.is.oneOf(['Switch', 'Route']);
+      expect(tree.get(1)).to.have.own.property('name').that.is.oneOf(['Switch', 'Route']);
+      expect(tree.get(2)).to.have.own.property('name').that.is.equal('Tippy');
     });
 
-    test('reactRouter should be designated as third party and reactRouter', () => {
-      expect(tree.children[0]).to.have.own.property('thirdParty').to.be.true;
-      expect(tree.children[1]).to.have.own.property('thirdParty').to.be.true;
+    test('React router should be designated as third party and reactRouter', () => {
+      expect(tree.get(0)).to.have.own.property('thirdParty').to.be.true;
+      expect(tree.get(1)).to.have.own.property('thirdParty').to.be.true;
 
-      expect(tree.children[0]).to.have.own.property('reactRouter').to.be.true;
-      expect(tree.children[1]).to.have.own.property('reactRouter').to.be.true;
+      expect(tree.get(0)).to.have.own.property('reactRouter').to.be.true;
+      expect(tree.get(1)).to.have.own.property('reactRouter').to.be.true;
     });
 
     test('Tippy should be designated as third party and not reactRouter', () => {
-      expect(tree.children[2]).to.have.own.property('thirdParty').to.be.true;
-      expect(tree.children[2]).to.have.own.property('reactRouter').to.be.false;
+      expect(tree.get(2)).to.have.own.property('thirdParty').to.be.true;
+      expect(tree.get(2)).to.have.own.property('reactRouter').to.be.false;
     });
   });
 
@@ -116,11 +116,11 @@ suite('Parser Test Suite', () => {
     });
 
     test('The reduxConnect properties of the connected component and the unconnected component should be true and false, respectively', () => {
-      expect(tree.children[1].children[0].name).to.equal('ConnectedContainer');
-      expect(tree.children[1].children[0]).to.have.own.property('reduxConnect').that.is.true;
+      expect(tree.get(1, 0).name).to.equal('ConnectedContainer');
+      expect(tree.get(1, 0)).to.have.own.property('reduxConnect').that.is.true;
 
-      expect(tree.children[1].children[1].name).to.equal('UnconnectedContainer');
-      expect(tree.children[1].children[1]).to.have.own.property('reduxConnect').that.is.false;
+      expect(tree.get(1, 1).name).to.equal('UnconnectedContainer');
+      expect(tree.get(1, 1)).to.have.own.property('reduxConnect').that.is.false;
     });
   });
 
@@ -134,11 +134,11 @@ suite('Parser Test Suite', () => {
 
     test('alias should still give us components', () => {
       expect(tree.children).to.have.lengthOf(2);
-      expect(tree.children[0]).to.have.own.property('name').that.is.equal('Switch');
-      expect(tree.children[1]).to.have.own.property('name').that.is.equal('Route');
+      expect(tree.get(0)).to.have.own.property('name').that.is.equal('Switch');
+      expect(tree.get(1)).to.have.own.property('name').that.is.equal('Route');
 
-      expect(tree.children[0]).to.have.own.property('name').that.is.not.equal('S');
-      expect(tree.children[1]).to.have.own.property('name').that.is.not.equal('R');
+      expect(tree.get(0)).to.have.own.property('name').that.is.not.equal('S');
+      expect(tree.get(1)).to.have.own.property('name').that.is.not.equal('R');
     });
   });
 
@@ -187,8 +187,8 @@ suite('Parser Test Suite', () => {
     });
 
     test('improperly imported child component should exist but show an error', () => {
-      expect(tree.children[0].children[0]).to.have.own.property('name').that.equals('App2');
-      expect(tree.children[0].children[0]).to.have.own.property('error').that.does.not.equal('');
+      expect(tree.get(0, 0)).to.have.own.property('name').that.equals('App2');
+      expect(tree.get(0, 0)).to.have.own.property('error').that.does.not.equal('');
     });
   });
 
@@ -201,9 +201,9 @@ suite('Parser Test Suite', () => {
     });
 
     test('Should have a nonempty error message on the invalid child and not parse further', () => {
-      expect(tree.children[0]).to.have.own.property('name').that.equals('App');
-      expect(tree.children[0]).to.have.own.property('error').that.does.not.equal('');
-      expect(tree.children[0].children).to.have.lengthOf(0);
+      expect(tree.get(0)).to.have.own.property('name').that.equals('App');
+      expect(tree.get(0)).to.have.own.property('error').that.does.not.equal('');
+      expect(tree.get(0).children).to.have.lengthOf(0);
     });
   });
 
@@ -216,13 +216,13 @@ suite('Parser Test Suite', () => {
     });
 
     test('Grandchild should have a count of 1', () => {
-      expect(tree.children[0].children[0]).to.have.own.property('count').that.equals(1);
+      expect(tree.get(0, 0)).to.have.own.property('count').that.equals(1);
     });
 
     test('Grandchild should have the correct three props', () => {
-      expect(tree.children[0].children[0].props).has.own.property('prop1').that.is.true;
-      expect(tree.children[0].children[0].props).has.own.property('prop2').that.is.true;
-      expect(tree.children[0].children[0].props).has.own.property('prop3').that.is.true;
+      expect(tree.get(0, 0).props).has.own.property('prop1').that.is.true;
+      expect(tree.get(0, 0).props).has.own.property('prop2').that.is.true;
+      expect(tree.get(0, 0).props).has.own.property('prop3').that.is.true;
     });
   });
 
@@ -235,12 +235,12 @@ suite('Parser Test Suite', () => {
     });
 
     test('Grandchild should have a count of 2', () => {
-      expect(tree.children[0].children[0]).to.have.own.property('count').that.equals(2);
+      expect(tree.get(0, 0)).to.have.own.property('count').that.equals(2);
     });
 
     test('Grandchild should have the correct two props', () => {
-      expect(tree.children[0].children[0].props).has.own.property('prop1').that.is.true;
-      expect(tree.children[0].children[0].props).has.own.property('prop2').that.is.true;
+      expect(tree.get(0, 0).props).has.own.property('prop1').that.is.true;
+      expect(tree.get(0, 0).props).has.own.property('prop2').that.is.true;
     });
   });
 
@@ -253,15 +253,11 @@ suite('Parser Test Suite', () => {
     });
 
     test('Parent should have children that match the value stored in component prop', () => {
-      expect(tree.children[0]).to.have.own.property('name').that.is.equal('BrowserRouter');
-      expect(tree.children[1]).to.have.own.property('name').that.is.equal('App');
+      expect(tree.get(0)).to.have.own.property('name').that.is.equal('BrowserRouter');
+      expect(tree.get(1)).to.have.own.property('name').that.is.equal('App');
 
-      expect(tree.children[1].children[3])
-        .to.have.own.property('name')
-        .that.is.equal('DrillCreator');
-      expect(tree.children[1].children[4])
-        .to.have.own.property('name')
-        .that.is.equal('HistoryDisplay');
+      expect(tree.get(1, 3)).to.have.own.property('name').that.is.equal('DrillCreator');
+      expect(tree.get(1, 4)).to.have.own.property('name').that.is.equal('HistoryDisplay');
     });
   });
 
@@ -280,14 +276,12 @@ suite('Parser Test Suite', () => {
     test('Tree should have an index component while child App1, grandchild App2, great-grandchild App1', () => {
       expect(tree).to.have.own.property('name').that.is.equal('index');
       expect(tree.children).to.have.lengthOf(1);
-      expect(tree.children[0]).to.have.own.property('name').that.is.equal('App1');
-      expect(tree.children[0].children).to.have.lengthOf(1);
-      expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('App2');
-      expect(tree.children[0].children[0].children).to.have.lengthOf(1);
-      expect(tree.children[0].children[0].children[0])
-        .to.have.own.property('name')
-        .that.is.equal('App1');
-      expect(tree.children[0].children[0].children[0].children).to.have.lengthOf(0);
+      expect(tree.get(0)).to.have.own.property('name').that.is.equal('App1');
+      expect(tree.get(0).children).to.have.lengthOf(1);
+      expect(tree.get(0, 0)).to.have.own.property('name').that.is.equal('App2');
+      expect(tree.get(0, 0).children).to.have.lengthOf(1);
+      expect(tree.get(0, 0, 0)).to.have.own.property('name').that.is.equal('App1');
+      expect(tree.get(0, 0, 0).children).to.have.lengthOf(0);
     });
   });
 
@@ -302,13 +296,13 @@ suite('Parser Test Suite', () => {
     test('Root should be named index, children should be named Head, Navbar, and Image, children of Navbar should be named Link and Image', () => {
       expect(tree).to.have.own.property('name').that.is.equal('index');
       expect(tree.children).to.have.lengthOf(3);
-      expect(tree.children[0]).to.have.own.property('name').that.is.equal('Head');
-      expect(tree.children[1]).to.have.own.property('name').that.is.equal('Navbar');
-      expect(tree.children[2]).to.have.own.property('name').that.is.equal('Image');
+      expect(tree.get(0)).to.have.own.property('name').that.is.equal('Head');
+      expect(tree.get(1)).to.have.own.property('name').that.is.equal('Navbar');
+      expect(tree.get(2)).to.have.own.property('name').that.is.equal('Image');
 
-      expect(tree.children[1].children).to.have.lengthOf(2);
-      expect(tree.children[1].children[0]).to.have.own.property('name').that.is.equal('Link');
-      expect(tree.children[1].children[1]).to.have.own.property('name').that.is.equal('Image');
+      expect(tree.get(1).children).to.have.lengthOf(2);
+      expect(tree.get(1, 0)).to.have.own.property('name').that.is.equal('Link');
+      expect(tree.get(1, 1)).to.have.own.property('name').that.is.equal('Image');
     });
   });
 
@@ -323,14 +317,14 @@ suite('Parser Test Suite', () => {
     test('Root should be named index, it should have one child named App', () => {
       expect(tree).to.have.own.property('name').that.is.equal('index');
       expect(tree.children).to.have.lengthOf(1);
-      expect(tree.children[0]).to.have.own.property('name').that.is.equal('App');
+      expect(tree.get(0)).to.have.own.property('name').that.is.equal('App');
     });
 
     test('App should have three children, Page1, Page2 and Page3, all found successfully', () => {
-      expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('Page1');
-      expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
-      expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('Page2');
-      expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.get(0, 0)).to.have.own.property('name').that.is.equal('Page1');
+      expect(tree.get(0, 0)).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.get(0, 1)).to.have.own.property('name').that.is.equal('Page2');
+      expect(tree.get(0, 1)).to.have.own.property('thirdParty').that.is.false;
     });
   });
 
@@ -345,21 +339,21 @@ suite('Parser Test Suite', () => {
     test('Root should be named index, it should have one child named App', () => {
       expect(tree).to.have.own.property('name').that.is.equal('index');
       expect(tree.children).to.have.lengthOf(1);
-      expect(tree.children[0]).to.have.own.property('name').that.is.equal('App');
+      expect(tree.get(0)).to.have.own.property('name').that.is.equal('App');
     });
 
     test('Object destructured children PageA1, PageA2 successfully found. PageA1 is found with its filename, not as Alias.', () => {
-      expect(tree.children[0].children[0]).to.have.own.property('name').that.is.not.equal('Alias');
-      expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('PageA1');
-      expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
-      expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('PageA2');
-      expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.get(0, 0)).to.have.own.property('name').that.is.not.equal('Alias');
+      expect(tree.get(0, 0)).to.have.own.property('name').that.is.equal('PageA1');
+      expect(tree.get(0, 0)).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.get(0, 1)).to.have.own.property('name').that.is.equal('PageA2');
+      expect(tree.get(0, 1)).to.have.own.property('thirdParty').that.is.false;
     });
     test('Array destructured require import PageB1, PageB2 all found successfully', () => {
-      expect(tree.children[0].children[2]).to.have.own.property('name').that.is.equal('PageB1');
-      expect(tree.children[0].children[2]).to.have.own.property('thirdParty').that.is.false;
-      expect(tree.children[0].children[3]).to.have.own.property('name').that.is.equal('PageB2');
-      expect(tree.children[0].children[3]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.get(0, 2)).to.have.own.property('name').that.is.equal('PageB1');
+      expect(tree.get(0, 2)).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.get(0, 3)).to.have.own.property('name').that.is.equal('PageB2');
+      expect(tree.get(0, 3)).to.have.own.property('thirdParty').that.is.false;
     });
   });
 
@@ -374,21 +368,21 @@ suite('Parser Test Suite', () => {
     test('Root should be named index, it should have one child named App', () => {
       expect(tree).to.have.own.property('name').that.is.equal('index');
       expect(tree.children).to.have.lengthOf(1);
-      expect(tree.children[0]).to.have.own.property('name').that.is.equal('App');
+      expect(tree.get(0)).to.have.own.property('name').that.is.equal('App');
     });
 
     test('Object destructured children PageA1, PageA2 successfully found. PageA1 is found with its filename, not as Alias.', () => {
-      expect(tree.children[0].children[0]).to.have.own.property('name').that.is.not.equal('Alias');
-      expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('PageA1');
-      expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
-      expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('PageA2');
-      expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.get(0, 0)).to.have.own.property('name').that.is.not.equal('Alias');
+      expect(tree.get(0, 0)).to.have.own.property('name').that.is.equal('PageA1');
+      expect(tree.get(0, 0)).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.get(0, 1)).to.have.own.property('name').that.is.equal('PageA2');
+      expect(tree.get(0, 1)).to.have.own.property('thirdParty').that.is.false;
     });
     test('Array destructured require import PageB1, PageB2 all found successfully', () => {
-      expect(tree.children[0].children[2]).to.have.own.property('name').that.is.equal('PageB1');
-      expect(tree.children[0].children[2]).to.have.own.property('thirdParty').that.is.false;
-      expect(tree.children[0].children[3]).to.have.own.property('name').that.is.equal('PageB2');
-      expect(tree.children[0].children[3]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.get(0, 2)).to.have.own.property('name').that.is.equal('PageB1');
+      expect(tree.get(0, 2)).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.get(0, 3)).to.have.own.property('name').that.is.equal('PageB2');
+      expect(tree.get(0, 3)).to.have.own.property('thirdParty').that.is.false;
     });
   });
 });
