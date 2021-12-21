@@ -7,12 +7,12 @@ export type Tree = {
   fileName: string;
   filePath: string;
   importPath: string;
-  expanded: boolean;
+  isExpanded: boolean;
   depth: number;
   count: number;
-  thirdParty: boolean;
-  reactRouter: boolean;
-  reduxConnect: boolean;
+  isThirdParty: boolean;
+  isReactRouter: boolean;
+  hasReduxConnect: boolean;
   children: Array<Tree>;
   parentList: string[];
   props: Record<string, boolean>;

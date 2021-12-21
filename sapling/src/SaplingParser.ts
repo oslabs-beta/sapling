@@ -56,12 +56,12 @@ export class SaplingParser {
       fileName: path.basename(this.entryFile),
       filePath: this.entryFile,
       importPath: '/', // this.entryFile here breaks windows file path on root e.g. C:\\ is detected as third party
-      expanded: false,
+      isExpanded: false,
       depth: 0,
       count: 1,
-      thirdParty: false,
-      reactRouter: false,
-      reduxConnect: false,
+      isThirdParty: false,
+      isReactRouter: false,
+      hasReduxConnect: false,
       children: [],
       parentList: [],
       props: {},
@@ -92,15 +92,15 @@ export class SaplingParser {
     type ChildInfo = {
       depth: number;
       filePath: string;
-      expanded: boolean;
+      isExpanded: boolean;
     };
 
     let children: Array<ChildInfo> = [];
 
     const getChildNodes = (node: Tree): void => {
       // eslint-disable-next-line @typescript-eslint/no-shadow
-      const { depth, filePath, expanded } = node;
-      children.push({ depth, filePath, expanded });
+      const { depth, filePath, isExpanded } = node;
+      children.push({ depth, filePath, isExpanded });
     };
 
     const matchExpand = (node: Tree): void => {
@@ -109,9 +109,9 @@ export class SaplingParser {
         if (
           oldNode.depth === node.depth &&
           oldNode.filePath === node.filePath &&
-          oldNode.expanded
+          oldNode.isExpanded
         ) {
-          node.expanded = true;
+          node.isExpanded = true;
         }
       }
     };
@@ -136,10 +136,10 @@ export class SaplingParser {
   }
 
   // Traverses the tree and changes expanded property of node whose id matches provided id
-  public toggleNode(id: string, expanded: boolean): Tree | undefined {
+  public toggleNode(id: string, expandedState: boolean): Tree | undefined {
     const callback = (node: Tree) => {
       if (node.id === id) {
-        node.expanded = expanded;
+        node.isExpanded = expandedState;
       }
     };
 
@@ -165,12 +165,12 @@ export class SaplingParser {
   private parser(componentTree: Tree): Tree {
     // If import is a node module, do not parse any deeper
     if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
-      componentTree.thirdParty = true;
+      componentTree.isThirdParty = true;
       if (
         componentTree.fileName === 'react-router-dom' ||
         componentTree.fileName === 'react-router'
       ) {
-        componentTree.reactRouter = true;
+        componentTree.isReactRouter = true;
       }
       return componentTree;
     }
@@ -217,7 +217,7 @@ export class SaplingParser {
     componentTree.children = this.getJSXChildren(ast.tokens, imports, componentTree);
 
     // Check if current node is connected to the Redux store
-    componentTree.reduxConnect = this.checkForRedux(ast.tokens, imports);
+    componentTree.hasReduxConnect = this.checkForRedux(ast.tokens, imports);
 
     // Recursively parse all child components
     componentTree.children.forEach((child) => this.parser(child));
@@ -449,11 +449,11 @@ export class SaplingParser {
         fileName: path.basename(filePath),
         filePath,
         importPath: moduleIdentifier,
-        expanded: false,
+        isExpanded: false,
         depth: parent.depth + 1,
-        thirdParty: false,
-        reactRouter: false,
-        reduxConnect: false,
+        isThirdParty: false,
+        isReactRouter: false,
+        hasReduxConnect: false,
         count: 1,
         props,
         children: [],

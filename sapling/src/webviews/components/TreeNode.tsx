@@ -15,7 +15,7 @@ import 'tippy.js/dist/tippy.css';
 const TreeNode = ({ node }: any) => {
   // state variables for the users current active file and the expanded value (boolean) of the node
   const [currFile, setCurrFile] = useState(false);
-  const [expanded, setExpanded] = useState(node.expanded);
+  const [expanded, setExpanded] = useState(node.isExpanded);
 
   // useEffect that will add an event listener for 'message' to each node, in order to show which file the user is currently working in
   useEffect(() => {
@@ -76,7 +76,7 @@ const TreeNode = ({ node }: any) => {
     // Send a message to the extension on the changed checked value of the current node
     tsvscode.postMessage({
       type: 'onNodeToggle',
-      value: { id: node.id, expanded: newExpanded },
+      value: { id: node.id, expandedState: newExpanded },
     });
   };
 
@@ -100,9 +100,9 @@ const TreeNode = ({ node }: any) => {
             </label>
           )}
           {/* Checks to make sure there are no thirdParty or reactRouter node_icons */}
-          {!node.thirdParty && !node.reactRouter ? (
+          {!node.isThirdParty && !node.isReactRouter ? (
             <>
-              {node.reduxConnect ? (
+              {node.hasReduxConnect ? (
                 <Tippy
                   content={
                     <p>
@@ -145,9 +145,9 @@ const TreeNode = ({ node }: any) => {
             <span className={classString}>{node.name}</span>
           )}
           {/* Checks to make sure there are no thirdParty or reactRouter node_icons */}
-          {!node.thirdParty && !node.reactRouter ? (
+          {!node.isThirdParty && !node.isReactRouter ? (
             <>
-              {node.reduxConnect ? (
+              {node.hasReduxConnect ? (
                 <Tippy
                   content={
                     <p>

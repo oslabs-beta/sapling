@@ -93,17 +93,17 @@ suite('Parser Test Suite', () => {
       expect(tree.children[2]).to.have.own.property('name').that.is.equal('Tippy');
     });
 
-    test('reactRouter should be designated as third party and reactRouter', () => {
-      expect(tree.children[0]).to.have.own.property('thirdParty').to.be.true;
-      expect(tree.children[1]).to.have.own.property('thirdParty').to.be.true;
+    test('isReactRouter should be designated as third party and isReactRouter', () => {
+      expect(tree.children[0]).to.have.own.property('isThirdParty').to.be.true;
+      expect(tree.children[1]).to.have.own.property('isThirdParty').to.be.true;
 
-      expect(tree.children[0]).to.have.own.property('reactRouter').to.be.true;
-      expect(tree.children[1]).to.have.own.property('reactRouter').to.be.true;
+      expect(tree.children[0]).to.have.own.property('isReactRouter').to.be.true;
+      expect(tree.children[1]).to.have.own.property('isReactRouter').to.be.true;
     });
 
-    test('Tippy should be designated as third party and not reactRouter', () => {
-      expect(tree.children[2]).to.have.own.property('thirdParty').to.be.true;
-      expect(tree.children[2]).to.have.own.property('reactRouter').to.be.false;
+    test('Tippy should be designated as third party and not isReactRouter', () => {
+      expect(tree.children[2]).to.have.own.property('isThirdParty').to.be.true;
+      expect(tree.children[2]).to.have.own.property('isReactRouter').to.be.false;
     });
   });
 
@@ -115,12 +115,12 @@ suite('Parser Test Suite', () => {
       tree = parser.parse();
     });
 
-    test('The reduxConnect properties of the connected component and the unconnected component should be true and false, respectively', () => {
+    test('The hasReduxConnect properties of the connected component and the unconnected component should be true and false, respectively', () => {
       expect(tree.children[1].children[0].name).to.equal('ConnectedContainer');
-      expect(tree.children[1].children[0]).to.have.own.property('reduxConnect').that.is.true;
+      expect(tree.children[1].children[0]).to.have.own.property('hasReduxConnect').that.is.true;
 
       expect(tree.children[1].children[1].name).to.equal('UnconnectedContainer');
-      expect(tree.children[1].children[1]).to.have.own.property('reduxConnect').that.is.false;
+      expect(tree.children[1].children[1]).to.have.own.property('hasReduxConnect').that.is.false;
     });
   });
 
@@ -328,9 +328,9 @@ suite('Parser Test Suite', () => {
 
     test('App should have three children, Page1, Page2 and Page3, all found successfully', () => {
       expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('Page1');
-      expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[0]).to.have.own.property('isThirdParty').that.is.false;
       expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('Page2');
-      expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[1]).to.have.own.property('isThirdParty').that.is.false;
     });
   });
 
@@ -351,15 +351,15 @@ suite('Parser Test Suite', () => {
     test('Object destructured children PageA1, PageA2 successfully found. PageA1 is found with its filename, not as Alias.', () => {
       expect(tree.children[0].children[0]).to.have.own.property('name').that.is.not.equal('Alias');
       expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('PageA1');
-      expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[0]).to.have.own.property('isThirdParty').that.is.false;
       expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('PageA2');
-      expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[1]).to.have.own.property('isThirdParty').that.is.false;
     });
     test('Array destructured require import PageB1, PageB2 all found successfully', () => {
       expect(tree.children[0].children[2]).to.have.own.property('name').that.is.equal('PageB1');
-      expect(tree.children[0].children[2]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[2]).to.have.own.property('isThirdParty').that.is.false;
       expect(tree.children[0].children[3]).to.have.own.property('name').that.is.equal('PageB2');
-      expect(tree.children[0].children[3]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[3]).to.have.own.property('isThirdParty').that.is.false;
     });
   });
 
@@ -380,15 +380,15 @@ suite('Parser Test Suite', () => {
     test('Object destructured children PageA1, PageA2 successfully found. PageA1 is found with its filename, not as Alias.', () => {
       expect(tree.children[0].children[0]).to.have.own.property('name').that.is.not.equal('Alias');
       expect(tree.children[0].children[0]).to.have.own.property('name').that.is.equal('PageA1');
-      expect(tree.children[0].children[0]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[0]).to.have.own.property('isThirdParty').that.is.false;
       expect(tree.children[0].children[1]).to.have.own.property('name').that.is.equal('PageA2');
-      expect(tree.children[0].children[1]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[1]).to.have.own.property('isThirdParty').that.is.false;
     });
-    test('Array destructured require import PageB1, PageB2 all found successfully', () => {
+    test('Array destructured children PageB1, PageB2 all found successfully', () => {
       expect(tree.children[0].children[2]).to.have.own.property('name').that.is.equal('PageB1');
-      expect(tree.children[0].children[2]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[2]).to.have.own.property('isThirdParty').that.is.false;
       expect(tree.children[0].children[3]).to.have.own.property('name').that.is.equal('PageB2');
-      expect(tree.children[0].children[3]).to.have.own.property('thirdParty').that.is.false;
+      expect(tree.children[0].children[3]).to.have.own.property('isThirdParty').that.is.false;
     });
   });
 });
