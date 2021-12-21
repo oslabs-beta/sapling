@@ -65,11 +65,15 @@ const Sidebar = () => {
 
       // Logic to parse the nodes based on the users settings
       for (let i = 0; i < node.children.length; i++) {
-        if (node.children[i].thirdParty && settings.thirdParty && !node.children[i].reactRouter) {
+        if (
+          node.children[i].isThirdParty &&
+          settings.thirdParty &&
+          !node.children[i].isReactRouter
+        ) {
           validChildren.push(node.children[i]);
-        } else if (node.children[i].reactRouter && settings.reactRouter) {
+        } else if (node.children[i].isReactRouter && settings.reactRouter) {
           validChildren.push(node.children[i]);
-        } else if (!node.children[i].thirdParty && !node.children[i].reactRouter) {
+        } else if (!node.children[i].isThirdParty && !node.children[i].isReactRouter) {
           validChildren.push(node.children[i]);
         }
       }

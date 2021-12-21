@@ -8,12 +8,12 @@ export class Tree {
   readonly fileName: string;
   readonly filePath: string;
   readonly importPath: string;
-  expanded: boolean;
+  isExpanded: boolean;
   depth: number;
   count: number;
-  thirdParty: boolean;
-  reactRouter: boolean;
-  reduxConnect: boolean;
+  isThirdParty: boolean;
+  isReactRouter: boolean;
+  hasReduxConnect: boolean;
   readonly children: Array<Tree>;
   readonly parentId: string | null | undefined;
   readonly parentList: string[];
@@ -26,12 +26,12 @@ export class Tree {
     this.fileName = node?.fileName || '';
     this.filePath = node?.filePath || '';
     this.importPath = node?.importPath || '';
-    this.expanded = node?.expanded || false;
+    this.isExpanded = node?.isExpanded || false;
     this.depth = node?.depth || 0;
     this.count = node?.count || 1;
-    this.thirdParty = node?.thirdParty || false;
-    this.reactRouter = node?.reactRouter || false;
-    this.reduxConnect = node?.reduxConnect || false;
+    this.isThirdParty = node?.isThirdParty || false;
+    this.isReactRouter = node?.isReactRouter || false;
+    this.hasReduxConnect = node?.hasReduxConnect || false;
     this.children = node?.children || [];
     this.parentId = node?.parentId;
     this.parentList = node?.parentList || [];
@@ -91,15 +91,15 @@ export class Tree {
   }
 
   public isFile(): boolean {
-    return !this.thirdParty && !this.reactRouter;
+    return !this.isThirdParty && !this.isReactRouter;
   }
 
-  /** Switches expanded property state.
-   * @param expandedState if not undefined, defines value of expanded property for this node.
-   * If expandedState is undefined, expanded property is negated.
+  /** Switches isExpanded property state.
+   * @param expandedState if not undefined, defines value of isExpanded property for this node.
+   * If expandedState is undefined, isExpanded property is negated.
    */
   public toggleExpanded(expandedState?: boolean): void {
-    this.expanded = expandedState === undefined ? !this.expanded : expandedState;
+    this.isExpanded = expandedState === undefined ? !this.isExpanded : expandedState;
   }
 
   public findAndToggleExpanded(id: string, expandedState?: boolean): void {
