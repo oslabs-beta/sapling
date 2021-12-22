@@ -23,30 +23,7 @@ import {
 import { Tree, Token, ImportData } from './types';
 
 export class SaplingParser {
-  entryFile: string;
-  tree: Tree | undefined;
-
-  constructor(filePath: string) {
-    // Fix when selecting files in wsl file system
-    this.entryFile = filePath;
-    if (process.platform === 'linux' && this.entryFile.includes('wsl$')) {
-      this.entryFile = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
-      this.entryFile = '/' + this.entryFile.split('/').slice(3).join('/');
-      // Fix for when running wsl but selecting files held on windows file system
-    } else if (process.platform === 'linux' && /[a-zA-Z]/.test(this.entryFile[0])) {
-      const root = `/mnt/${this.entryFile[0].toLowerCase()}`;
-      this.entryFile = path.join(
-        root,
-        filePath.split(path.win32.sep).slice(1).join(path.posix.sep)
-      );
-    }
-
-    this.tree = undefined;
-    // Break down and reasemble given filePath safely for any OS using path?
-  }
-
-  // Public method to generate component tree based on current entryFile
-  public parse(): Tree {
+      const entryFile = ParserHelpers.processFilePath(input);
     // Create root Tree node
     const root = new Tree({
       name: path.basename(this.entryFile).replace(/\.[jt]sx?$/, ''),
@@ -77,58 +54,36 @@ export class SaplingParser {
       return this.tree;
     }
 
-    type ChildInfo = {
-      depth: number;
-      filePath: string;
-      isExpanded: boolean;
-    };
-
-    let children: Array<ChildInfo> = [];
-
-    const getChildNodes = (node: Tree): void => {
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      const { depth, filePath, isExpanded } = node;
-      children.push({ depth, filePath, isExpanded });
-    };
-
-    const matchExpand = (node: Tree): void => {
-      for (let i = 0; i < children.length; i += 1) {
-        const oldNode = children[i];
-        if (
-          oldNode.depth === node.depth &&
-          oldNode.filePath === node.filePath &&
-          oldNode.isExpanded
-        ) {
-          node.isExpanded = true;
+const ParserHelpers = {
+  processFilePath(filePath: string): string {
+    let output = filePath;
+    // Fix when selecting files in wsl file system
+    if (process.platform === 'linux' && filePath.includes('wsl$')) {
+      output = path.resolve(filePath.split(path.win32.sep).join(path.posix.sep));
+      output = '/' + output.split('/').slice(3).join('/');
+      // Fix for when running wsl but selecting files held on windows file system
+    } else if (process.platform === 'linux' && /[a-zA-Z]/.test(filePath[0])) {
+      const root = `/mnt/${filePath[0].toLowerCase()}`;
+      output = path.join(root, filePath.split(path.win32.sep).slice(1).join(path.posix.sep));
         }
+    return output;
+  },
+
+  validateFilePath(filePath: string): string {
+    const fileArray: string[] = [];
+    let parsedFileName = '';
+    // Handles Next.js component and other third-party imports
+    try {
+      fileArray.push(...fs.readdirSync(path.dirname(filePath)));
+    } catch {
+      return filePath;
       }
-    };
-
-    const callback = (node: Tree): void => {
-      if (node.filePath === filePath) {
-        node.children.forEach((child) => {
-          this.#traverseTree(getChildNodes, child);
-        });
-
-        const newNode = ASTParser.parser(node);
-
-        this.#traverseTree(matchExpand, newNode);
-
-        children = [];
-      }
-    };
-
-    this.#traverseTree(callback, this.tree);
-
-    return this.tree;
-  }
-
-  // Traverses the tree and changes expanded property of node whose id matches provided id
-  public toggleNode(id: string, expandedState: boolean): Tree | undefined {
-    const callback = (node: Tree) => {
-      if (node.id === id) {
-        node.isExpanded = expandedState;
-      }
+    // Checks that file exists and appends file extension to path if not given in import declaration
+    parsedFileName =
+      fileArray.find((str) => new RegExp(`${path.basename(filePath)}\\.[jt]sx?$`).test(str)) || '';
+    if (parsedFileName.length) return filePath + path.extname(parsedFileName);
+    return filePath;
+  },
     };
 
     this.#traverseTree(callback, this.tree);
