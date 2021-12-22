@@ -1,7 +1,6 @@
 import { getNonce } from '../helpers/getNonce';
+import { SaplingParser } from '../SaplingParser';
 
-// Tree type used by SaplingParser
-// The component tree is a nested data structure, where children are Trees
 export class Tree {
   readonly id: string;
   readonly name: string;
@@ -17,11 +16,11 @@ export class Tree {
   readonly children: Array<Tree>;
   readonly parentId: string | null | undefined;
   readonly parentList: string[];
-  readonly props: Record<string, boolean>;
-  error: '' | 'File not found.' | 'Error while processing this file/node';
+  props: Record<string, boolean>;
+  error: '' | 'File not found.' | 'Error while processing this file/node.';
 
   constructor(node?: Partial<Tree>) {
-    this.id = getNonce(); // shallow copies do not share identifiers
+    this.id = getNonce(); // shallow copies made from constructor do not share identifiers
     this.name = node?.name || '';
     this.fileName = node?.fileName || '';
     this.filePath = node?.filePath || '';
@@ -65,11 +64,13 @@ export class Tree {
       throw new Error('Invalid input type.');
     }
     if (typeof input[0] === 'string') {
-      const getById: Tree | undefined = this.subTree.filter(({ id }) => input[0] === id).pop();
-      const getByFilePath: Array<Tree> = this.subTree.filter(
-        ({ filePath }) => input[0] === filePath
-      );
-      return getById === undefined && !getByFilePath.length ? undefined : getById || getByFilePath;
+      const { subtree } = this;
+      const getById: Tree | undefined = subtree.filter(({ id }) => input[0] === id).pop();
+      const getByFilePath: Array<Tree> = subtree.filter(({ filePath }) => input[0] === filePath);
+      if (!getById && !getByFilePath.length) {
+        throw new Error('Node not found with input: ' + input[0]);
+      }
+      return getById || getByFilePath;
     }
     return input.reduce((acc: Tree, curr: number, i) => {
       if (!acc || !acc.children[curr]) {
@@ -118,8 +119,9 @@ export class Tree {
    * @param expandedState if not undefined, defines value of isExpanded property for this node.
    * If expandedState is undefined, isExpanded property is negated.
    */
-  public toggleExpanded(expandedState?: boolean): void {
-    this.isExpanded = expandedState === undefined ? !this.isExpanded : expandedState;
+  private toggleExpanded(expandedState?: boolean): void {
+    if (expandedState === undefined) this.set('isExpanded', !this.isExpanded);
+    else this.set('isExpanded', expandedState);
   }
 
   public findAndToggleExpanded(id: string, expandedState?: boolean): void {
@@ -128,18 +130,49 @@ export class Tree {
     target.toggleExpanded(expandedState);
   }
 
-  /** @returns Normalized array containing all descendants in subtree of 'this' except for the root node. */
-  private get subTree(): Array<Tree> {
+  /** Triggers on file save event.
+   * Finds node(s) that match saved document's file path,
+   * reparses their subtrees to reflect updated document content,
+   * and restores previous expanded state for descendants.
+   */
+  public updateOnSave(savedFilePath: string): void {
+    const targetNodes = this.get(savedFilePath) as Array<Tree>;
+    if (!targetNodes.length) {
+      throw new Error('No nodes were found with file path: ' + savedFilePath);
+    }
+    targetNodes.forEach((target) => {
+      const prevState = target.subtree.map((node) => {
+        const { depth, filePath, isExpanded } = node;
+        return { depth, filePath, isExpanded };
+      });
+
+      // Subtree of target is newly parsed in-place.
+      SaplingParser.parse(target);
+
+      const restoreExpanded = (node: Tree): void => {
+        node.toggleExpanded(
+          prevState.some(
+            ({ depth, filePath, isExpanded }) =>
+              isExpanded && node.depth === depth && node.filePath === filePath
+          )
+        );
+      };
+      target.traverse(restoreExpanded);
+    });
+  }
+
+  /** @returns Normalized array containing all descendants in subtree of current node. */
+  private get subtree(): Array<Tree> {
     const descendants: Array<Tree> = [];
     const callback = (node: Tree) => {
       descendants.push(...node.children);
     };
     this.traverse(callback);
-    return descendants;
+    return [this, ...descendants];
   }
 
   // Traverses all nodes of current component tree and applies callback to each node
-  private traverse(callback: (node: Tree) => void): void {
+  public traverse(callback: (node: Tree) => void): void {
     callback(this);
     if (!this.children || !this.children.length) return;
     this.children.forEach((child) => {

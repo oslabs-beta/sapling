@@ -62,7 +62,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         return;
       }
       // Post a message to the webview with the newly parsed tree
-      this.parser.updateTree(document.fileName);
+      this.tree.updateOnSave(document.fileName);
       await this.updateView();
     });
 
@@ -129,7 +129,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           // let the parser know that the specific node clicked changed it's expanded value, save in state
           await this.context.workspaceState.update(
             'sapling',
-            this.parser.toggleNode(data.value.id, data.value.expandedState)
+            this.tree.findAndToggleExpanded(data.value.id, data.value.expandedState)
           );
           break;
         }

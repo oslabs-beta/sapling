@@ -42,7 +42,7 @@
     // "@typescript-eslint/no-unnecessary-condition": "warn", // shouldn"t be enabled if "any" is used in codebase
     // "@typescript-eslint/no-unnecessary-type-assertion": "warn",
     "@typescript-eslint/no-unused-vars": "warn",
-    "@typescript-eslint/no-use-before-define": "warn",
+    "@typescript-eslint/no-use-before-define": "off",
     // "@typescript-eslint/promise-function-async": "warn",
     // "@typescript-eslint/require-await": "warn",
     "@typescript-eslint/semi": "warn",
@@ -58,6 +58,7 @@
     // "func-names": "off",
     // "guard-for-in": "off",
     // "import/extensions": "off",
+    "import/no-cycle": "warn",
     // "import/no-extraneous-dependencies": "off",
     // "import/no-unresolved": "off",
     "import/prefer-default-export": "off",
