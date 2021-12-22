@@ -11,7 +11,7 @@ import { Tree } from './types';
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
-  parser: SaplingParser | undefined;
+  tree?: Tree;
   private readonly _extensionUri: vscode.Uri;
   private readonly context: vscode.ExtensionContext;
 
@@ -21,8 +21,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     // Check for sapling state in workspace and set tree with previous state
     const state: Tree | undefined = context.workspaceState.get('sapling');
     if (state) {
-      this.parser = new SaplingParser(state.filePath);
-      this.parser.setTree(state);
+      this.tree = SaplingParser.parse(state.filePath);
     }
   }
 
@@ -59,7 +58,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     // Event listener that triggers whenever the user saves a document
     vscode.workspace.onDidSaveTextDocument(async (document) => {
       // Edge case that avoids sending messages to the webview when there is no tree currently populated
-      if (!this.parser) {
+      if (!this.tree) {
         return;
       }
       // Post a message to the webview with the newly parsed tree
@@ -81,8 +80,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             return;
           }
           // Run an instance of the parser
-          this.parser = new SaplingParser(data.value);
-          this.parser.parse();
+          this.tree = SaplingParser.parse(data.value);
           await this.updateView();
           break;
         }
@@ -103,7 +101,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
         // Case when sapling becomes visible in sidebar
         case 'onSaplingVisible': {
-          if (!this.parser) {
+          if (!this.tree) {
             return;
           }
           // Get and send the saved tree to the webview
@@ -125,7 +123,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
         // Case that changes the parser's recorded node expanded/collapsed structure
         case 'onNodeToggle': {
-          if (!this.parser) {
+          if (!this.tree) {
             return;
           }
           // let the parser know that the specific node clicked changed it's expanded value, save in state
@@ -176,8 +174,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     // Parse new tree with file as root
     if (fileName) {
-      this.parser = new SaplingParser(fileName);
-      this.parser.parse();
+      this.tree = SaplingParser.parse(fileName);
       await this.updateView();
     }
   };
@@ -190,16 +187,15 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   // Helper method to send updated tree data to view, and saves current tree to workspace
   private async updateView() {
     // If parser or webview do not exist, do nothing
-    if (!this.parser || !this._view) {
+    if (!this.tree || !this._view) {
       return;
     }
     // Save current state of tree to workspace state:
-    const tree = this.parser.getTree();
-    await this.context.workspaceState.update('sapling', tree);
+    await this.context.workspaceState.update('sapling', this.tree);
     // Send updated tree to webview
     await this._view.webview.postMessage({
       type: 'parsed-data',
-      value: tree,
+      value: this.tree,
     });
   }
 

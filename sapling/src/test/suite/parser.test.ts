@@ -13,22 +13,21 @@ import { Tree } from '../../types';
 // import * as myExtension from '../../extension';
 
 suite('Parser Test Suite', () => {
-  let parser: SaplingParser, tree: Tree, file: string;
+  let tree: Tree, file: string;
 
   // UNPARSED TREE TEST
   describe('It initializes correctly', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_0/index.js');
-      parser = new SaplingParser(file);
+      tree = SaplingParser.parse(file);
     });
 
     test('A new instance of the parser class is an object', () => {
-      expect(parser).to.be.an('object');
+      expect(tree).to.be.an('object');
     });
 
-    test('It initializes with a proper entry file and an undefined tree', () => {
-      expect(parser.entryFile).to.equal(file);
-      expect(parser.tree).to.be.undefined;
+    test('It initializes with a proper entry file', () => {
+      expect(tree.filePath).to.equal(file);
     });
   });
 
@@ -36,8 +35,7 @@ suite('Parser Test Suite', () => {
   describe('It works for simple apps', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_0/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('Parsing returns a object tree that is not undefined', () => {
@@ -55,8 +53,7 @@ suite('Parser Test Suite', () => {
   describe('It works for 2 components', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_1/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('Parsed tree has a property called name with value index and one child with name App, which has its own child Main', () => {
@@ -82,8 +79,7 @@ suite('Parser Test Suite', () => {
   describe('It works for third party / React Router components and destructured imports', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_2/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('Should parse destructured and third party imports', () => {
@@ -111,8 +107,7 @@ suite('Parser Test Suite', () => {
   describe('It identifies a Redux store connection and designates the component as such', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_3/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('The hasReduxConnect properties of the connected component and the unconnected component should be true and false, respectively', () => {
@@ -128,8 +123,7 @@ suite('Parser Test Suite', () => {
   describe('It works for aliases', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_4/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('alias should still give us components', () => {
@@ -147,8 +141,7 @@ suite('Parser Test Suite', () => {
     let names: string[], paths: string[], expectedNames: string[], expectedPaths: string[];
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_5/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
 
       names = tree.children.map((child) => child.name);
       paths = tree.children.map((child) => child.filePath);
@@ -182,8 +175,7 @@ suite('Parser Test Suite', () => {
   describe('It works for badly imported children nodes', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_6/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('improperly imported child component should exist but show an error', () => {
@@ -196,8 +188,7 @@ suite('Parser Test Suite', () => {
   describe('It should log an error when the parser encounters a javascript syntax error', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_7/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('Should have a nonempty error message on the invalid child and not parse further', () => {
@@ -211,8 +202,7 @@ suite('Parser Test Suite', () => {
   describe('It should properly count repeat components and consolidate and grab their props', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_8/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('Grandchild should have a count of 1', () => {
@@ -230,8 +220,7 @@ suite('Parser Test Suite', () => {
   describe('It should properly count repeat components and consolidate and grab their props', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_9/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('Grandchild should have a count of 2', () => {
@@ -248,8 +237,7 @@ suite('Parser Test Suite', () => {
   describe('It should render children when children are rendered as values of prop called component', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_10/index.jsx');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('Parent should have children that match the value stored in component prop', () => {
@@ -265,8 +253,7 @@ suite('Parser Test Suite', () => {
   describe('It should render the second call of mutually recursive components, but no further', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_11/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('Tree should not be undefined', () => {
@@ -289,8 +276,7 @@ suite('Parser Test Suite', () => {
   describe('It should parse Next.js applications', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_12/pages/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('Root should be named index, children should be named Head, Navbar, and Image, children of Navbar should be named Link and Image', () => {
@@ -310,8 +296,7 @@ suite('Parser Test Suite', () => {
   describe('It should parse VariableDeclaration imports including React.lazy imports', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_13/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('Root should be named index, it should have one child named App', () => {
@@ -332,8 +317,7 @@ suite('Parser Test Suite', () => {
   describe('It should parse require function calls with destructuring and aliasing', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_14/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('Root should be named index, it should have one child named App', () => {
@@ -361,8 +345,7 @@ suite('Parser Test Suite', () => {
   describe('It should parse variable declaration imports with Array Destructuring, and Object Destructuring with Aliasing', () => {
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_15/index.js');
-      parser = new SaplingParser(file);
-      tree = parser.parse();
+      tree = SaplingParser.parse(file);
     });
 
     test('Root should be named index, it should have one child named App', () => {

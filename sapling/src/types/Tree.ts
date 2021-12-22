@@ -82,6 +82,26 @@ export class Tree {
     }, this) as Tree;
   }
 
+  /** Modifies value of public class fields.
+   * Prohibits mutation of readonly properties: 'id', 'name', ' fileName', 'filePath', 'importPath', 'parentId', 'parentList'.
+   */
+  public set(key: keyof Tree, value: Tree[keyof Tree]): void {
+    if (key === 'children') {
+      if (value && Array.isArray(value) && (!value.length || value[0] instanceof Tree)) {
+        this[key].splice(0, this.children.length);
+        this[key].push(...(value as Array<Tree>));
+      } else throw new Error('Invalid children array.');
+    } else if (
+      ['id', 'name', ' fileName', 'filePath', 'importPath', 'parentId', 'parentList'].includes(
+        key as string
+      )
+    ) {
+      throw new Error('Cannot alter readonly property: ' + key + '. Create new tree instead.');
+    }
+    // @ts-expect-error
+    else this[key] = value;
+  }
+
   public isEmpty(): boolean {
     return !this.name.length || this.parentId === undefined;
   }

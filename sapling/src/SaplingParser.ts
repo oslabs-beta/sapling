@@ -23,36 +23,35 @@ import {
 import { Tree, Token, ImportData } from './types';
 
 export class SaplingParser {
+  /** Public method to generate component tree based on entry file or input node.
+   * @param filePath
+   * @returns Fully parsed component tree
+   * @param root node
+   * @returns Parses input root node in-place into component tree and returns undefined.
+   */
+  public static parse(filePath: string): Tree;
+  public static parse(root: Tree): void;
+  public static parse(input: unknown): unknown {
+    if (typeof input === 'string') {
       const entryFile = ParserHelpers.processFilePath(input);
-    // Create root Tree node
-    const root = new Tree({
-      name: path.basename(this.entryFile).replace(/\.[jt]sx?$/, ''),
-      fileName: path.basename(this.entryFile),
-      filePath: this.entryFile,
-      importPath: '/', // this.entryFile here breaks windows file path on root e.g. C:\\ is detected as third party
-      parentId: null,
-    });
-
-    this.tree = root;
-    ASTParser.parser(root);
-    return this.tree;
-  }
-
-  public getTree(): Tree | undefined {
-    return this.tree;
-  }
-
-  // Set Sapling Parser with a specific Data Tree (from workspace state)
-  public setTree(tree: Tree): void {
-    this.entryFile = tree.filePath;
-    this.tree = tree;
-  }
-
-  // Updates the tree when a file is saved in VS Code
-  public updateTree(filePath: string): Tree | undefined {
-    if (this.tree === undefined) {
-      return this.tree;
+      // Create root Tree node
+      const root = new Tree({
+        name: path.basename(entryFile).replace(/\.[jt]sx?$/, ''),
+        fileName: path.basename(entryFile),
+        filePath: entryFile,
+        importPath: '/', // this.entryFile here breaks windows file path on root e.g. C:\\ is detected as third party
+        parentId: null,
+      });
+      ASTParser.parser(root);
+      return root;
     }
+    if (input instanceof Tree) {
+      // ! returning undefined is necessary for in-place parsing to execute.
+      return ASTParser.parser(input);
+    }
+    throw new Error('Invalid input type.');
+  }
+}
 
 const ParserHelpers = {
   processFilePath(filePath: string): string {
@@ -65,7 +64,7 @@ const ParserHelpers = {
     } else if (process.platform === 'linux' && /[a-zA-Z]/.test(filePath[0])) {
       const root = `/mnt/${filePath[0].toLowerCase()}`;
       output = path.join(root, filePath.split(path.win32.sep).slice(1).join(path.posix.sep));
-        }
+    }
     return output;
   },
 
@@ -77,114 +76,76 @@ const ParserHelpers = {
       fileArray.push(...fs.readdirSync(path.dirname(filePath)));
     } catch {
       return filePath;
-      }
+    }
     // Checks that file exists and appends file extension to path if not given in import declaration
     parsedFileName =
       fileArray.find((str) => new RegExp(`${path.basename(filePath)}\\.[jt]sx?$`).test(str)) || '';
     if (parsedFileName.length) return filePath + path.extname(parsedFileName);
     return filePath;
   },
-    };
-
-    this.#traverseTree(callback, this.tree);
-
-    return this.tree;
-  }
-
-  // Traverses all nodes of current component tree and applies callback to each node
-  #traverseTree(callback: (node: Tree) => void, node: Tree | undefined = this.tree): void {
-    if (!node) {
-      return;
-    }
-
-    callback(node);
-
-    node.children.forEach((childNode) => {
-      this.#traverseTree(callback, childNode);
-    });
-  }
-}
+};
 
 const ASTParser = {
   // Recursively builds the React component tree structure starting from root node
-  parser(componentTree: Tree): Tree {
-    // If import is a node module, do not parse any deeper
-    if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
-      componentTree.isThirdParty = true;
-      if (
-        componentTree.fileName === 'react-router-dom' ||
-        componentTree.fileName === 'react-router'
-      ) {
-        componentTree.isReactRouter = true;
+  parser(root: Tree): void {
+    const recurse = (componentTree: Tree): void => {
+      // If import is a node module, do not parse any deeper
+      if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
+        componentTree.set('isThirdParty', true);
+        if (
+          componentTree.fileName === 'react-router-dom' ||
+          componentTree.fileName === 'react-router'
+        ) {
+          componentTree.set('isReactRouter', true);
+        }
+        return;
       }
-      return componentTree;
-    }
 
-    // Check that file has valid fileName/Path, if not found, add error to node and halt
-    if (!componentTree.importPath) {
-      componentTree.error = 'File not found.';
-      return componentTree;
-    }
-
-    // If current node recursively calls itself, do not parse any deeper:
-    if (componentTree.parentList.includes(componentTree.filePath)) {
-      return componentTree;
-    }
-
-    // Create abstract syntax tree of current component tree file
-    let ast: ASTNode | Record<string, Array<Token>>;
-    try {
-      // See: https://babeljs.io/docs/en/babel-parser#options
-      ast = babelParse(fs.readFileSync(path.resolve(componentTree.filePath), 'utf-8'), {
-        sourceType: 'module',
-        tokens: true, // default: false, tokens deprecated from babel v7
-        plugins: ['jsx', 'typescript'],
-        // TODO: additional plugins to look into supporting for future releases
-        // 'importMeta': https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import.meta
-        // 'importAssertions': parses ImportAttributes type
-        // https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#ImportAssertions
-        allowImportExportEverywhere: true, // enables parsing dynamic imports
-        attachComment: false, // performance benefits
-      });
-      // If no ast or ast tokens, error when parsing file
-      if (!ast || !ast.tokens) {
-        throw new Error();
+      // Check that file has valid fileName/Path, if not found, add error to node and halt
+      if (!componentTree.importPath) {
+        componentTree.set('error', 'File not found.');
+        return;
       }
-    } catch (err) {
-      componentTree.error = 'Error while processing this file/node';
-      return componentTree;
-    }
 
-    // Find imports in the current file, then find child components in the current file
-    const imports = ImportParser.parse(ast.program.body);
+      // If current node recursively calls itself, do not parse any deeper:
+      if (componentTree.parentList.includes(componentTree.filePath)) {
+        return;
+      }
 
-    // Get any JSX Children of current file:
-    componentTree.children.splice(0, componentTree.children.length);
-    componentTree.children.push(...ASTParser.getJSXChildren(ast.tokens, imports, componentTree));
+      // Create abstract syntax tree of current component tree file
+      let ast: ASTNode | Record<string, Array<Token>>;
+      try {
+        // See: https://babeljs.io/docs/en/babel-parser#options
+        ast = babelParse(fs.readFileSync(path.resolve(componentTree.filePath), 'utf-8'), {
+          sourceType: 'module',
+          tokens: true, // default: false, tokens deprecated from babel v7
+          plugins: ['jsx', 'typescript'],
+          // TODO: additional plugins to look into supporting for future releases
+          // 'importMeta': https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import.meta
+          // 'importAssertions': parses ImportAttributes type
+          // https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#ImportAssertions
+          allowImportExportEverywhere: true, // enables parsing dynamic imports
+          attachComment: false, // performance benefits
+        });
+        // If no ast or ast tokens, error when parsing file
+        if (!ast || !ast.tokens) {
+          throw new Error();
+        }
+      } catch (err) {
+        componentTree.set('error', 'Error while processing this file/node.');
+        return;
+      }
 
-    // Check if current node is connected to the Redux store
-    componentTree.hasReduxConnect = ASTParser.checkForRedux(ast.tokens, imports);
+      // Find imports in the current file, then find child components in the current file
+      const imports = ImportParser.parse(ast.program.body);
 
-    // Recursively parse all child components
-    componentTree.children.forEach((child) => ASTParser.parser(child));
+      // Get any JSX Children of current file:
+      componentTree.set('children', ASTParser.getJSXChildren(ast.tokens, imports, componentTree));
 
-    return componentTree;
-  },
-
-  validateFilePath(filePath: string): string {
-    const fileArray: string[] = [];
-    let parsedFileName = '';
-    // Handles Next.js component and other third-party imports
-    try {
-      fileArray.push(...fs.readdirSync(path.dirname(filePath)));
-    } catch {
-      return filePath;
-    }
-    // Checks that file exists and appends file extension to path if not given in import declaration
-    parsedFileName =
-      fileArray.find((str) => new RegExp(`${path.basename(filePath)}\\.[jt]sx?$`).test(str)) || '';
-    if (parsedFileName.length) return filePath + path.extname(parsedFileName);
-    return filePath;
+      // Check if current node is connected to the Redux store
+      componentTree.set('hasReduxConnect', ASTParser.checkForRedux(ast.tokens, imports));
+    };
+    root.traverse(recurse);
   },
 
   getChildNodes(
@@ -194,17 +155,18 @@ const ASTParser = {
     parent: Tree,
     children: Record<string, Tree>
   ): Record<string, Tree> {
+    const childNodes = { ...children };
     if (children[astToken.value]) {
-      children[astToken.value].count += 1;
-      Object.assign(children[astToken.value].props, props);
+      childNodes[astToken.value].count += 1;
+      Object.assign(childNodes[astToken.value].props, props);
     } else {
       const moduleIdentifier = imports[astToken.value].importPath;
       const name = imports[astToken.value].importName;
-      const filePath = ASTParser.validateFilePath(
+      const filePath = ParserHelpers.validateFilePath(
         path.resolve(path.dirname(parent.filePath), moduleIdentifier)
       );
       // Add tree node to childNodes if one does not exist
-      children[astToken.value] = new Tree({
+      childNodes[astToken.value] = new Tree({
         name,
         fileName: path.basename(filePath),
         filePath,
@@ -215,7 +177,7 @@ const ASTParser = {
         parentList: [parent.filePath].concat(parent.parentList),
       });
     }
-    return children;
+    return childNodes;
   },
 
   // Finds JSX React Components in current file
@@ -254,7 +216,8 @@ const ASTParser = {
   },
 
   // Extracts prop names from a JSX element
-  getJSXProps(astTokens: Array<Token>, j: number): Record<string, boolean> {
+  getJSXProps(astTokens: Array<Token>, startLoc: number): Record<string, boolean> {
+    let j = startLoc;
     const props: Record<string, boolean> = {};
     while (astTokens[j].type.label !== 'jsxTagEnd') {
       if (astTokens[j].type.label === 'jsxName' && astTokens[j + 1].value === '=') {
