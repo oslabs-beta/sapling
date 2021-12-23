@@ -19,10 +19,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     this.context = context;
     this._extensionUri = context.extensionUri;
     // Check for sapling state in workspace and set tree with previous state
-    const state: Tree | undefined = context.workspaceState.get('sapling');
-    if (state) {
-      this.tree = SaplingParser.parse(state.filePath);
-    }
+    this.tree = context.workspaceState.get('sapling');
   }
 
   // Instantiate the connection to the webview
@@ -74,11 +71,12 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       // Switch cases based on the type sent as a message
       switch (data.type) {
         // Case when the user selects a file to begin a tree
-        case "onFile": {
+        case 'onFile': {
           // open vscode dialog selector
-          vscode.window.showOpenDialog({canSelectMany: false, canSelectFolders: false})
-            .then( uri => {
-            
+          const uri = await vscode.window.showOpenDialog({
+            canSelectMany: false,
+            canSelectFolders: false,
+          });
             // Edge case if selector doesn't work
             if (!(uri && uri[0])) {
               return;
@@ -86,12 +84,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
             // convert uri to path string
             const filePath = uri[0].fsPath;
-
-            // Run an instance of the parser
-            this.parser = new SaplingParser(filePath);
-            this.parser.parse();
-            this.updateView();
-            });
+          // Generate tree with SaplingParser
+          this.tree = SaplingParser.parse(filePath);
+          await this.updateView();
           break;
         }
 
