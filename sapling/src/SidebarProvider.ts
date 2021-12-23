@@ -5,7 +5,7 @@
 import * as vscode from 'vscode';
 import { getNonce } from './helpers/getNonce';
 import { SaplingParser } from './SaplingParser';
-import { Tree } from './types';
+import { Tree, SerializedTree } from './types';
 
 // Sidebar class that creates a new instance of the sidebar + adds functionality with the parser
 export class SidebarProvider implements vscode.WebviewViewProvider {
@@ -19,7 +19,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     this.context = context;
     this._extensionUri = context.extensionUri;
     // Check for sapling state in workspace and set tree with previous state
-    this.tree = context.workspaceState.get('sapling');
+    const state = context.workspaceState.get('sapling');
+    if (state) this.tree = Tree.deserialize(state as SerializedTree);
   }
 
   // Instantiate the connection to the webview
@@ -77,13 +78,12 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             canSelectMany: false,
             canSelectFolders: false,
           });
-            // Edge case if selector doesn't work
-            if (!(uri && uri[0])) {
-              return;
-            }
-
-            // convert uri to path string
-            const filePath = uri[0].fsPath;
+          // Edge case if selector doesn't work
+          if (!(uri && uri[0])) {
+            return;
+          }
+          // convert uri to path string
+          const filePath = uri[0].fsPath;
           // Generate tree with SaplingParser
           this.tree = SaplingParser.parse(filePath);
           await this.updateView();
@@ -188,12 +188,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     if (!this.tree || !this._view) {
       return;
     }
+    const treeData = this.tree.serialize();
     // Save current state of tree to workspace state:
-    await this.context.workspaceState.update('sapling', this.tree);
+    await this.context.workspaceState.update('sapling', treeData);
     // Send updated tree to webview
     await this._view.webview.postMessage({
       type: 'parsed-data',
-      value: this.tree,
+      value: treeData,
     });
   }
 

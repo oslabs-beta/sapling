@@ -1,7 +1,30 @@
 import { getNonce } from '../helpers/getNonce';
 import { SaplingParser } from '../SaplingParser';
 
+export interface SerializedTree {
+  [key: string]: unknown;
+  readonly type: 'SerializedTree';
+  readonly id: string;
+  readonly name: string;
+  readonly fileName: string;
+  readonly filePath: string;
+  readonly importPath: string;
+  readonly isExpanded: boolean;
+  readonly depth: number;
+  readonly count: number;
+  readonly isThirdParty: boolean;
+  readonly isReactRouter: boolean;
+  readonly hasReduxConnect: boolean;
+  readonly children: Array<SerializedTree>;
+  readonly parentId: string | null | undefined;
+  readonly parentList: string[];
+  readonly props: Record<string, boolean>;
+  readonly error: '' | 'File not found.' | 'Error while processing this file/node.';
+}
+
 export class Tree {
+  [key: string]: unknown;
+  readonly type = 'Tree';
   readonly id: string;
   readonly name: string;
   readonly fileName: string;
@@ -83,7 +106,7 @@ export class Tree {
     }, this) as Tree;
   }
 
-  /** Modifies value of public class fields.
+  /** Modifies value of class fields.
    * Prohibits mutation of readonly properties: 'id', 'name', ' fileName', 'filePath', 'importPath', 'parentId', 'parentList'.
    */
   public set(key: keyof Tree, value: Tree[keyof Tree]): void {
@@ -97,10 +120,8 @@ export class Tree {
         key as string
       )
     ) {
-      throw new Error('Cannot alter readonly property: ' + key + '. Create new tree instead.');
-    }
-    // @ts-expect-error
-    else this[key] = value;
+      throw new Error(`Cannot alter readonly property: ${key}. Create new tree instead.`);
+    } else this[key] = value;
   }
 
   public isEmpty(): boolean {
@@ -113,6 +134,33 @@ export class Tree {
 
   public isFile(): boolean {
     return !this.isThirdParty && !this.isReactRouter;
+  }
+
+  /** Recursively captures and exports internal state for all nested nodes.
+   * Required for lossless conversion to/from workspaceState memento object (webview persistence).
+   * @returns JSON-stringifyable SerializedTree object
+   */
+  public serialize(): SerializedTree {
+    const recurse = (node: Tree): SerializedTree => ({
+      ...node,
+      type: 'SerializedTree',
+      children: node.children.map((child) => recurse(child)),
+    });
+    return recurse(this);
+  }
+
+  /** Recursively converts all nested node data in SerializedTree object into Tree class objects.
+   * @param data: SerializedTree Object containing state data for all nodes in component tree to be restored into webview.
+   * @returns Tree class object with all nested descendant nodes also of Tree class.
+   */
+  public static deserialize(data: SerializedTree): Tree {
+    const recurse = (node: SerializedTree): Tree =>
+      new Tree({
+        ...node,
+        type: 'Tree',
+        children: node.children.map((child) => recurse(child)),
+      });
+    return recurse(data);
   }
 
   /** Switches isExpanded property state. */
