@@ -115,25 +115,26 @@ export class Tree {
     return !this.isThirdParty && !this.isReactRouter;
   }
 
-  /** Switches isExpanded property state.
-   * @param expandedState if not undefined, defines value of isExpanded property for this node.
-   * If expandedState is undefined, isExpanded property is negated.
-   */
-  private toggleExpanded(expandedState?: boolean): void {
-    if (expandedState === undefined) this.set('isExpanded', !this.isExpanded);
-    else this.set('isExpanded', expandedState);
+  /** Switches isExpanded property state. */
+  private toggleExpanded(): void {
+    this.set('isExpanded', !this.isExpanded);
   }
 
+  /** Finds subtree node and changes isExpanded property state.
+   * @param expandedState if not undefined, defines value of isExpanded property for target node.
+   * If expandedState is undefined, isExpanded property is negated.
+   */
   public findAndToggleExpanded(id: string, expandedState?: boolean): void {
     const target = this.get(id) as Tree | undefined;
     if (target === undefined) throw new Error('Invalid input id.');
-    target.toggleExpanded(expandedState);
+    if (expandedState === undefined) target.toggleExpanded();
+    else target.set('isExpanded', expandedState);
   }
 
   /** Triggers on file save event.
    * Finds node(s) that match saved document's file path,
    * reparses their subtrees to reflect updated document content,
-   * and restores previous expanded state for descendants.
+   * and restores previous isExpanded state for descendants.
    */
   public updateOnSave(savedFilePath: string): void {
     const targetNodes = this.get(savedFilePath) as Array<Tree>;
@@ -150,7 +151,8 @@ export class Tree {
       SaplingParser.parse(target);
 
       const restoreExpanded = (node: Tree): void => {
-        node.toggleExpanded(
+        node.set(
+          'isExpanded',
           prevState.some(
             ({ depth, filePath, isExpanded }) =>
               isExpanded && node.depth === depth && node.filePath === filePath

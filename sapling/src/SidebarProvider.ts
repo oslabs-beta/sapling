@@ -136,11 +136,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           if (!this.tree) {
             return;
           }
+          this.tree.findAndToggleExpanded(data.value.id);
           // let the parser know that the specific node clicked changed it's expanded value, save in state
-          await this.context.workspaceState.update(
-            'sapling',
-            this.tree.findAndToggleExpanded(data.value.id, data.value.expandedState)
-          );
+          await this.updateView();
           break;
         }
 
