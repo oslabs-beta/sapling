@@ -187,11 +187,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     }
   };
 
-  // revive statement for the webview panel
-  public revive(panel: vscode.WebviewView): void {
-    this._view = panel;
-  }
-
   // Helper method to send updated tree data to view, and saves current tree to workspace
   private async updateView() {
     // If parser or webview do not exist, do nothing
