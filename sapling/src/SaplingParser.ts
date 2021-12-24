@@ -192,6 +192,9 @@ export class SaplingParser {
     // Recursively parse all child components
     componentTree.children.forEach(child => this.parser(child));
 
+    // Remove any existing error messages if no errors have been found during current pass.
+    componentTree.error = '';
+
     return componentTree;
   }
 
