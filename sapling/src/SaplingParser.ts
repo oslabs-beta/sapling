@@ -144,6 +144,9 @@ const ASTParser = {
 
       // Check if current node is connected to the Redux store
       componentTree.set('hasReduxConnect', ASTParser.checkForRedux(ast.tokens, imports));
+
+      // Remove any existing error messages if no errors have been found during current pass.
+      componentTree.set('error', '');
     };
     root.traverse(recurse);
   },
