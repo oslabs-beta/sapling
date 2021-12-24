@@ -31,7 +31,16 @@
   color: var(--vscode-editorError-foreground);
 }
 
-.inputfile {
+.inputFile {
+  width: max-content;
+  background: var(--vscode-button-background);
+  padding: 0.05em .2em;
+  margin-left: .8em;
+  margin-top: .2em;
+  border-radius: 5px;
+}
+
+.inputfile + button {
   width: 0.1px;
   height: 0.1px;
   opacity: 0;
@@ -40,24 +49,19 @@
   z-index: -1;
 }
 
-.inputfile + label {
-  padding: .4em;
-  font-size: 1em;
+.inputfile + button + label {
+  font-size: 0.8em;
   font-weight: 700;
   color: var(--vscode-button-foreground);
-  background: var(--vscode-button-background);
   display: inline-block;
-  margin-left: .8em;
-  margin-top: .2em;
-  border-radius: 5px;
   transition: .2s;
 }
 
-.inputfile + label:hover {
+.inputfile + button + label:hover {
   background: var(--vscode-button-hoverBackground);
 }
 
-.inputfile + label {
+.inputfile + button + label {
   cursor: pointer;
 }
 
