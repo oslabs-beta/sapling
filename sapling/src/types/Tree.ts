@@ -9,9 +9,9 @@ export interface SerializedTree {
   readonly fileName: string;
   readonly filePath: string;
   readonly importPath: string;
-  readonly isExpanded: boolean;
   readonly depth: number;
   readonly count: number;
+  readonly isExpanded: boolean;
   readonly isThirdParty: boolean;
   readonly isReactRouter: boolean;
   readonly hasReduxConnect: boolean;
@@ -25,43 +25,132 @@ export interface SerializedTree {
 export class Tree {
   [key: string]: unknown;
   readonly type = 'Tree';
-  readonly id: string;
-  readonly name: string;
-  readonly fileName: string;
-  readonly filePath: string;
-  readonly importPath: string;
-  isExpanded: boolean;
-  depth: number;
-  count: number;
-  isThirdParty: boolean;
-  isReactRouter: boolean;
-  hasReduxConnect: boolean;
-  readonly children: Array<Tree>;
-  readonly parentId: string | null | undefined;
-  readonly parentList: string[];
-  props: Record<string, boolean>;
-  error: '' | 'File not found.' | 'Error while processing this file/node.';
+  private readonly _id: string;
+  private readonly _name: string;
+  private readonly _fileName: string;
+  private readonly _filePath: string;
+  private readonly _importPath: string;
+  private _depth: number;
+  private _count: number;
+  private _isExpanded: boolean;
+  private _isThirdParty: boolean;
+  private _isReactRouter: boolean;
+  private _hasReduxConnect: boolean;
+  private readonly _children: Array<Tree>;
+  private readonly _parentId: string | null | undefined;
+  private readonly _parentList: string[];
+  private readonly _props: Record<string, boolean>;
+  private _error: '' | 'File not found.' | 'Error while processing this file/node.';
 
   constructor(node?: Partial<Tree>) {
-    this.id = getNonce(); // shallow copies made from constructor do not share identifiers
-    this.name = node?.name || '';
-    this.fileName = node?.fileName || '';
-    this.filePath = node?.filePath || '';
-    this.importPath = node?.importPath || '';
-    this.isExpanded = node?.isExpanded || false;
-    this.depth = node?.depth || 0;
-    this.count = node?.count || 1;
-    this.isThirdParty = node?.isThirdParty || false;
-    this.isReactRouter = node?.isReactRouter || false;
-    this.hasReduxConnect = node?.hasReduxConnect || false;
-    this.children = node?.children || [];
-    this.parentId = node?.parentId;
-    this.parentList = node?.parentList || [];
-    this.props = node?.props || {};
-    this.error = node?.error || '';
+    this._id = getNonce(); // shallow copies made from constructor do not share identifiers
+    this._name = node?.name || '';
+    this._fileName = node?.fileName || '';
+    this._filePath = node?.filePath || '';
+    this._importPath = node?.importPath || '';
+    this._depth = node?.depth || 0;
+    this._count = node?.count || 1;
+    this._isExpanded = node?.isExpanded || false;
+    this._isThirdParty = node?.isThirdParty || false;
+    this._isReactRouter = node?.isReactRouter || false;
+    this._hasReduxConnect = node?.hasReduxConnect || false;
+    this._children = node?.children || [];
+    this._parentId = node?.parentId;
+    this._parentList = node?.parentList || [];
+    this._props = node?.props || {};
+    this._error = node?.error || '';
   }
 
-  /** Getter for descendant nodes in the subtree of 'this'.
+  /** All class fields are accessible using member expressions.
+   * To prevent read access to a field, remove its getter method. */
+
+  public get id(): string {
+    return this._id;
+  }
+  public get name(): string {
+    return this._name;
+  }
+  public get fileName(): string {
+    return this._fileName;
+  }
+  public get filePath(): string {
+    return this._filePath;
+  }
+  public get importPath(): string {
+    return this._importPath;
+  }
+  public get depth(): number {
+    return this._depth;
+  }
+  public get count(): number {
+    return this._count;
+  }
+  public get isExpanded(): boolean {
+    return this._isExpanded;
+  }
+  public get isThirdParty(): boolean {
+    return this._isThirdParty;
+  }
+  public get isReactRouter(): boolean {
+    return this._isReactRouter;
+  }
+  public get hasReduxConnect(): boolean {
+    return this._hasReduxConnect;
+  }
+  public get children(): Array<Tree> {
+    return this._children;
+  }
+  public get parentId(): string | null | undefined {
+    return this._parentId;
+  }
+  public get parentList(): string[] {
+    return this._parentList;
+  }
+  public get props(): Record<string, boolean> {
+    return this._props;
+  }
+  public get error(): '' | 'File not found.' | 'Error while processing this file/node.' {
+    return this._error;
+  }
+
+  /** Sets or modifies value of class fields and performs input validation.
+   * Direct assignment of class fields using member expressions is not allowed.
+   * @param key The class field to be modified.
+   * @param value The value to be assigned.
+   * Defines unalterable class fields: 'id', 'name', ' fileName', 'filePath', 'importPath', 'parentId', 'parentList'.
+   * Use for complete replacement of 'children', 'props' elements (for mutation, use array/object methods).
+   */
+  public set(key: keyof Tree, value: Tree[keyof Tree]): void {
+    if (key === 'children') {
+      if (value && Array.isArray(value) && (!value.length || value[0] instanceof Tree)) {
+        this._children.splice(0, this._children.length);
+        this._children.push(...(value as Array<Tree>));
+        return;
+      }
+      throw new Error('Invalid input children array.');
+    }
+    if (key === 'props') {
+      if (
+        value &&
+        typeof value === 'object' &&
+        Object.entries(value).every(([k, v]) => typeof k === 'string' && typeof v === 'boolean')
+      ) {
+        Object.keys(this._props).forEach((k) => delete this._props[k]);
+        Object.entries(value).forEach(([k, v]: [string, boolean]) => (this._props[k] = v));
+        return;
+      }
+      throw new Error('Invalid input props object.');
+    }
+    if (
+      ['id', 'name', ' fileName', 'filePath', 'importPath', 'parentId', 'parentList'].includes(
+        key as string
+      )
+    ) {
+      throw new Error(`Cannot alter readonly property: ${key}. Create new tree instead.`);
+    } else this[`_${key}`] = value;
+  }
+
+  /** Finds tree node(s) and returns reference pointer.
    * @param id
    * @returns Tree node with matching id, or undefined if not found.
    * @param filePath
@@ -73,7 +162,7 @@ export class Tree {
    * e.g. (0) is the first child of root
    * e.g. (0, 2, 1) would be the second child of the third child of the first child of root
    * i.e. this.children[0].children[2].children[1]
-   * @returns the Tree node found at the destination of this traversal path
+   * @returns Tree node found at the destination of input traversal path.
    */
   public get(...path: number[]): Tree;
   public get(...input: Array<unknown>): unknown {
@@ -85,8 +174,7 @@ export class Tree {
       (typeof input[0] !== 'string' && typeof input[0] !== 'number')
     ) {
       throw new Error('Invalid input type.');
-    }
-    if (typeof input[0] === 'string') {
+    } else if (typeof input[0] === 'string') {
       const { subtree } = this;
       const getById: Tree | undefined = subtree.filter(({ id }) => input[0] === id).pop();
       const getByFilePath: Array<Tree> = subtree.filter(({ filePath }) => input[0] === filePath);
@@ -106,24 +194,6 @@ export class Tree {
     }, this) as Tree;
   }
 
-  /** Modifies value of class fields.
-   * Prohibits mutation of readonly properties: 'id', 'name', ' fileName', 'filePath', 'importPath', 'parentId', 'parentList'.
-   */
-  public set(key: keyof Tree, value: Tree[keyof Tree]): void {
-    if (key === 'children') {
-      if (value && Array.isArray(value) && (!value.length || value[0] instanceof Tree)) {
-        this[key].splice(0, this.children.length);
-        this[key].push(...(value as Array<Tree>));
-      } else throw new Error('Invalid children array.');
-    } else if (
-      ['id', 'name', ' fileName', 'filePath', 'importPath', 'parentId', 'parentList'].includes(
-        key as string
-      )
-    ) {
-      throw new Error(`Cannot alter readonly property: ${key}. Create new tree instead.`);
-    } else this[key] = value;
-  }
-
   public isEmpty(): boolean {
     return !this.name.length || this.parentId === undefined;
   }
@@ -141,11 +211,17 @@ export class Tree {
    * @returns JSON-stringifyable SerializedTree object
    */
   public serialize(): SerializedTree {
-    const recurse = (node: Tree): SerializedTree => ({
-      ...node,
-      type: 'SerializedTree',
-      children: node.children.map((child) => recurse(child)),
-    });
+    const recurse = (node: Tree): SerializedTree => {
+      const obj = {
+        ...node,
+        _type: 'SerializedTree',
+        _children: node.children.map((child) => recurse(child)),
+      };
+      return Object.entries(obj).reduce((acc, [k, v]) => {
+        acc[k.slice(1)] = v;
+        return acc;
+      }, {} as SerializedTree);
+    };
     return recurse(this);
   }
 

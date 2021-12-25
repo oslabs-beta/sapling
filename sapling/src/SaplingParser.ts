@@ -124,7 +124,7 @@ const ASTParser = {
           // 'importMeta': https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import.meta
           // 'importAssertions': parses ImportAttributes type
           // https://github.com/babel/babel/blob/main/packages/babel-parser/ast/spec.md#ImportAssertions
-          allowImportExportEverywhere: true, // enables parsing dynamic imports
+          allowImportExportEverywhere: true, // enables parsing dynamic imports and exports in body
           attachComment: false, // performance benefits
         });
         // If no ast or ast tokens, error when parsing file
@@ -159,9 +159,10 @@ const ASTParser = {
     children: Record<string, Tree>
   ): Record<string, Tree> {
     const childNodes = { ...children };
-    if (children[astToken.value]) {
-      childNodes[astToken.value].count += 1;
-      Object.assign(childNodes[astToken.value].props, props);
+    const currentNode = children[astToken.value];
+    if (currentNode) {
+      currentNode.set('count', currentNode.count + 1);
+      Object.assign(currentNode.props, props);
     } else {
       const moduleIdentifier = imports[astToken.value].importPath;
       const name = imports[astToken.value].importName;

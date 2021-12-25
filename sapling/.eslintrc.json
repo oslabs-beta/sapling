@@ -76,7 +76,7 @@
     // "no-useless-constructor": "off",
     "no-underscore-dangle": "off",
     // "no-unused-expressions": "off",
-    "no-return-assign": "warn",
+    "no-return-assign": "off",
     "prefer-arrow-callback": "off", // conflicts with prettier
     // "prefer-destructuring": "off",
     "prefer-template": "off",
