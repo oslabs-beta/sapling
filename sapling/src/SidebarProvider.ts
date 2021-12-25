@@ -79,7 +79,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             canSelectFolders: false,
           });
           // Edge case if selector doesn't work
-          if (!(uri && uri[0])) {
+          if (!uri || !uri[0]) {
             return;
           }
           // convert uri to path string
