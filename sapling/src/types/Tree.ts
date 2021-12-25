@@ -117,7 +117,7 @@ export class Tree {
    * Direct assignment of class fields using member expressions is not allowed.
    * @param key The class field to be modified.
    * @param value The value to be assigned.
-   * Defines unalterable class fields: 'id', 'name', ' fileName', 'filePath', 'importPath', 'parentId', 'parentList'.
+   * Defines unalterable class fields: 'isExpanded', 'id', 'name', ' fileName', 'filePath', 'importPath', 'parentId', 'parentList'.
    * Use for complete replacement of 'children', 'props' elements (for mutation, use array/object methods).
    */
   public set(key: keyof Tree, value: Tree[keyof Tree]): void {
@@ -142,11 +142,18 @@ export class Tree {
       throw new Error('Invalid input props object.');
     }
     if (
-      ['id', 'name', ' fileName', 'filePath', 'importPath', 'parentId', 'parentList'].includes(
-        key as string
-      )
+      [
+        'id',
+        'name',
+        'fileName',
+        'filePath',
+        'importPath',
+        'parentId',
+        'parentList',
+        'isExpanded',
+      ].includes(key as string)
     ) {
-      throw new Error(`Cannot alter readonly property: ${key}. Create new tree instead.`);
+      throw new Error(`Altering property ${key} is not allowed. Create new tree instance instead.`);
     } else this[`_${key}`] = value;
   }
 
@@ -226,8 +233,8 @@ export class Tree {
   }
 
   /** Switches isExpanded property state. */
-  private toggleExpanded(): void {
-    this.set('isExpanded', !this.isExpanded);
+  public toggleExpanded(): void {
+    this._isExpanded = !this._isExpanded;
   }
 
   /** Finds subtree node and changes isExpanded property state.
@@ -237,8 +244,8 @@ export class Tree {
   public findAndToggleExpanded(id: string, expandedState?: boolean): void {
     const target = this.get(id) as Tree | undefined;
     if (target === undefined) throw new Error('Invalid input id.');
-    if (expandedState === undefined) target.toggleExpanded();
-    else target.set('isExpanded', expandedState);
+    // If expandedState is undefined, predicate will always evaluate to true due to type difference.
+    if (target.isExpanded !== expandedState) target.toggleExpanded();
   }
 
   /** Triggers on file save event.
@@ -253,21 +260,22 @@ export class Tree {
     }
     targetNodes.forEach((target) => {
       const prevState = target.subtree.map((node) => {
-        const { depth, filePath, isExpanded } = node;
-        return { depth, filePath, isExpanded };
+        return { isExpanded: node.isExpanded, depth: node.depth, filePath: node.filePath };
       });
 
       // Subtree of target is newly parsed in-place.
       SaplingParser.parse(target);
 
       const restoreExpanded = (node: Tree): void => {
-        node.set(
-          'isExpanded',
+        if (
+          node.isExpanded !==
           prevState.some(
-            ({ depth, filePath, isExpanded }) =>
+            ({ isExpanded, depth, filePath }) =>
               isExpanded && node.depth === depth && node.filePath === filePath
           )
-        );
+        ) {
+          node.toggleExpanded();
+        }
       };
       target.traverse(restoreExpanded);
     });
@@ -283,7 +291,7 @@ export class Tree {
         ...node,
         _type: 'SerializedTree',
         _children: node.children.map((child) => recurse(child)),
-    };
+      };
       return Object.entries(obj).reduce((acc, [k, v]) => {
         acc[k.slice(1)] = v;
         return acc;
@@ -302,7 +310,7 @@ export class Tree {
         ...node,
         type: 'Tree',
         children: node.children.map((child) => recurse(child)),
-    });
+      });
     return recurse(data);
   }
 }
