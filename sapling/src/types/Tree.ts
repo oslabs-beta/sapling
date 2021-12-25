@@ -194,6 +194,25 @@ export class Tree {
     }, this) as Tree;
   }
 
+  /** @returns Normalized array containing current node and all of its descendants. */
+  public get subtree(): Array<Tree> {
+    const descendants: Array<Tree> = [];
+    const callback = (node: Tree) => {
+      descendants.push(...node.children);
+    };
+    this.traverse(callback);
+    return [this, ...descendants];
+  }
+
+  /** Recursively applies callback on current node and all of its descendants. */
+  public traverse(callback: (node: Tree) => void): void {
+    callback(this);
+    if (!this.children || !this.children.length) return;
+    this.children.forEach((child) => {
+      child.traverse(callback);
+    });
+  }
+
   public isEmpty(): boolean {
     return !this.name.length || this.parentId === undefined;
   }
@@ -204,39 +223,6 @@ export class Tree {
 
   public isFile(): boolean {
     return !this.isThirdParty && !this.isReactRouter;
-  }
-
-  /** Recursively captures and exports internal state for all nested nodes.
-   * Required for lossless conversion to/from workspaceState memento object (webview persistence).
-   * @returns JSON-stringifyable SerializedTree object
-   */
-  public serialize(): SerializedTree {
-    const recurse = (node: Tree): SerializedTree => {
-      const obj = {
-        ...node,
-        _type: 'SerializedTree',
-        _children: node.children.map((child) => recurse(child)),
-      };
-      return Object.entries(obj).reduce((acc, [k, v]) => {
-        acc[k.slice(1)] = v;
-        return acc;
-      }, {} as SerializedTree);
-    };
-    return recurse(this);
-  }
-
-  /** Recursively converts all nested node data in SerializedTree object into Tree class objects.
-   * @param data: SerializedTree Object containing state data for all nodes in component tree to be restored into webview.
-   * @returns Tree class object with all nested descendant nodes also of Tree class.
-   */
-  public static deserialize(data: SerializedTree): Tree {
-    const recurse = (node: SerializedTree): Tree =>
-      new Tree({
-        ...node,
-        type: 'Tree',
-        children: node.children.map((child) => recurse(child)),
-      });
-    return recurse(data);
   }
 
   /** Switches isExpanded property state. */
@@ -287,22 +273,36 @@ export class Tree {
     });
   }
 
-  /** @returns Normalized array containing all descendants in subtree of current node. */
-  private get subtree(): Array<Tree> {
-    const descendants: Array<Tree> = [];
-    const callback = (node: Tree) => {
-      descendants.push(...node.children);
+  /** Recursively captures and exports internal state for all nested nodes.
+   * Required for lossless conversion to/from workspaceState memento object (webview persistence).
+   * @returns JSON-stringifyable SerializedTree object
+   */
+  public serialize(): SerializedTree {
+    const recurse = (node: Tree): SerializedTree => {
+      const obj = {
+        ...node,
+        _type: 'SerializedTree',
+        _children: node.children.map((child) => recurse(child)),
     };
-    this.traverse(callback);
-    return [this, ...descendants];
+      return Object.entries(obj).reduce((acc, [k, v]) => {
+        acc[k.slice(1)] = v;
+        return acc;
+      }, {} as SerializedTree);
+    };
+    return recurse(this);
   }
 
-  // Traverses all nodes of current component tree and applies callback to each node
-  public traverse(callback: (node: Tree) => void): void {
-    callback(this);
-    if (!this.children || !this.children.length) return;
-    this.children.forEach((child) => {
-      child.traverse(callback);
+  /** Recursively converts all nested node data in SerializedTree object into Tree class objects.
+   * @param data: SerializedTree Object containing state data for all nodes in component tree to be restored into webview.
+   * @returns Tree class object with all nested descendant nodes also of Tree class.
+   */
+  public static deserialize(data: SerializedTree): Tree {
+    const recurse = (node: SerializedTree): Tree =>
+      new Tree({
+        ...node,
+        type: 'Tree',
+        children: node.children.map((child) => recurse(child)),
     });
+    return recurse(data);
   }
 }
