@@ -1,6 +1,6 @@
 import { SaplingParser } from '../../SaplingParser';
 import { Tree } from '../../types/Tree';
-import { describe, suite , test, before} from 'mocha';
+import { describe, suite, test, before } from 'mocha';
 import { expect } from 'chai';
 import * as path from 'path';
 
@@ -10,11 +10,11 @@ import * as path from 'path';
 // import * as myExtension from '../../extension';
 
 suite('Parser Test Suite', () => {
-  let parser : SaplingParser, tree : Tree, file : string;
+  let parser: SaplingParser, tree: Tree, file: string;
 
   // UNPARSED TREE TEST
   describe('It initializes correctly', () => {
-    before( () => {
+    before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_0/index.js');
       parser = new SaplingParser(file);
     });
@@ -31,7 +31,7 @@ suite('Parser Test Suite', () => {
 
   // TEST 0: ONE CHILD
   describe('It works for simple apps', () => {
-    before( () => {
+    before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_0/index.js');
       parser = new SaplingParser(file);
       tree = parser.parse();
@@ -142,7 +142,7 @@ suite('Parser Test Suite', () => {
 
   // TEST 5: MISSING EXTENSIONS AND UNUSED IMPORTS
   describe('It works for extension-less imports', () => {
-    let names: string[], paths: string [], expectedNames : string[], expectedPaths : string[];
+    let names: string[], paths: string[], expectedNames: string[], expectedPaths: string[];
     before(() => {
       file = path.join(__dirname, '../../../src/test/test_apps/test_5/index.js');
       parser = new SaplingParser(file);
@@ -157,7 +157,7 @@ suite('Parser Test Suite', () => {
         '../../../src/test/test_apps/test_5/components/JSX.jsx',
         '../../../src/test/test_apps/test_5/components/TS.ts',
         '../../../src/test/test_apps/test_5/components/TSX.tsx'
-      ].map( el => path.resolve(__dirname, el));
+      ].map(el => path.resolve(__dirname, el));
     });
 
     test('Check children match expected children', () => {
