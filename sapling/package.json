@@ -54,7 +54,7 @@
         "title": "Generate Tree"
       }
     ],
-    "menus" : {
+    "menus": {
       "commandPalette": [
         {
           "command": "sapling.generateTree",
